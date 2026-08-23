@@ -1,9 +1,7 @@
 # Netlify configuration for sonoramethod.com
 #
-# If this folder is deployed from its own repository, leave `base` unset.
-# While it lives inside the Mapped repo, set the site's base directory to
-# "sonora" in the Netlify UI (Site configuration -> Build & deploy -> Base
-# directory) so these paths resolve.
+# This repo is the whole site, so the paths below are relative to the repo
+# root and the Netlify site needs no base directory set.
 
 [build]
   command = "npm run build"

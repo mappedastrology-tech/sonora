@@ -140,9 +140,11 @@ async function generateBrand() {
     if (await writeIfMissing(path.join(brandDir, name), render())) written += 1;
   }
 
-  // A marker so `npm run verify` keeps flagging that these are stand-ins.
-  // Overwriting the PNGs with the real artwork is not enough on its own —
-  // delete this file too, or run `npm run assets` after replacing them.
+  // A marker so `npm run verify` keeps flagging that these are stand-ins. It is
+  // committed alongside the generated artwork, because a fresh checkout finds
+  // every file present and generates nothing — the artwork is still a stand-in
+  // either way. Deleting this file is the documented step when the real PNGs
+  // land; nothing here recreates it unless artwork had to be generated again.
   const marker = path.join(brandDir, '.placeholder-artwork');
   if (written) {
     await writeFile(
@@ -150,6 +152,8 @@ async function generateBrand() {
       'Generated stand-in artwork. Delete this file once the real PNGs are in place.\n'
     );
     log(`brand: wrote ${written} generated file(s) — replace with the real PNGs`);
+  } else if (await exists(marker)) {
+    log('brand: all files present — still the generated stand-ins');
   } else {
     log('brand: all files present, none overwritten');
   }

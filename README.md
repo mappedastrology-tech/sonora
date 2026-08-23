@@ -304,9 +304,8 @@ up new posts with no manual step.
 Netlify, building from this repo. Build command `npm run build`, publish
 directory `dist`. Headers and caching are in `netlify.toml`.
 
-**While this folder lives inside the Mapped repository**, set the Netlify site's
-**base directory** to `sonora`. If it is later moved to its own repository,
-clear that setting and everything else works unchanged.
+The Netlify project is `sonoramethod`. Leave the **base directory** blank —
+this repo is the whole site.
 
 DNS: use Netlify DNS for the apex domain and point `www` at it as a redirect.
 HTTPS provisions itself through Let's Encrypt once DNS resolves.
