@@ -36,7 +36,25 @@ async function dataUri(assetPath) {
   return `data:${MIME[extension] ?? 'application/octet-stream'};base64,${file.toString('base64')}`;
 }
 
-const css = await readFile(path.join(dist, '_astro', 'Base.CiZcYP31.css'), 'utf8');
+/* The stylesheet filename is content-hashed, so it changes whenever the CSS
+   does. Read it off the page rather than hard-coding it. */
+async function readStylesheets(html) {
+  const hrefs = [...html.matchAll(/<link rel="stylesheet" href="(\/_astro\/[^"]+)"/g)].map(
+    (match) => match[1]
+  );
+
+  if (!hrefs.length) {
+    throw new Error('No local stylesheet found in the built HTML.');
+  }
+
+  const sheets = [];
+  for (const href of hrefs) {
+    sheets.push(await readFile(path.join(dist, href.replace(/^\//, '')), 'utf8'));
+  }
+  return sheets.join('\n');
+}
+
+const css = await readStylesheets(await readFile(path.join(dist, 'index.html'), 'utf8'));
 
 // Every local image becomes a data URI so the page is self-contained.
 const assets = new Map();
