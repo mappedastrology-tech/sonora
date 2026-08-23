@@ -3,6 +3,9 @@
  * Homepage hero. The full mark sits above the headline; it is the largest
  * image on the site and the LCP candidate, so it is eager and prioritised.
  */
+import { heightAt } from '../lib/brand';
+
+const MARK_WIDTH = 280;
 ---
 
 <section class="hero">
@@ -10,8 +13,8 @@
     <img
       src="/brand/sonora-full.webp"
       alt="Sonora"
-      width="280"
-      height="168"
+      width={MARK_WIDTH}
+      height={heightAt('sonora-full', MARK_WIDTH)}
       fetchpriority="high"
       decoding="async"
       class="mark"

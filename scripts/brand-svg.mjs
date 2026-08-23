@@ -273,31 +273,16 @@ export function wrapTitle(title, maxChars) {
 }
 
 /**
- * Open Graph card, 1200x630, on ink.
- * With a title it renders the post title; without one, the full mark.
+ * The Open Graph card background: ink, the post title, and an accent rule.
+ *
+ * The Sonora mark is NOT drawn here — the real artwork is composited on top of
+ * this by generate-assets.mjs, so the cards carry the supplied logo rather than
+ * a reconstruction of it.
  */
-export function ogSvg({ title } = {}) {
-  const corner = (() => {
-    const mark = buildWordmark({ size: 34 });
-    const scale = 1;
-    return `<g transform="translate(80 ${556 - mark.height * scale}) scale(${scale})">
-      ${markPaths(mark, PAPER)}
-    </g>`;
-  })();
-
+export function ogTextSvg({ title } = {}) {
   if (!title) {
-    const mark = buildWordmark({ size: 92 });
-    const radii = [40, 56, 72, 88, 104].map((r) => r * 1.15);
-    const scale = 1.15;
-    const x = 600 - (mark.width * scale) / 2;
-    const y = 315 - (mark.archCentre.y * scale);
-
     return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="${INK}" />
-  <g transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${scale})">
-    ${sonarRings({ cx: mark.archCentre.x, cy: mark.archCentre.y, radii, stroke: ACCENT, width: 1.8 })}
-    ${markPaths(mark, PAPER)}
-  </g>
 </svg>`;
   }
 
@@ -311,21 +296,10 @@ export function ogSvg({ title } = {}) {
     )
     .join('\n  ');
 
-  const badge = (() => {
-    const cx = 1080;
-    const cy = 96;
-    const archWidth = 26;
-    const archHeight = (archWidth * 120) / 100;
-    return `${sonarRings({ cx, cy, radii: [26, 38, 50, 62], stroke: ACCENT, width: 2 })}
-    <path d="${archPath(cx - archWidth / 2, cy + archHeight / 2, archWidth)}" fill="${PAPER}" />`;
-  })();
-
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="${INK}" />
-  ${badge}
   ${titleText}
   <rect x="80" y="486" width="72" height="4" fill="${ACCENT}" />
-  ${corner}
 </svg>`;
 }
 

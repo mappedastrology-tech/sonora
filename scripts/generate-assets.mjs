@@ -23,7 +23,7 @@ import {
   archSvg,
   wordmarkSvg,
   fullSvg,
-  ogSvg,
+  ogTextSvg,
   headshotPlaceholderSvg,
   INK,
   PAPER,
@@ -123,6 +123,65 @@ function readFrontmatter(source) {
     data[pair[1]] = value;
   }
   return data;
+}
+
+/**
+ * Turns the supplied artwork in public/brand/source/ into the marks the site
+ * uses.
+ *
+ * The originals are black line art on a transparent background, generously
+ * padded inside a 2000px square. Two things change:
+ *
+ *   - The padding is trimmed off, so the CSS sizes the mark itself rather than
+ *     the empty space around it. A 140px-wide nav logo was rendering the actual
+ *     wordmark at about half that.
+ *   - Black becomes --ink. The brand system rules out pure black anywhere, and
+ *     #000 against a warm cream palette reads as a foreign object.
+ *
+ * The recolour keeps the artwork's own alpha channel and only replaces the RGB
+ * underneath it, so antialiased edges survive exactly as drawn.
+ *
+ * The originals are never modified. Re-run this after replacing anything in
+ * source/ and every derived file follows.
+ */
+async function normalizeBrandSource() {
+  const sourceDir = path.join(brandDir, 'source');
+  if (!(await exists(sourceDir))) return false;
+
+  const files = (await readdir(sourceDir)).filter((file) => file.endsWith('.png'));
+  if (!files.length) return false;
+
+  for (const name of files) {
+    const trimmed = await sharp(path.join(sourceDir, name))
+      .ensureAlpha()
+      .trim({ threshold: 1 })
+      .png()
+      .toBuffer();
+
+    const { data: alpha, info } = await sharp(trimmed)
+      .extractChannel('alpha')
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    const inked = await sharp({
+      create: {
+        width: info.width,
+        height: info.height,
+        channels: 3,
+        background: INK,
+      },
+    })
+      .joinChannel(alpha, {
+        raw: { width: info.width, height: info.height, channels: 1 },
+      })
+      .png()
+      .toBuffer();
+
+    await writeFile(path.join(brandDir, name), inked);
+  }
+
+  log(`brand: normalised ${files.length} supplied mark(s) from source/`);
+  return true;
 }
 
 async function generateBrand() {
@@ -225,6 +284,46 @@ async function generateBrandWebp() {
   log(`brand: ${count} WebP copies for the pages to use`);
 }
 
+/**
+ * Records the intrinsic size of every brand image the pages render.
+ *
+ * The components need width and height attributes to reserve space and keep
+ * CLS at zero, and those numbers have to match the files exactly. Hard-coding
+ * them meant the artwork and the markup could disagree — which is precisely
+ * what happened when the real marks replaced the stand-ins and came back with
+ * different proportions. Now the numbers are read from the files.
+ */
+async function writeBrandManifest() {
+  const files = [
+    'sonora-full.webp',
+    'sonora-wordmark.webp',
+    'sonora-wordmark-knockout.webp',
+    'sonora-icon.webp',
+    'sonora-arch.webp',
+  ];
+
+  const manifest = {};
+  for (const name of files) {
+    const file = path.join(brandDir, name);
+    if (!(await exists(file))) continue;
+    const { width, height } = await sharp(file).metadata();
+    manifest[name.replace(/\.webp$/, '')] = { width, height };
+  }
+
+  const headshot = path.join(imagesDir, 'taylor-corbett.webp');
+  if (await exists(headshot)) {
+    const { width, height } = await sharp(headshot).metadata();
+    manifest['taylor-corbett'] = { width, height };
+  }
+
+  await writeFile(
+    path.join(root, 'src', 'lib', 'brand-manifest.json'),
+    `${JSON.stringify(manifest, null, 2)}\n`
+  );
+
+  log('brand: wrote src/lib/brand-manifest.json');
+}
+
 async function generateFavicons() {
   const iconPath = path.join(brandDir, 'sonora-icon.png');
   if (!(await exists(iconPath))) {
@@ -236,9 +335,15 @@ async function generateFavicons() {
   // The source icon is transparent so it can sit on either surface. Favicons
   // and the apple-touch icon get an opaque paper background — iOS in
   // particular renders transparency as black.
+  //
+  // `cover` rather than `contain`: the mark is taller than it is wide, so
+  // fitting it whole into a square leaves it swimming in empty space and
+  // illegible at 16px. Cropping to the centre keeps the arch and the inner
+  // rings at a readable size and drops the outermost rings, which turn to mush
+  // at favicon sizes anyway.
   const resize = (size) =>
     sharp(source)
-      .resize(size, size, { fit: 'contain', background: PAPER })
+      .resize(size, size, { fit: 'cover', position: 'centre' })
       .flatten({ background: PAPER })
       .png()
       .toBuffer();
@@ -267,13 +372,58 @@ async function generateFavicons() {
   log('favicons: favicon.ico, favicon-16, favicon-32, apple-touch-icon');
 }
 
+/** Recolours a brand PNG, keeping its alpha. Used for marks on ink. */
+async function recolourMark(file, colour) {
+  const { data: alpha, info } = await sharp(file)
+    .ensureAlpha()
+    .extractChannel('alpha')
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  return sharp({
+    create: {
+      width: info.width,
+      height: info.height,
+      channels: 3,
+      background: colour,
+    },
+  })
+    .joinChannel(alpha, {
+      raw: { width: info.width, height: info.height, channels: 1 },
+    })
+    .png()
+    .toBuffer();
+}
+
+/**
+ * Open Graph cards: the ink background and title come from an SVG, the mark
+ * itself is the supplied artwork composited on top in paper.
+ */
 async function generateOgImages() {
   await mkdir(imagesDir, { recursive: true });
 
-  await writeFile(
-    path.join(imagesDir, 'og-default.png'),
-    renderPng(ogSvg(), 1200)
-  );
+  const fullMark = path.join(brandDir, 'sonora-full.png');
+  const wordmark = path.join(brandDir, 'sonora-wordmark.png');
+
+  // Default card: the full mark, centred.
+  let base = renderPng(ogTextSvg(), 1200);
+  if (await exists(fullMark)) {
+    const mark = await sharp(await recolourMark(fullMark, PAPER))
+      .resize({ width: 620 })
+      .toBuffer();
+    const { width, height } = await sharp(mark).metadata();
+    base = await sharp(base)
+      .composite([
+        {
+          input: mark,
+          left: Math.round((1200 - width) / 2),
+          top: Math.round((630 - height) / 2),
+        },
+      ])
+      .png()
+      .toBuffer();
+  }
+  await writeFile(path.join(imagesDir, 'og-default.png'), base);
 
   const blogDir = path.join(root, 'src', 'content', 'blog');
   if (!(await exists(blogDir))) {
@@ -285,16 +435,28 @@ async function generateOgImages() {
   const ogDir = path.join(imagesDir, 'og');
   await mkdir(ogDir, { recursive: true });
 
+  // Post cards: title on the left, wordmark sitting under the accent rule.
+  const postMark = (await exists(wordmark))
+    ? await sharp(await recolourMark(wordmark, PAPER)).resize({ width: 210 }).toBuffer()
+    : null;
+
   let count = 0;
   for (const file of files) {
     const source = await readFile(path.join(blogDir, file), 'utf8');
     const data = readFrontmatter(source);
     if (data.draft === 'true' || !data.title) continue;
 
-    const slug = file.replace(/\.md$/, '');
+    let card = renderPng(ogTextSvg({ title: data.title }), 1200);
+    if (postMark) {
+      card = await sharp(card)
+        .composite([{ input: postMark, left: 80, top: 520 }])
+        .png()
+        .toBuffer();
+    }
+
     await writeFile(
-      path.join(ogDir, `${slug}.png`),
-      renderPng(ogSvg({ title: data.title }), 1200)
+      path.join(ogDir, `${file.replace(/\.md$/, '')}.png`),
+      card
     );
     count += 1;
   }
@@ -341,10 +503,12 @@ async function generateHeadshot() {
 }
 
 console.log('Generating brand assets…');
-await generateBrand();
+const hasSuppliedArtwork = await normalizeBrandSource();
+if (!hasSuppliedArtwork) await generateBrand();
 await generateKnockout();
 await generateBrandWebp();
 await generateFavicons();
 await generateOgImages();
 await generateHeadshot();
+await writeBrandManifest();
 console.log('Done.');

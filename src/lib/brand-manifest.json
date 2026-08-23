@@ -1,0 +1,26 @@
+{
+  "sonora-full": {
+    "width": 1152,
+    "height": 798
+  },
+  "sonora-wordmark": {
+    "width": 1152,
+    "height": 255
+  },
+  "sonora-wordmark-knockout": {
+    "width": 1152,
+    "height": 255
+  },
+  "sonora-icon": {
+    "width": 965,
+    "height": 1379
+  },
+  "sonora-arch": {
+    "width": 710,
+    "height": 1110
+  },
+  "taylor-corbett": {
+    "width": 800,
+    "height": 800
+  }
+}

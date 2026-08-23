@@ -22,25 +22,20 @@ something genuinely needs a developer, it says so.
 
 ## What is still outstanding
 
-Almost everything is wired up. Two items remain, both artwork.
+One item.
 
-| # | What | Where it goes |
-|---|------|---------------|
-| 1 | The four logo PNGs | `public/brand/`, using the filenames in the table further down |
-| 2 | Your headshot | `public/images/taylor-corbett-source.jpg` |
-| 3 | List of former employer names | `scripts/employer-names.txt`, one per line |
-| 4 | `hello@sonoramethod.com` mailbox | Google Workspace, forwarding to your main inbox |
+| What | Where it goes |
+|------|---------------|
+| List of former employer names | `scripts/employer-names.txt`, one per line |
 
-The logos currently on the site are **drawn stand-ins**, not your files — the
-wordmark with the arch standing in for the "n", and the sonar rings around it.
-They are built to the same proportions as your real artwork, so nothing on the
-page moves when the real files land. Replacing them is a drag and drop; see
-"The logo files" below.
+`npm run verify` cannot check that no former employer is named anywhere on the
+site until that file has names in it. Everything else — the logos, the
+headshot, the booking calendar, analytics, LinkedIn — is in place.
 
-Already done and live in the code: the booking calendar, Google Analytics, and
-the LinkedIn link.
+The `hello@sonoramethod.com` mailbox still needs creating in Google Workspace,
+but that is an inbox, not a code change; the site already links to it.
 
-After launch there are three more, listed at the bottom of this file.
+After launch there are three more items, listed at the bottom of this file.
 
 ---
 
@@ -156,46 +151,42 @@ and which line.
 
 ## The logo files
 
-Five files live in `public/brand/`. Four are yours; the fifth is generated.
+Your artwork lives in `public/brand/source/`. Those four PNGs are the originals,
+exactly as you supplied them, and nothing ever modifies them:
 
-| Filename | What it is | Used for |
-|---|---|---|
-| `sonora-full.png` | Wordmark with radiating waves | Homepage hero, social share image |
-| `sonora-wordmark.png` | Wordmark only, no waves | Nav bar, footer |
-| `sonora-icon.png` | Arch with waves, square | Favicon, apple touch icon |
-| `sonora-arch.png` | Solid arch shape only | Graphic element |
-| `sonora-wordmark-knockout.png` | *Generated* — the wordmark in cream | Footer, on the dark background |
+| File in `source/` | What it is |
+|---|---|
+| `sonora-full.png` | Wordmark with the sonar rings |
+| `sonora-wordmark.png` | Wordmark only |
+| `sonora-icon.png` | Arch with rings |
+| `sonora-arch.png` | Solid arch |
 
-**To install the real logos:**
+Everything the site actually serves is derived from them on each build: the
+marks recoloured from black to the brand navy and trimmed of their padding, the
+cream version for the dark footer, the WebP copies the pages load, the favicon,
+the apple touch icon, and both social share images.
 
-1. Upload your four PNGs to `public/brand/`, using exactly those filenames,
-   replacing what is there.
-2. Delete the file `public/brand/.placeholder-artwork`. That marker is what
-   makes the build keep saying the artwork is a stand-in.
+**To change a logo:** replace the file in `public/brand/source/`, keeping the
+same name. That is the whole process. Do not edit the files that sit directly in
+`public/brand/` — they are regenerated and your changes would be overwritten.
 
-That is the whole process. The favicon, the apple touch icon, the cream footer
-wordmark, the WebP copies the pages actually serve, and the social share image
-all regenerate from your files on the next build.
+Two things worth knowing about what the build does to your artwork:
 
-The files in that folder right now are drawn stand-ins, built to the same
-proportions as your artwork, so nothing shifts on the page when the real ones
-land.
-
-`sonora-icon.png` should have a transparent background. It sits on cream in the
-header and on navy in the mobile menu.
-
----
+- **Black becomes navy.** Your files are pure black; the brand system rules out
+  pure black anywhere on the site, so the marks are recoloured to `#0C0A3E`. The
+  originals in `source/` stay black.
+- **The padding is trimmed.** Your files are a mark centred in a large empty
+  square. The build crops to the mark itself so that sizing in the page controls
+  how big the logo looks, rather than the empty space around it.
 
 ## Your headshot
 
-Save it as `public/images/taylor-corbett-source.jpg` (or `.png`). The build
-crops it to a square, compresses it, and produces the version the site uses. Use
-the largest file you have; it will be resized down.
+The source image is `public/images/taylor-corbett-source.png`. The build crops
+it square, compresses it, and produces the version the site uses.
 
-It is displayed as a square with a rounded top — the arch shape. Faces sit near
-the top of the crop, so a photo with headroom works best.
-
----
+To change it, replace that file (`.jpg`, `.png` or `.webp` all work — keep the
+name `taylor-corbett-source`). It is displayed as a square with a rounded top —
+the arch shape — so a photo with some headroom crops best.
 
 ## The booking page
 
@@ -263,6 +254,9 @@ Some rules from the brief are enforced by the code, not by memory:
   the privacy page stops describing the analytics that are actually installed.
 - The testimonial component has **no field for a company name**. That is
   deliberate. Do not add one.
+- Logo dimensions in the page markup are read from the files themselves, so
+  replacing artwork with different proportions can never leave the layout
+  jumping as images load.
 
 ---
 
@@ -278,18 +272,24 @@ npm run build     # production build into dist/
 npm run verify    # run the pre-launch checklist against dist/
 ```
 
-`npm run build` runs `scripts/generate-assets.mjs` first. That script draws
-stand-in brand artwork **only where a file is missing** (`scripts/brand-svg.mjs`
-holds the geometry, set in Poppins SemiBold via opentype.js), derives the
-favicons, the knockout wordmark and the WebP copies from whatever artwork is
-present, renders the Open Graph cards (default plus one per post), and converts
-the headshot to WebP. It never overwrites artwork it did not create.
+`npm run build` runs `scripts/generate-assets.mjs` first. It normalises the
+supplied marks in `public/brand/source/` (trim the transparent padding, recolour
+black to `--ink` while keeping the artwork's own alpha), then derives the
+favicons, the knockout wordmark and the WebP copies, renders the Open Graph
+cards with the real mark composited on, converts the headshot, and writes
+`src/lib/brand-manifest.json` so components get intrinsic image dimensions
+rather than hard-coded ones. It never modifies anything in `source/`.
+
+If `source/` is ever empty it falls back to drawing stand-in artwork
+(`scripts/brand-svg.mjs`, set in Poppins SemiBold via opentype.js) so the site
+still builds.
 
 `npm run verify` checks, against `dist/`: body copy present with JS disabled,
 unique titles and descriptions within length, canonical and Open Graph tags,
 JSON-LD types per route, prohibited content, heading order and landmarks, alt
-text, the machine-readable files, form wiring, and which placeholders are still
-unset. It exits non-zero on failure, so it can gate a deploy.
+text, the machine-readable files, form wiring, and that the client-supplied
+values reached the built pages. It exits non-zero on failure, so it can gate a
+deploy.
 
 Structured data is assembled in `src/lib/schema.ts` as a single `@graph` per
 page with stable `@id`s. Deliberate omissions, which should stay omitted: no

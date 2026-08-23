@@ -1,6 +1,0 @@
-The four PNGs in this folder are generated stand-ins, drawn to match the
-supplied Sonora marks (see ../../scripts/brand-svg.mjs). They are not the real
-artwork.
-
-When the real PNGs are dropped in here, delete this file. `npm run verify`
-warns for as long as it exists.

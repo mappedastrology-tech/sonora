@@ -1,6 +1,9 @@
 ---
 import NewsletterForm from './NewsletterForm.astro';
 import { EMAIL, LOCATION, SITE_TAGLINE, NAV_LINKS, LINKEDIN_URL } from '../lib/site';
+import { heightAt } from '../lib/brand';
+
+const WORDMARK_WIDTH = 150;
 
 const year = 2026;
 ---
@@ -12,8 +15,8 @@ const year = 2026;
         <img
           src="/brand/sonora-wordmark-knockout.webp"
           alt="Sonora"
-          width="150"
-          height="38"
+          width={WORDMARK_WIDTH}
+          height={heightAt('sonora-wordmark-knockout', WORDMARK_WIDTH)}
           loading="lazy"
           decoding="async"
         />
