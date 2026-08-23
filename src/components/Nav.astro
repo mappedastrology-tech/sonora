@@ -12,9 +12,10 @@ import { NAV_LINKS } from '../lib/site';
 import { heightAt, widthAt } from '../lib/brand';
 
 const WORDMARK_WIDTH = 140;
-/* The supplied icon is taller than it is wide, so the compact logo is sized by
-   height to sit inside the 72px header. */
-const ICON_HEIGHT = 40;
+/* The compact crop of the icon — the arch and one ring either side. The full
+   five-ring mark collapses into grey mush at this size. Sized by height,
+   because it is still taller than it is wide. */
+const ICON_HEIGHT = 42;
 
 const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isCurrent = (href: string) =>
@@ -27,8 +28,8 @@ const isCurrent = (href: string) =>
       <picture>
         <source
           media="(max-width: 639px)"
-          srcset="/brand/sonora-icon.webp"
-          width={widthAt('sonora-icon', ICON_HEIGHT)}
+          srcset="/brand/sonora-icon-compact.webp"
+          width={widthAt('sonora-icon-compact', ICON_HEIGHT)}
           height={ICON_HEIGHT}
         />
         <img
@@ -124,7 +125,7 @@ const isCurrent = (href: string) =>
   @media (max-width: 639px) {
     .logo img {
       width: auto;
-      height: 40px;
+      height: 42px;
     }
   }
 

@@ -268,6 +268,7 @@ async function generateBrandWebp() {
     'sonora-wordmark.png',
     'sonora-wordmark-knockout.png',
     'sonora-icon.png',
+    'sonora-icon-compact.png',
     'sonora-arch.png',
   ];
 
@@ -299,6 +300,7 @@ async function writeBrandManifest() {
     'sonora-wordmark.webp',
     'sonora-wordmark-knockout.webp',
     'sonora-icon.webp',
+    'sonora-icon-compact.webp',
     'sonora-arch.webp',
   ];
 
@@ -325,9 +327,13 @@ async function writeBrandManifest() {
 }
 
 async function generateFavicons() {
-  const iconPath = path.join(brandDir, 'sonora-icon.png');
+  // The compact crop, so the arch is still legible at 16px.
+  const compact = path.join(brandDir, 'sonora-icon-compact.png');
+  const iconPath = (await exists(compact))
+    ? compact
+    : path.join(brandDir, 'sonora-icon.png');
   if (!(await exists(iconPath))) {
-    log('favicons: skipped, public/brand/sonora-icon.png is missing');
+    log('favicons: skipped, no icon artwork found');
     return;
   }
 
@@ -336,14 +342,11 @@ async function generateFavicons() {
   // and the apple-touch icon get an opaque paper background — iOS in
   // particular renders transparency as black.
   //
-  // `cover` rather than `contain`: the mark is taller than it is wide, so
-  // fitting it whole into a square leaves it swimming in empty space and
-  // illegible at 16px. Cropping to the centre keeps the arch and the inner
-  // rings at a readable size and drops the outermost rings, which turn to mush
-  // at favicon sizes anyway.
+  // The compact crop is already close to square, so it fits whole with only a
+  // sliver of letterboxing.
   const resize = (size) =>
     sharp(source)
-      .resize(size, size, { fit: 'cover', position: 'centre' })
+      .resize(size, size, { fit: 'contain', background: PAPER })
       .flatten({ background: PAPER })
       .png()
       .toBuffer();
@@ -370,6 +373,121 @@ async function generateFavicons() {
   ]);
 
   log('favicons: favicon.ico, favicon-16, favicon-32, apple-touch-icon');
+}
+
+/**
+ * Finds the arch inside a ringed mark.
+ *
+ * The arch is the only solid mass in the artwork; the sonar rings are thin
+ * arcs. So a column that contains a long unbroken vertical run of ink belongs
+ * to the arch, and one that does not belongs to a ring. That distinction holds
+ * regardless of how many rings the mark has or how large it is drawn, which is
+ * what lets the compact crop below survive an artwork change.
+ *
+ * Returns null if no solid mass is found, in which case callers fall back to
+ * the uncropped mark rather than guessing.
+ */
+async function findArch(file) {
+  const { data, info } = await sharp(file)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const { width, height, channels } = info;
+  const alphaAt = (x, y) => data[(y * width + x) * channels + 3];
+
+  const solidColumns = [];
+  let tallestRun = 0;
+
+  for (let x = 0; x < width; x += 1) {
+    let run = 0;
+    let longest = 0;
+    for (let y = 0; y < height; y += 1) {
+      if (alphaAt(x, y) > 128) {
+        run += 1;
+        if (run > longest) longest = run;
+      } else {
+        run = 0;
+      }
+    }
+    if (longest > height * 0.15) solidColumns.push(x);
+    if (longest > tallestRun) tallestRun = longest;
+  }
+
+  if (!solidColumns.length) return null;
+
+  const left = solidColumns[0];
+  const right = solidColumns[solidColumns.length - 1];
+
+  // Vertical extent of the arch alone: walk the centre column and take the
+  // longest unbroken run, which is the arch body rather than a ring crossing it.
+  const centre = Math.round((left + right) / 2);
+  let bestStart = 0;
+  let bestLength = 0;
+  let start = null;
+
+  for (let y = 0; y <= height; y += 1) {
+    const on = y < height && alphaAt(centre, y) > 128;
+    if (on && start === null) start = y;
+    if (!on && start !== null) {
+      if (y - start > bestLength) {
+        bestLength = y - start;
+        bestStart = start;
+      }
+      start = null;
+    }
+  }
+
+  if (!bestLength) return null;
+
+  return {
+    left,
+    right,
+    top: bestStart,
+    bottom: bestStart + bestLength - 1,
+    imageWidth: width,
+    imageHeight: height,
+  };
+}
+
+/**
+ * A tighter icon for the places the mark has to read small.
+ *
+ * The supplied icon is five rings deep either side of the arch, so at nav or
+ * favicon size the arch renders about eleven pixels tall and the rings collapse
+ * into grey mush. This crop keeps the arch and the innermost ring pair and
+ * drops the rest — the multipliers below are what includes exactly one ring on
+ * each axis.
+ */
+async function generateCompactIcon() {
+  const source = path.join(brandDir, 'sonora-icon.png');
+  if (!(await exists(source))) return;
+
+  const arch = await findArch(source);
+  if (!arch) {
+    log('brand: compact icon skipped, no arch found in sonora-icon.png');
+    return;
+  }
+
+  const centreX = (arch.left + arch.right) / 2;
+  const centreY = (arch.top + arch.bottom) / 2;
+  // Tuned so the crop lands in the gap between the innermost ring pair and the
+  // next one out. Any wider and the second ring's descending tips clip into the
+  // corners as loose shards.
+  const halfWidth = ((arch.right - arch.left + 1) / 2) * 1.6;
+  const halfHeight = ((arch.bottom - arch.top + 1) / 2) * 1.48;
+
+  const left = Math.max(0, Math.round(centreX - halfWidth));
+  const top = Math.max(0, Math.round(centreY - halfHeight));
+  const width = Math.min(arch.imageWidth - left, Math.round(halfWidth * 2));
+  const height = Math.min(arch.imageHeight - top, Math.round(halfHeight * 2));
+
+  await sharp(source)
+    .extract({ left, top, width, height })
+    .png()
+    .toFile(path.join(brandDir, 'sonora-icon-compact.png'));
+
+  log(`brand: compact icon cropped to ${width}x${height} from ${arch.imageWidth}x${arch.imageHeight}`);
 }
 
 /** Recolours a brand PNG, keeping its alpha. Used for marks on ink. */
@@ -505,6 +623,7 @@ async function generateHeadshot() {
 console.log('Generating brand assets…');
 const hasSuppliedArtwork = await normalizeBrandSource();
 if (!hasSuppliedArtwork) await generateBrand();
+await generateCompactIcon();
 await generateKnockout();
 await generateBrandWebp();
 await generateFavicons();

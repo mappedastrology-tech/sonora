@@ -163,8 +163,9 @@ exactly as you supplied them, and nothing ever modifies them:
 
 Everything the site actually serves is derived from them on each build: the
 marks recoloured from black to the brand navy and trimmed of their padding, the
-cream version for the dark footer, the WebP copies the pages load, the favicon,
-the apple touch icon, and both social share images.
+cream version for the dark footer, a tighter crop of the icon for small sizes,
+the WebP copies the pages load, the favicon, the apple touch icon, and both
+social share images.
 
 **To change a logo:** replace the file in `public/brand/source/`, keeping the
 same name. That is the whole process. Do not edit the files that sit directly in
@@ -178,6 +179,12 @@ Two things worth knowing about what the build does to your artwork:
 - **The padding is trimmed.** Your files are a mark centred in a large empty
   square. The build crops to the mark itself so that sizing in the page controls
   how big the logo looks, rather than the empty space around it.
+- **A tighter icon is cut for small sizes.** The full icon is five rings deep
+  either side of the arch. In the phone header and in a browser tab, all five
+  collapse into a grey smudge and the arch ends up about eleven pixels tall. So
+  the build also cuts `sonora-icon-compact.png` — the arch plus the innermost
+  ring on each side — and uses that for the mobile logo and the favicons. The
+  full icon is untouched and still used everywhere there is room for it.
 
 ## Your headshot
 
