@@ -1,16 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-labelledby="t1 d1">
-<title id="t1">Sonora</title>
-<desc id="d1">The Sonora arch mark on a deep navy field, with faint gold waves radiating outward.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-labelledby="tm dm">
+<title id="tm">Sonora</title>
+<desc id="dm">The Sonora arch mark in gold on a deep navy field, with faint waves radiating outward from it.</desc>
 
 <rect width="1200" height="630" fill="#0C0A3E"/>
 
-<g fill="none" stroke="#F3C677">
-<path d="M420 210 A200 200 0 0 1 780 210" stroke-width="2" stroke-opacity="0.3"/>
-<path d="M420 420 A200 200 0 0 0 780 420" stroke-width="2" stroke-opacity="0.3"/>
-<path d="M348 152 A272 272 0 0 1 852 152" stroke-width="1.8" stroke-opacity="0.2"/>
-<path d="M348 478 A272 272 0 0 0 852 478" stroke-width="1.8" stroke-opacity="0.2"/>
-<path d="M276 94 A344 344 0 0 1 924 94" stroke-width="1.6" stroke-opacity="0.12"/>
-<path d="M276 536 A344 344 0 0 0 924 536" stroke-width="1.6" stroke-opacity="0.12"/>
+<g fill="none" stroke="#FAF7F2" stroke-width="1.5">
+<path d="M417.8 288.9 A185 185 0 0 1 782.2 288.9" stroke-opacity="0.3"/>
+<path d="M417.8 353.1 A185 185 0 0 0 782.2 353.1" stroke-opacity="0.3"/>
+<path d="M345.9 276.2 A258 258 0 0 1 854.1 276.2" stroke-opacity="0.22"/>
+<path d="M345.9 365.8 A258 258 0 0 0 854.1 365.8" stroke-opacity="0.22"/>
+<path d="M275.0 263.7 A330 330 0 0 1 925.0 263.7" stroke-opacity="0.15"/>
+<path d="M275.0 378.3 A330 330 0 0 0 925.0 378.3" stroke-opacity="0.15"/>
+<path d="M204.1 251.2 A402 402 0 0 1 995.9 251.2" stroke-opacity="0.09"/>
+<path d="M204.1 390.8 A402 402 0 0 0 995.9 390.8" stroke-opacity="0.09"/>
 </g>
 
 <path d="M546 396 V300 A54 54 0 0 1 654 300 V396 Z" fill="#F3C677"/>

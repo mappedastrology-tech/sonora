@@ -568,8 +568,7 @@ async function generateBlogArt() {
   const files = (await readdir(sourceDir)).filter((file) => file.endsWith('.svg'));
   for (const file of files) {
     const svg = await readFile(path.join(sourceDir, file), 'utf8');
-    const png = renderPng(svg, 1200);
-    await writeFile(path.join(outDir, file.replace(/\.svg$/, '.png')), png);
+    await writeFile(path.join(outDir, file.replace(/\.svg$/, '.png')), renderPng(svg, 1200));
   }
   log(`blog art: ${files.length} card(s) rendered to images/blog/`);
 }

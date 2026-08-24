@@ -4,7 +4,7 @@ description: "Most content programs fail at one of four points: the wrong querie
 date: 2026-08-24
 author: "Taylor Corbett"
 image: "/images/blog/why-content-isnt-generating-leads.png"
-imageAlt: "Sonora arch mark on a deep navy field"
+imageAlt: "The Sonora arch mark in gold on a deep navy field, with faint waves radiating outward"
 topic: "Search"
 pullQuote: "Publishing more rarely helps. If you rank for questions nobody buys from, doubling output doubles the wrong thing."
 draft: false
