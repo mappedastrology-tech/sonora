@@ -92,9 +92,16 @@ function headStyles(html) {
 }
 
 function transform(html, route) {
-  // Body only — the artifact supplies the document shell.
-  let body = html.slice(html.indexOf('<body'), html.lastIndexOf('</body>'));
+  /*
+   * Body only — the artifact supplies the document shell. Everything after the
+   * opening <body> tag, not up to </body>: Astro emits a page's hoisted
+   * scripts *after* the closing tag, and slicing there dropped them. That is
+   * how the method hero and the blog filters came to be inert in the preview
+   * while working on the site.
+   */
+  let body = html.slice(html.indexOf('<body'));
   body = body.slice(body.indexOf('>') + 1);
+  body = body.replace(/<\/body>|<\/html>/g, '');
 
   /*
    * Keep the interactive component scripts — the fit quiz, the nav toggle, the
