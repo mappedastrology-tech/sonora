@@ -22,13 +22,23 @@ something genuinely needs a developer, it says so.
 
 ## What is still outstanding
 
-One item.
+Two things, both in dashboards rather than in code.
 
-| What | Where it goes |
-|------|---------------|
+**1. Point the form notifications at your inbox.** The three forms — `question`
+on the booking page, `contact`, and `newsletter` — are live and Netlify is
+collecting submissions. It will not email you about them until you say where to
+send them, and that switch only exists in the dashboard:
 
-The `hello@sonoramethod.com` mailbox still needs creating in Google Workspace,
-but that is an inbox, not a code change; the site already links to it.
+> Netlify → **sonoramethod** → Forms → pick a form → **Settings & usage** →
+> Form notifications → **Add notification** → *Email notification* → put
+> `hello@sonoramethod.com` in "Email to notify" → Save.
+
+Do it once per form. Until then, submissions are still safely stored — Forms
+→ the form name lists them, and you can export as a spreadsheet.
+
+**2. Create the `hello@sonoramethod.com` mailbox** in Google Workspace. That is
+an inbox, not a code change; the site already links to it. The notifications
+above need it to exist before they are any use.
 
 After launch there are three more items, listed at the bottom of this file.
 
@@ -242,7 +252,12 @@ about the form changes. Export your existing list from Netlify first and import
 it into the new provider.
 
 The contact form works the same way and lands in the same place, under
-`contact`.
+`contact`, as does the "have a question first" form on the booking page, under
+`question`.
+
+Netlify stores submissions whether or not it emails you about them. To get the
+email, add a notification per form — the steps are under "What is still
+outstanding" at the top of this file.
 
 ---
 
@@ -311,7 +326,14 @@ Netlify, building from this repo. Build command `npm run build`, publish
 directory `dist`. Headers and caching are in `netlify.toml`.
 
 The Netlify project is `sonoramethod`. Leave the **base directory** blank —
-this repo is the whole site.
+this repo is the whole site. Live at `https://sonoramethod.netlify.app` until
+the domain is pointed at it.
+
+The project currently requires **team SSO login** to view, so you can see it
+while signed in to Netlify but nobody else can, and no search engine can crawl
+it. That is the right setting while pages are still being rebuilt. Turn it off
+when the site is ready to be public: Netlify → **sonoramethod** → Site
+configuration → **Visitor access** → Access control.
 
 DNS: use Netlify DNS for the apex domain and point `www` at it as a redirect.
 HTTPS provisions itself through Let's Encrypt once DNS resolves.
