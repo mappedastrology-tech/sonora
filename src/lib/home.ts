@@ -44,6 +44,5 @@ export const ZERO_CLICK = {
   ],
   gridY: [20, 90, 160, 230, 300],
   axisLabels: ['80%', '60%', '40%', '20%', '0%'],
-  source:
-    'SparkToro, June 2026. Panels differ across years — treat the trend as directional, not the deltas as precise.',
+  source: 'SparkToro, June 2026.',
 } as const;

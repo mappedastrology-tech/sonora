@@ -234,18 +234,22 @@ So the page checks which kind it has:
   "See open times" button that opens the schedule in a new tab. Booking still
   works; it is just one click further away.
 
-`BOOKING_URL` is currently the short form, so the site is doing the second
-thing. `npm run verify` says so as a warning rather than a failure.
+The link is currently the long form, so the calendar is embedded. If you ever
+swap in a short one, `npm run verify` says so as a warning rather than a
+failure.
 
-### To switch the embed on
+### If you make a new appointment schedule
 
-1. Google Calendar → open your appointment schedule → **Open booking page**.
-2. Copy the URL out of the browser's address bar. It will be the long
-   `calendar.google.com/calendar/appointments/schedules/…` one.
-3. Paste it over `BOOKING_URL` in `src/lib/site.ts`.
+1. Google Calendar → open the schedule → **Open booking page**.
+2. Copy the URL out of the browser's address bar.
+3. Paste it over `BOOKING_URL_AS_GIVEN` in `src/lib/site.ts`, exactly as Google
+   gave it to you.
 
-Nothing else changes — the page adds `?gv=true` itself and switches back to the
-embedded calendar on the next build.
+Nothing else changes. The page adds `?gv=true` itself, and it strips the
+`/u/0/` out of the URL for you — that segment means "the first Google account
+signed in to this browser", which is right for you and wrong for a visitor
+signed in to a second account. `npm run verify` fails if it ever survives to
+the built page.
 
 **Also worth checking once it is live:** an embedded Google calendar sometimes
 needs the schedule's sharing setting to be public before it will render for

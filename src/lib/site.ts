@@ -34,12 +34,26 @@ export const LINKEDIN_URL = 'https://www.linkedin.com/in/taylorjcorbett/';
  * Two link shapes come out of Google. "Share → copy link" gives the short
  * calendar.app.google form; "Open booking page" gives the long
  * calendar.google.com/calendar/appointments/schedules/… form. Only the long
- * one is documented as embeddable, so if the panel on /book renders blank,
- * paste the long one here.
+ * one can be embedded — see BOOKING_URL_IS_EMBEDDABLE below — so paste the
+ * long one here whenever you have it.
  *
- * `gv=true` is what turns a booking page into the embeddable view.
+ * Paste it exactly as Google gives it to you; anything account-specific is
+ * stripped below.
  */
-export const BOOKING_URL = 'https://calendar.app.google/KB26roAeFacVbngg6';
+const BOOKING_URL_AS_GIVEN =
+  'https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0KflxEJawX4d_rAMxFBKGh0NYxpmtHMRQ3cbuqNUdIcZEFhUihAi6PdGKoQm7UppTUuUvXpS2P';
+
+/**
+ * The URL copied out of Google Calendar's address bar carries a `/u/0/`
+ * segment, which means "the first Google account signed in to this browser".
+ * That is correct for the person who copied it and wrong for everybody else:
+ * a visitor signed in to a second account lands in the wrong account context.
+ * Google's own embed snippet has no `/u/N/`, so drop it.
+ */
+export const BOOKING_URL = BOOKING_URL_AS_GIVEN.replace(
+  /^(https:\/\/calendar\.google\.com\/calendar)\/u\/\d+\//,
+  '$1/'
+);
 
 const BOOKING_SHAPES = [
   /^https:\/\/calendar\.google\.com\/calendar\/appointments\/schedules\//,

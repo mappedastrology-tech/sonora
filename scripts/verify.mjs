@@ -361,17 +361,35 @@ if (contact?.includes('netlify-honeypot')) {
 heading('Client-supplied values');
 const site = await readFile(path.join(root, 'src', 'lib', 'site.ts'), 'utf8');
 const REQUIRED_VALUES = [
-  ['LINKEDIN_URL', /linkedin\.com\/in\//],
-  ['BOOKING_URL', /calendar\.app\.google\//],
-  ['GA_MEASUREMENT_ID', /'G-[A-Z0-9]+'/],
+  ['LINKEDIN_URL', 'export const LINKEDIN_URL', /linkedin\.com\/in\//],
+  // BOOKING_URL is derived from the pasted link, so check the literal.
+  [
+    'BOOKING_URL',
+    'const BOOKING_URL_AS_GIVEN',
+    /calendar\.google\.com\/calendar\/(u\/\d+\/)?appointments\/schedules\/|calendar\.app\.google\//,
+  ],
+  ['GA_MEASUREMENT_ID', 'export const GA_MEASUREMENT_ID', /'G-[A-Z0-9]+'/],
 ];
-for (const [name, pattern] of REQUIRED_VALUES) {
-  const line = site.split('\n').find((row) => row.includes(`export const ${name}`)) ?? '';
-  if (pattern.test(line)) {
+for (const [name, declaration, pattern] of REQUIRED_VALUES) {
+  /* The declaration may wrap onto the next line — the booking URL is long
+     enough that the formatter puts it on its own. */
+  const lines = site.split('\n');
+  const at = lines.findIndex((row) => row.includes(declaration));
+  const declared = at === -1 ? '' : lines.slice(at, at + 3).join('\n');
+  if (pattern.test(declared)) {
     pass(`${name} is set`);
   } else {
     fail(`${name} is missing or malformed in src/lib/site.ts`);
   }
+}
+
+/* The `/u/0/` in a copied booking URL means "the first Google account signed
+   in to this browser" — right for whoever copied it, wrong for every visitor.
+   site.ts strips it; this makes sure the stripping still happens. */
+if (/calendar\.google\.com\/calendar\/u\/\d+\//.test(documents.get('/book') ?? '')) {
+  fail('the booking URL on /book still carries an account-specific /u/N/ segment');
+} else {
+  pass('the booking URL carries no account-specific /u/N/ segment');
 }
 
 // The tag has to reach the built pages, not just the config file.
