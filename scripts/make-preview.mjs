@@ -96,8 +96,9 @@ function transform(html, route) {
   let body = html.slice(html.indexOf('<body'), html.lastIndexOf('</body>'));
   body = body.slice(body.indexOf('>') + 1);
 
-  // Strip every script: analytics has no business in a preview, and without
-  // the `js` class nothing is ever hidden behind the scroll animation.
+  // Strip every script: analytics has no business in a preview, and the
+  // preview drives the scroll animation itself (see below) because the pages
+  // are stitched into one document and each one has to replay on its visit.
   body = body.replace(/<script[\s\S]*?<\/script>/g, '');
 
   // Inline the images.
@@ -196,6 +197,7 @@ ${sections.join('\n')}
 
 <script>
   (function () {
+    document.documentElement.classList.add('js');
     const pages = document.querySelectorAll('.pv-page');
     const tabs = document.querySelectorAll('.pv-tab');
 
@@ -210,7 +212,112 @@ ${sections.join('\n')}
       tabs.forEach(function (tab) {
         tab.setAttribute('aria-current', String(tab.dataset.goto === route));
       });
-      window.scrollTo(0, 0);
+      // Instant, not smooth: the site sets scroll-behavior: smooth, and a
+      // page switch that eases back to the top would arm sections the reader
+      // is only scrolling past.
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      // A frame later, so the newly-unhidden page has boxes and the scroll
+      // reset has landed — otherwise a section still measures as in view and
+      // arms before the reader gets to it.
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          pages.forEach(function (page) {
+            if (page.dataset.route === route) animate(page);
+          });
+        });
+      });
+    }
+
+    /*
+     * Preview-only. This mirrors the scroll observer in src/layouts/Base.astro
+     * so the motion can be reviewed here, and re-arms on every page visit —
+     * the real site loads one page at a time and never needs to replay. The
+     * site's own behaviour is verified against the built pages, not this.
+     */
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function animate(page) {
+      const reveals = Array.from(page.querySelectorAll('[data-reveal]'));
+      const blocks = Array.from(page.querySelectorAll('[data-animate]'));
+
+      // Clear anything a previous visit to this page left behind.
+      reveals.forEach(function (el) {
+        delete el.dataset.shown;
+        el.classList.remove('is-visible');
+        el.style.transition = '';
+        el.style.transitionDelay = '';
+      });
+      blocks.forEach(function (el) {
+        delete el.dataset.armed;
+        delete el.dataset.instant;
+      });
+
+      function showReveal(el, moving) {
+        if (el.dataset.shown) return;
+        el.dataset.shown = '1';
+        if (moving) {
+          const sibs = Array.from(
+            el.parentElement.querySelectorAll(':scope > [data-reveal]')
+          );
+          el.style.transitionDelay =
+            Math.min(Math.max(sibs.indexOf(el), 0), 4) * 80 + 'ms';
+        } else {
+          el.style.transition = 'none';
+        }
+        el.classList.add('is-visible');
+      }
+
+      function armBlock(el, moving) {
+        if (el.dataset.armed) return;
+        if (!moving) el.dataset.instant = '1';
+        el.dataset.armed = '1';
+      }
+
+      if (reduced || !('IntersectionObserver' in window)) {
+        reveals.forEach(function (el) { showReveal(el, false); });
+        blocks.forEach(function (el) { armBlock(el, false); });
+        return;
+      }
+
+      if (page._observers) page._observers.forEach(function (o) { o.disconnect(); });
+
+      const revealObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            showReveal(entry.target, true);
+            revealObserver.unobserve(entry.target);
+          });
+        },
+        { rootMargin: '0px 0px -10% 0px', threshold: 0.01 }
+      );
+
+      const blockObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            const el = entry.target;
+            const rect = el.getBoundingClientRect();
+            if (!entry.isIntersecting || !rect.height) return;
+            const vis =
+              Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+            const frac =
+              Math.max(vis, 0) / Math.min(rect.height, window.innerHeight);
+            if (frac < 0.35) return;
+            armBlock(el, true);
+            blockObserver.unobserve(el);
+          });
+        },
+        { threshold: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35] }
+      );
+
+      reveals.forEach(function (el) { revealObserver.observe(el); });
+      blocks.forEach(function (el) { blockObserver.observe(el); });
+      page._observers = [revealObserver, blockObserver];
+
+      window.setTimeout(function () {
+        reveals.forEach(function (el) { showReveal(el, false); });
+        blocks.forEach(function (el) { armBlock(el, false); });
+      }, 12000);
     }
 
     document.addEventListener('click', function (event) {
