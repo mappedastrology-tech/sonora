@@ -11,7 +11,13 @@
  * Netlify dashboard and notify hello@sonoramethod.com.
  */
 import Base from '../layouts/Base.astro';
-import { EMAIL, BOOKING_URL, BOOKING_EMBED_URL, BOOKING_URL_IS_VALID } from '../lib/site';
+import {
+  EMAIL,
+  BOOKING_URL,
+  BOOKING_EMBED_URL,
+  BOOKING_URL_IS_VALID,
+  BOOKING_URL_IS_EMBEDDABLE,
+} from '../lib/site';
 import { breadcrumbSchema } from '../lib/schema';
 
 const path = '/book';
@@ -89,8 +95,15 @@ const NOT_YET = [
           <p class="meta-line">30 min &middot; Google Meet</p>
         </div>
 
+        {/*
+          The frame only goes in when the link is one Google will actually
+          serve inside one. A short calendar.app.google link is a redirect
+          carrying X-Frame-Options, so framing it renders Chrome's "refused to
+          connect" error where the calendar should be — worse than no frame at
+          all. In that case the card becomes the booking panel itself.
+        */}
         {
-          BOOKING_URL_IS_VALID ? (
+          BOOKING_URL_IS_EMBEDDABLE ? (
             <iframe
               src={BOOKING_EMBED_URL}
               title="Book a thirty-minute call with Sonora"
@@ -98,12 +111,27 @@ const NOT_YET = [
               class="scheduler"
             ></iframe>
           ) : (
-            <div class="pending">
-              <p>
-                The booking link in <code>src/lib/site.ts</code> isn&rsquo;t a
-                Google appointment-schedule URL, so the scheduler can&rsquo;t
-                load.
+            <div class="opener">
+              <p class="opener-lead">
+                Pick from the open times on the calendar. It opens in a new tab
+                and takes about twenty seconds.
               </p>
+              <p>
+                <a
+                  href={BOOKING_URL}
+                  class="btn-gold-lg"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  See open times
+                </a>
+              </p>
+              {!BOOKING_URL_IS_VALID && (
+                <p class="opener-warn">
+                  The link in <code>src/lib/site.ts</code> isn&rsquo;t a Google
+                  appointment-schedule URL.
+                </p>
+              )}
             </div>
           )
         }
@@ -114,12 +142,22 @@ const NOT_YET = [
           anything you want read beforehand.
         </p>
 
-        <!-- Always present, never hidden: some browsers and extensions block
-             third-party calendar frames, and booking still has to work. -->
-        <p class="card-fallback">
-          Calendar not loading?{' '}
-          <a href={BOOKING_URL} class="textlink" rel="noopener">Open the booking page</a>.
-        </p>
+        {/*
+          Only worth saying next to a frame. Standing on its own under a button
+          that already says "See open times", it reads as a warning about a
+          calendar that isn't there.
+        */}
+        {
+          BOOKING_URL_IS_EMBEDDABLE && (
+            <p class="card-fallback">
+              Calendar not loading?{' '}
+              <a href={BOOKING_URL} class="textlink" rel="noopener">
+                Open the booking page
+              </a>
+              .
+            </p>
+          )
+        }
       </div>
     </div>
   </section>
@@ -339,14 +377,28 @@ const NOT_YET = [
     background: var(--paper);
   }
 
-  .pending {
-    padding: 32px 24px;
-    border: 2px dashed var(--rule);
-    border-radius: 2px;
-    background: #F4EFE7;
+  /* Stands in for the scheduler when the booking link cannot be framed. */
+  .opener {
+    padding: 40px 28px 44px;
+    border-top: 1px solid var(--rule);
+    text-align: center;
   }
 
-  .pending code {
+  .opener-lead {
+    max-width: 34ch;
+    margin: 0 auto 28px;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--body);
+  }
+
+  .opener-warn {
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .opener-warn code {
     background: #E8E1D6;
     padding: 2px 5px;
     border-radius: 2px;

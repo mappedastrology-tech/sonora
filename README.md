@@ -207,24 +207,49 @@ the arch shape — so a photo with some headroom crops best.
 
 ## The booking page
 
-`/book` embeds your Google Calendar appointment schedule directly. Nothing to
-configure — it is already pointed at:
+`/book` is pointed at your Google Calendar appointment schedule, set by
+`BOOKING_URL` in `src/lib/site.ts`. Change that one line if you ever make a new
+schedule.
 
-```
-https://calendar.app.google/KB26roAeFacVbngg6
-```
+### Two kinds of Google booking link, and only one can be embedded
 
-If you ever create a new appointment schedule, open `src/lib/site.ts` and change
-`BOOKING_URL` to the new link. The embed follows automatically.
+Google gives out two URLs for the same appointment schedule:
 
-Underneath the calendar there is a line offering a direct link to the booking
-page and your email address. That is deliberate: some browsers and privacy
-extensions block embedded calendars, and when they do, people still need a way
-to book. Do not remove it.
+| | Frameable? |
+|---|---|
+| `https://calendar.app.google/XXXX` — the short "Copy link" one | **No** |
+| `https://calendar.google.com/calendar/appointments/schedules/…` | Yes |
 
-**Worth checking once the site is live:** open `/book` in a browser and confirm
-the calendar itself appears, not just the fallback line. Embedded Google
-calendars occasionally need the schedule's sharing setting to be public.
+The short link is a redirect, and Google sends `X-Frame-Options` on it. Put it
+in a frame and the visitor gets Chrome's grey "calendar.app.google refused to
+connect" box where the calendar should be. Both links work perfectly when
+opened directly — it is only framing that the short one refuses.
+
+So the page checks which kind it has:
+
+- **Long URL** → the calendar is embedded in the card, and a "calendar not
+  loading?" link sits underneath it, because some privacy extensions block
+  third-party frames. Do not remove that line.
+- **Short URL** → no frame at all. The card becomes a booking panel with a
+  "See open times" button that opens the schedule in a new tab. Booking still
+  works; it is just one click further away.
+
+`BOOKING_URL` is currently the short form, so the site is doing the second
+thing. `npm run verify` says so as a warning rather than a failure.
+
+### To switch the embed on
+
+1. Google Calendar → open your appointment schedule → **Open booking page**.
+2. Copy the URL out of the browser's address bar. It will be the long
+   `calendar.google.com/calendar/appointments/schedules/…` one.
+3. Paste it over `BOOKING_URL` in `src/lib/site.ts`.
+
+Nothing else changes — the page adds `?gv=true` itself and switches back to the
+embedded calendar on the next build.
+
+**Also worth checking once it is live:** an embedded Google calendar sometimes
+needs the schedule's sharing setting to be public before it will render for
+strangers.
 
 ## Analytics
 

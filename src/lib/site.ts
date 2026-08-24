@@ -46,13 +46,25 @@ const BOOKING_SHAPES = [
   /^https:\/\/calendar\.app\.google\//,
 ];
 
-/** True when the link is a shape Google will serve as an embed. */
+/** True when the link is a shape that takes somebody to the booking page. */
 export const BOOKING_URL_IS_VALID = BOOKING_SHAPES.some((shape) =>
   shape.test(BOOKING_URL)
 );
 
-/** True for the long form, which is the one Google documents for embedding. */
-export const BOOKING_URL_IS_LONG_FORM = BOOKING_SHAPES[0].test(BOOKING_URL);
+/**
+ * True only for the long form — and that is the one thing that decides whether
+ * the page can embed a scheduler.
+ *
+ * Google serves `calendar.app.google/XXXX` as a redirect and sends
+ * X-Frame-Options on it, so a frame pointed at a short link never even reaches
+ * the booking page: it renders "calendar.app.google refused to connect". The
+ * long `calendar.google.com/calendar/appointments/schedules/…` URL is the only
+ * frameable one. Both links work fine opened directly.
+ *
+ * To get the long form: open the appointment schedule in Google Calendar,
+ * click through to the booking page, and copy the URL out of the address bar.
+ */
+export const BOOKING_URL_IS_EMBEDDABLE = BOOKING_SHAPES[0].test(BOOKING_URL);
 
 export const BOOKING_EMBED_URL = BOOKING_URL.includes('gv=true')
   ? BOOKING_URL

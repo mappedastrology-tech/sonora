@@ -385,10 +385,23 @@ if (gaOnEveryPage) {
 }
 
 const book = documents.get('/book');
-if (book?.includes('calendar.app.google') && book.includes('gv=true')) {
-  pass('booking embed points at the Google Calendar schedule');
+const schedulerFrame = /<iframe[^>]+src="([^"]*calendar\.google\.com[^"]*)"/.exec(book ?? '');
+if (schedulerFrame && schedulerFrame[1].includes('gv=true')) {
+  pass('the scheduler is embedded and carries gv=true');
+} else if (schedulerFrame) {
+  fail('the embedded scheduler is missing gv=true, so Google will not serve it');
+} else if (/href="https:\/\/calendar\.app\.google\//.test(book ?? '')) {
+  /*
+   * A short calendar.app.google link is a redirect and carries
+   * X-Frame-Options, so it cannot be framed — the page falls back to sending
+   * people to the booking page in a new tab, which works but is a step worse
+   * than an inline calendar. Swapping in the long
+   * calendar.google.com/calendar/appointments/schedules/… URL turns the embed
+   * back on with no other change.
+   */
+  warn('the booking link is the short form, so the calendar cannot be embedded');
 } else {
-  fail('booking embed is not wired to the Google Calendar link');
+  fail('booking page does not reach the Google Calendar schedule at all');
 }
 /*
  * Some browsers and extensions block third-party calendar frames, so the page
