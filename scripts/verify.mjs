@@ -433,6 +433,27 @@ if (/<a\b[^>]*href="https:\/\/calendar\.(app\.google|google\.com)\//.test(bookWi
   fail('booking page has no fallback if the iframe is blocked');
 }
 
+/*
+ * The fit quiz on /services tells the reader "nothing is sent". Keep that
+ * honest: the page must ship no form and no network call of its own. The
+ * analytics tag is loaded by the layout from googletagmanager, not by the
+ * page, so it is matched by host rather than exempted by hand.
+ */
+const services = documents.get('/services');
+if (services?.includes('Answers stay on this page')) {
+  const pageScripts = (services.match(/<script[\s\S]*?<\/script>/g) ?? [])
+    .filter((tag) => !tag.includes('googletagmanager'))
+    .join('\n');
+  const sends = /<form[\s>]/.test(services) || /\b(fetch|XMLHttpRequest|sendBeacon|WebSocket)\b/.test(pageScripts);
+  if (sends) {
+    fail('/services claims nothing is sent, but it ships a form or a network call');
+  } else {
+    pass('the fit quiz sends nothing, as it claims');
+  }
+} else {
+  fail('the fit quiz hint text is missing from /services');
+}
+
 // The privacy page has to describe the analytics that are actually installed.
 const privacy = documents.get('/privacy');
 if (privacy?.includes('Google Analytics') && /sets cookies/i.test(privacy)) {

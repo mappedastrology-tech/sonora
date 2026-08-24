@@ -1,0 +1,468 @@
+---
+/**
+ * "Find your fit" — a three-question recommender for /services.
+ *
+ * All four outcome panels are rendered into the page and hidden; the script
+ * only tallies the answers and reveals the winner. That keeps every word of
+ * the recommendations in the served HTML — readable by a crawler and by a
+ * model — and keeps the script to counting and toggling.
+ *
+ * Nothing is stored and nothing is sent. The hint line says so.
+ */
+import { FIT_QUESTIONS, FIT_OUTCOMES } from '../lib/fit-quiz';
+---
+
+<section id="fit" class="section fit" aria-labelledby="fit-heading">
+  <div class="container">
+    <div class="fit-head" data-reveal>
+      <p class="eyebrow-muted">Find your fit</p>
+      <h2 id="fit-heading">Which one is right for you?</h2>
+      <p class="fit-lead">
+        Three questions, no email. You&rsquo;ll get one recommendation and the
+        reason behind it.
+      </p>
+    </div>
+
+    <div class="questions" data-quiz>
+      {
+        FIT_QUESTIONS.map((question, qi) => (
+          <div class="question" data-reveal>
+            <p class="step">
+              <span class="step-arch" aria-hidden="true"></span>
+              {question.step}
+            </p>
+            <p class="question-title" id={`fit-q${qi}`}>{question.title}</p>
+
+            <div class="options" role="group" aria-labelledby={`fit-q${qi}`}>
+              {question.options.map((option) => (
+                <button
+                  type="button"
+                  class="option"
+                  aria-pressed="false"
+                  data-question={qi}
+                  data-score={option.score}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="controls">
+      <button type="button" class="submit" data-submit disabled>
+        Show my recommendation
+      </button>
+      <span class="hint" data-hint>0 of 3 answered</span>
+    </div>
+
+    <noscript>
+      <p class="fit-noscript">
+        The recommender needs JavaScript. The four services are written out
+        above &mdash; or <a href="/book" class="textlink">book a call</a> and
+        we&rsquo;ll work out which one fits.
+      </p>
+    </noscript>
+
+    {
+      FIT_OUTCOMES.map((outcome) => (
+        <div class="result" data-result={outcome.key} hidden>
+          <div>
+            <p class="result-eyebrow">Start with</p>
+            <h3 class="result-name" tabindex="-1" data-result-heading>
+              {outcome.name}
+            </h3>
+            <p class="result-why">{outcome.why}</p>
+            <div class="result-actions">
+              <a href="/book" class="btn-gold">Book a call</a>
+              <a href={outcome.href} class="detail-link">Read the detail &rarr;</a>
+              <button type="button" class="restart" data-restart>Start over</button>
+            </div>
+          </div>
+
+          <div class="result-meta">
+            <p class="meta-label">Cadence</p>
+            <p class="meta-value">{outcome.cadence}</p>
+            <p class="meta-label meta-label-spaced">Also worth reading</p>
+            <p><a href={outcome.altHref} class="alt-link">{outcome.alt}</a></p>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  /*
+   * Tally three answers, reveal one of the four panels already in the page.
+   *
+   * Ties break by the order the panels appear in the markup, which is the
+   * order the data declares — audit, sprint, fhoc, monitor. With three
+   * questions the winner always has at least two votes, or it is a three-way
+   * tie that precedence settles.
+   */
+  const quiz = document.querySelector<HTMLElement>('[data-quiz]');
+  const submit = document.querySelector<HTMLButtonElement>('[data-submit]');
+  const hint = document.querySelector<HTMLElement>('[data-hint]');
+
+  if (quiz && submit && hint) {
+    const options = Array.from(quiz.querySelectorAll<HTMLButtonElement>('.option'));
+    const panels = Array.from(document.querySelectorAll<HTMLElement>('[data-result]'));
+    const total = new Set(options.map((o) => o.dataset.question)).size;
+    const answers = new Map<string, string>();
+
+    const hidePanels = () => panels.forEach((panel) => (panel.hidden = true));
+
+    const render = (submitted: boolean) => {
+      const complete = answers.size === total;
+      submit.disabled = !complete;
+      hint.textContent = complete
+        ? submitted
+          ? 'Answers stay on this page — nothing is sent.'
+          : 'All three answered. Ready when you are.'
+        : `${answers.size} of ${total} answered`;
+    };
+
+    options.forEach((option) => {
+      option.addEventListener('click', () => {
+        const question = option.dataset.question!;
+
+        options
+          .filter((other) => other.dataset.question === question)
+          .forEach((other) => other.setAttribute('aria-pressed', String(other === option)));
+
+        answers.set(question, option.dataset.score!);
+        // A shown recommendation is stale the moment an answer changes.
+        hidePanels();
+        render(false);
+      });
+    });
+
+    submit.addEventListener('click', () => {
+      if (answers.size !== total) return;
+
+      const tally = new Map<string, number>();
+      answers.forEach((score) => tally.set(score, (tally.get(score) ?? 0) + 1));
+
+      // First panel with the highest count wins, so markup order is precedence.
+      let winner = panels[0];
+      let best = -1;
+      panels.forEach((panel) => {
+        const count = tally.get(panel.dataset.result!) ?? 0;
+        if (count > best) {
+          best = count;
+          winner = panel;
+        }
+      });
+
+      hidePanels();
+      winner.hidden = false;
+      render(true);
+      winner.querySelector<HTMLElement>('[data-result-heading]')?.focus();
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-restart]').forEach((button) => {
+      button.addEventListener('click', () => {
+        answers.clear();
+        options.forEach((option) => option.setAttribute('aria-pressed', 'false'));
+        hidePanels();
+        render(false);
+        quiz.scrollIntoView({ block: 'start' });
+      });
+    });
+
+    render(false);
+  }
+</script>
+
+<style>
+  .fit {
+    border-top: 1px solid var(--rule);
+  }
+
+  .fit-head {
+    max-width: 64ch;
+  }
+
+  .fit h2 {
+    margin-top: 18px;
+    font-size: clamp(1.875rem, 4vw, 2.875rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+
+  .fit-lead {
+    margin-top: 16px;
+    font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+  }
+
+  /* ---- The three questions, side by side. Not a wizard: every option is
+     visible at once, so the shape of the decision is legible before you
+     answer anything. ---- */
+  .questions {
+    display: grid;
+    gap: 28px;
+    margin-top: clamp(36px, 4.5vw, 48px);
+  }
+
+  @media (min-width: 900px) {
+    .questions {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .step-arch {
+    flex: none;
+    width: 14px;
+    height: 17px;
+    background: var(--accent);
+    border-radius: 7px 7px 1px 1px;
+  }
+
+  .question-title {
+    margin-top: 14px;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: clamp(1.1875rem, 1.8vw, 1.375rem);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .option {
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    font-size: 17px;
+    line-height: 1.45;
+    padding: 14px 16px;
+    border-radius: 2px;
+    background: var(--paper-raised);
+    color: var(--body);
+    border: 1px solid var(--rule);
+    cursor: pointer;
+    transition: border-color 140ms ease-out, background-color 140ms ease-out,
+      color 140ms ease-out;
+  }
+
+  .option:hover {
+    border-color: var(--accent);
+  }
+
+  .option[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* ---- Submit ---- */
+  .controls {
+    display: none;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: clamp(28px, 3.5vw, 40px);
+  }
+
+  /* The submit button only means anything with the script running. */
+  :global(html.js) .controls {
+    display: flex;
+  }
+
+  .submit {
+    font: inherit;
+    font-weight: 600;
+    font-size: 17px;
+    padding: 18px 32px;
+    border-radius: 2px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+    cursor: pointer;
+    transition: transform 140ms ease-out;
+  }
+
+  .submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  .submit:disabled {
+    background: transparent;
+    color: var(--muted);
+    border-color: var(--rule);
+    cursor: not-allowed;
+  }
+
+  .hint {
+    font-size: 17px;
+    color: var(--muted);
+  }
+
+  .fit-noscript {
+    margin-top: 32px;
+    color: var(--muted);
+  }
+
+  /* ---- The recommendation ----
+     `display: grid` below outranks the user-agent's `[hidden] { display: none }`,
+     so without this every panel renders at once and the hidden attribute looks
+     like it does nothing. */
+  .result[hidden] {
+    display: none;
+  }
+
+  .result {
+    margin-top: clamp(28px, 3.5vw, 40px);
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 2px;
+    padding: clamp(32px, 4vw, 44px) clamp(28px, 4vw, 46px);
+    display: grid;
+    gap: 32px;
+  }
+
+  @media (min-width: 900px) {
+    .result {
+      grid-template-columns: 1fr 320px;
+      gap: 56px;
+      align-items: start;
+    }
+  }
+
+  .result-eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .result-name {
+    margin-top: 14px;
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    letter-spacing: -0.03em;
+    color: var(--paper);
+  }
+
+  /* Focus lands here when the recommendation appears, so the outline has to
+     read as deliberate rather than as a stray highlight. */
+  .result-name:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 6px;
+  }
+
+  .result-why {
+    margin-top: 16px;
+    font-size: clamp(1rem, 1.4vw, 1.1875rem);
+    max-width: 56ch;
+    color: var(--paper);
+    opacity: 0.85;
+  }
+
+  .result-actions {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+
+  .btn-gold {
+    background: var(--accent);
+    color: var(--ink);
+    padding: 17px 30px;
+    border-radius: 2px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: transform 140ms ease-out;
+  }
+
+  .btn-gold:hover {
+    transform: translateY(-2px);
+  }
+
+  .detail-link {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--paper);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+  }
+
+  .restart {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    font-size: 16px;
+    color: var(--muted-on-ink);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .result-meta {
+    border-top: 1px solid var(--rule-on-ink);
+    padding-top: 28px;
+  }
+
+  /* Beside the copy rather than under it, the divider becomes a left edge. */
+  @media (min-width: 900px) {
+    .result-meta {
+      border-top: 0;
+      border-left: 1px solid var(--rule-on-ink);
+      padding: 0 0 0 32px;
+    }
+  }
+
+  .meta-label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-on-ink);
+  }
+
+  .meta-label-spaced {
+    margin-top: 26px;
+  }
+
+  .meta-value {
+    margin-top: 10px;
+    font-size: 18px;
+    color: var(--paper);
+  }
+
+  .alt-link {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 18px;
+    color: var(--paper);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+</style>

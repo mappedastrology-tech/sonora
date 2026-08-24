@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import CTABlock from '../components/CTABlock.astro';
+import FitQuiz from '../components/FitQuiz.astro';
 import { SERVICE_DETAIL } from '../lib/services-detail';
 import { breadcrumbSchema, serviceSchema } from '../lib/schema';
 
@@ -86,6 +87,8 @@ const schema = [
       </section>
     ))
   }
+
+  <FitQuiz />
 
   <CTABlock />
 </Base>
