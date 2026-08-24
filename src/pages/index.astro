@@ -308,6 +308,13 @@ const linePoints = ZERO_CLICK.points.map((p) => `${p.x},${p.y}`).join(' ');
     border-radius: 620px 620px 0 0;
     transform-origin: 50% 100%;
     animation: sonar-ring 8s linear infinite;
+    /* Without `backwards`, an arch waiting out its delay renders in its normal
+       state — full size, fully opaque — so all nine sat there as static gold
+       rings and popped into the loop one at a time over the first seven
+       seconds. During the delay this holds the 0% frame instead: scaled down
+       and invisible. (The reference file has the same gap; its chart dots do
+       use `backwards`.) */
+    animation-fill-mode: backwards;
   }
 
   .glow {
