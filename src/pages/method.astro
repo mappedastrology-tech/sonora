@@ -26,21 +26,35 @@ const schema = [
   schema={schema}
 >
   <section class="hero surface-ink">
-    <div class="container">
-      <p class="eyebrow-gold">The Sonora Method</p>
-      <h1>Four stages for turning search into a source of leads.</h1>
+    <div class="container hero-grid">
+      <div>
+        <h1>The Sonora Method</h1>
+        <p class="hero-lead">
+          Four stages for turning search into a source of leads.
+        </p>
+      </div>
 
-      <nav class="jump" aria-label="The four stages">
-        {
-          STAGE_DETAIL.map((stage) => (
-            <a href={`#stage-${stage.number}`}>
-              <span class="jump-arch" aria-hidden="true"></span>
-              <span class="jump-number">{stage.number}</span>
-              {stage.name}
-            </a>
-          ))
-        }
-      </nav>
+      {/*
+        The four stages as a vertical stack, with a gold marker stepping down
+        the rail and lighting each one in turn. The rail sits outside the list
+        rather than in it as a fifth item, so the steps number 1-4 for both the
+        delays and a screen reader. Only the rail and the arches are hidden —
+        the names are real content, legible whether or not the motion runs.
+      */}
+      <div class="stack">
+        <span class="rail" aria-hidden="true"><span class="rail-marker"></span></span>
+        <ol class="steps">
+          {
+            STAGE_DETAIL.map((stage) => (
+              <li class="step">
+                <span class="step-arch" aria-hidden="true"></span>
+                <span class="step-number">{stage.number}</span>
+                <span class="step-name">{stage.name}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
     </div>
   </section>
 
@@ -109,52 +123,146 @@ const schema = [
     padding-block: clamp(64px, 9vw, 112px) clamp(56px, 7vw, 96px);
   }
 
+  .hero-grid {
+    display: grid;
+    gap: clamp(40px, 6vw, 72px);
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1fr minmax(280px, 360px);
+    }
+  }
+
   .hero h1 {
-    margin-top: 20px;
-    font-size: clamp(2.5rem, 6vw, 4.125rem);
+    font-size: clamp(2.75rem, 6.4vw, 4.5rem);
     line-height: 1.02;
     letter-spacing: -0.04em;
-    max-width: 18ch;
     text-wrap: balance;
   }
 
-  /* Jump links to the four stages. The little arch is the brand mark reduced
-     to an outline, drawn with a border rather than shipped as an image. */
-  .jump {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: clamp(32px, 4vw, 44px);
+  .hero-lead {
+    margin-top: 24px;
+    font-size: clamp(1.1875rem, 2vw, 1.375rem);
+    line-height: 1.5;
+    max-width: 34ch;
+    color: var(--paper);
+    opacity: 0.82;
   }
 
-  .jump a {
+  /* ---- The stage stack ----
+     A rail down the left with the four stages beside it. The rail spans every
+     row, so the marker's 25% height is exactly one row, whatever the rows
+     measure — which is why the rows are forced to equal height. */
+  .stack {
+    display: grid;
+    grid-template-columns: 2px 1fr;
+    column-gap: clamp(20px, 2.5vw, 28px);
+    align-items: stretch;
+  }
+
+  .rail {
+    position: relative;
+    background: var(--rule-on-ink);
+  }
+
+  .rail-marker {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 25%;
+    background: var(--accent);
+  }
+
+  /* Equal rows, so a quarter of the rail is exactly one step. */
+  .steps {
+    display: grid;
+    grid-auto-rows: 1fr;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .step {
     display: flex;
     align-items: center;
-    gap: 12px;
-    border: 1px solid var(--rule-on-ink);
-    border-radius: 2px;
-    padding: 12px 20px 12px 14px;
-    font-weight: 600;
-    font-size: 16px;
-    color: var(--paper);
-    transition: border-color 160ms ease-out, transform 160ms ease-out;
+    gap: 14px;
+    padding-block: clamp(14px, 1.8vw, 20px);
   }
 
-  .jump a:hover,
-  .jump a:focus-visible {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-  }
-
-  .jump-arch {
-    width: 16px;
-    height: 20px;
+  .step-arch {
+    flex: none;
+    width: 14px;
+    height: 18px;
     border: 2px solid var(--accent);
-    border-radius: 8px 8px 1px 1px;
+    border-radius: 7px 7px 1px 1px;
   }
 
-  .jump-number {
+  .step-number {
     font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--accent);
+  }
+
+  .step-name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    letter-spacing: -0.02em;
+    color: var(--paper);
+  }
+
+  /* Without the animation every step reads as lit, which is the correct
+     resting state: nothing here depends on the motion to be legible. The
+     animation's job is only to dim the three steps that aren't current. */
+  @media (prefers-reduced-motion: no-preference) {
+    /* One 8s cycle, a stage every 2s, matching the homepage's sonar. */
+    @keyframes step-cycle {
+      0% { opacity: 0.34; }
+      2% { opacity: 1; }
+      22% { opacity: 1; }
+      25% { opacity: 0.34; }
+      100% { opacity: 0.34; }
+    }
+
+    @keyframes step-arch-cycle {
+      0% { background: transparent; }
+      2% { background: var(--accent); }
+      22% { background: var(--accent); }
+      25% { background: transparent; }
+      100% { background: transparent; }
+    }
+
+    @keyframes rail-step {
+      from { transform: translateY(0); }
+      to { transform: translateY(300%); }
+    }
+
+    /* `backwards` holds the 0% frame through the delay. Without it a step
+       waiting its turn renders in its normal state — fully lit — so all four
+       would sit bright and light up one at a time over the first cycle. */
+    .step {
+      animation: step-cycle 8s linear infinite backwards;
+    }
+
+    .step-arch {
+      animation: step-arch-cycle 8s linear infinite backwards;
+    }
+
+    .step:nth-child(2),
+    .step:nth-child(2) .step-arch { animation-delay: 2s; }
+    .step:nth-child(3),
+    .step:nth-child(3) .step-arch { animation-delay: 4s; }
+    .step:nth-child(4),
+    .step:nth-child(4) .step-arch { animation-delay: 6s; }
+
+    /* Four discrete stops rather than a glide, so the marker lands on a row
+       instead of sliding between two. */
+    .rail-marker {
+      animation: rail-step 8s steps(4, jump-none) infinite;
+    }
   }
 
   /* The stage name and its one-line summary sit in a column of their own,
