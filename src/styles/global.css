@@ -510,6 +510,19 @@ html.js [data-reveal].is-visible {
    12. Utilities
    -------------------------------------------------------------------------- */
 
+/* Section eyebrows. Three pages set these, so they live here rather than
+   being redeclared in each one's scoped styles. */
+.eyebrow-gold,
+.eyebrow-muted {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eyebrow-gold { color: var(--accent); }
+.eyebrow-muted { color: var(--muted); }
+
 .visually-hidden {
   position: absolute;
   width: 1px;

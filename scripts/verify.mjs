@@ -59,7 +59,7 @@ function decode(source) {
 /** Every page, and a phrase from its body copy that must survive with JS off. */
 const PAGES = [
   ['index.html', '/', 'Ranking first isn’t the same as getting found'],
-  ['method.html', '/method', 'When the category doesn’t have a name yet'],
+  ['method.html', '/method', 'Sequencing is where this usually fails'],
   ['services.html', '/services', 'Strategy Sprint'],
   ['about.html', '/about', 'nobody owned inbound'],
   ['blog.html', '/blog', 'when the answer arrives before the click'],

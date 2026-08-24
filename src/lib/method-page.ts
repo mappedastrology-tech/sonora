@@ -1,33 +1,45 @@
 /**
- * The expanded stage copy used on /method. The homepage uses the short form in
- * method.ts.
- *
- * Locate carries a sub-section on naming a category. That is the only place
- * category creation appears on the site — it is one possible output of the
- * diagnosis, not a pitch, and it never belongs on the homepage.
+ * The long form of the four stages, for /method. The homepage renders the
+ * short form from method.ts; both exist because the page has room to explain
+ * and the card does not.
  */
+
+/** The section that argues for the sequence, before the stages themselves. */
+export const ORDER = {
+  eyebrow: 'Why the order matters',
+  heading: 'Sequencing is where this usually fails',
+  paragraphs: [
+    'Teams run acquisition before they’ve settled positioning. They add channels before choosing a motion. Then they publish a post a week and wait for something to rank.',
+    'That isn’t a strategy. It’s a habit, and it produces exactly what you’d expect: rising output against flat pipeline.',
+    'The four stages run in order because each one depends on the answer before it. You can’t decide what to publish before you know what you’re the answer to. You can’t measure whether it worked without knowing what you were aiming at.',
+  ],
+} as const;
+
 export const STAGE_DETAIL = [
   {
     number: '01',
     name: 'Listen',
     paragraphs: [
-      'Find what your buyers search when they have a budget and a problem, and who currently gets to answer it. That means the real query set in their language rather than whatever a tool says has volume, sorted by buying intent rather than traffic potential.',
-      'It means a baseline of where you appear in AI answers and which sources get cited in your category — often third-party surfaces you don’t control, like review sites, forums, comparison posts, and press, as much as anyone’s own content.',
-      'And it means reading your own site the way a stranger does: when your homepage, pricing page, and docs disagree about what you are, that’s the finding.',
+      'Everything starts with learning the market. Who else is in it, what they claim, and which of them get named when someone goes looking for a solution like yours.',
+      'Then the buyers. What they search, in their words, and where they are in the process. There’s a real difference between someone reading about a problem and someone comparing two vendors, and most content programs only serve the first.',
+      'Then the answers themselves. Who gets cited in AI results and search results for the questions that matter, which sources those answers draw from, and what it would take to be there instead.',
+      'And finally your own site, read the way a stranger reads it. When it says one thing and your competitors’ sites say the same thing in different words, that’s the finding.',
     ],
   },
   {
     number: '02',
     name: 'Locate',
     paragraphs: [
-      'Find the position you can own within a year. Not the one you want, and not the one three funded competitors are already buying.',
-      'The test is whether a stranger can read one line and understand what you sell.',
+      'Next we find your strongest differentiator — something your competitors can’t claim, that your buyers actually care about, and that you can hold onto for at least a year. It’s often not the thing the founder expects.',
+      'A stranger should be able to read one line and know what you sell and who it’s for. Most companies can’t manage that, usually because their homepage, sales deck, and documentation each answer it differently.',
     ],
+    /* Set apart by a gold rule so it reads as an aside rather than a fifth
+       stage. The copy leads with "On category." — that becomes the heading. */
     aside: {
-      heading: 'When the category doesn’t have a name yet',
+      heading: 'On category',
       paragraphs: [
-        'AI has created a lot of genuinely new categories, and buyers don’t have words for them. When every prospect describes the same problem five different ways, there’s no term to search for, nothing for a model to attach to you, and no shorthand a customer can hand a colleague.',
-        'Sometimes the right move is naming it. Often it isn’t — most companies that think they need a new category just need to commit to an existing one. The diagnosis tells you which.',
+        'The instinct is to invent a new one. Usually that’s wrong. Anchoring to a category buyers already understand, with a modifier that’s yours, is easier to defend and easier to search for.',
+        'Naming something new is occasionally the right call — when every prospect describes the same problem five different ways and there’s no term to attach to it. The diagnosis tells you which situation you’re in.',
       ],
     },
   },
@@ -35,17 +47,19 @@ export const STAGE_DETAIL = [
     number: '03',
     name: 'Saturate',
     paragraphs: [
-      'Get present across the whole path, not just the front of it. That’s owned content, the technical layer that lets a model parse you at all — structured data, served HTML, content not buried behind JavaScript — and the third-party surfaces that carry weight in your category: reviews, forums, comparison sites, press.',
-      'It also means the bottom of the funnel, which most content programs neglect. Comparison pages, alternatives pages, pricing clarity, and the specific objections your sales calls keep running into.',
-      'Ranking for the question that starts the search is worth very little if you’re absent from the page where the decision gets made.',
+      'Then the position goes out into the world, which is the part most engagements skip.',
+      'Lean teams spend around 90% of their effort on making content and 10% on distributing it. It should be closer to even. A page nobody finds is not a marketing asset.',
+      'That means three layers at once. Your owned content. The technical layer that decides whether a model can read you at all — structured data, clean served HTML, content not buried behind JavaScript. And the third-party surfaces that carry the most weight in AI answers: reviews, forums, comparison sites, press.',
+      'Those are the places. What matters just as much is where someone is in their process when they land. Most content programs pile everything at the front — explainers, definitions, problem-awareness posts — and put almost nothing at the point of decision. Comparison pages, alternatives pages, clear pricing, direct answers to the objections your sales calls keep hitting. Ranking for the question that starts a search is worth very little if you’re missing from the page where it ends.',
     ],
   },
   {
     number: '04',
     name: 'Sustain',
     paragraphs: [
-      'Measure against pipeline, not pageviews. A fixed prompt set, a fixed cadence, and named competitors, so the numbers stay comparable quarter over quarter.',
-      'Then the part most reporting skips: which queries and which pages are attached to deals, and which ones are just traffic.',
+      'Last, we measure what happened — against pipeline rather than pageviews.',
+      'Every quarter: where you’re showing up in AI answers and search results, who’s showing up instead of you, and which sources those answers pull from.',
+      'Then the part most reporting skips — which queries and which pages are attached to real deals, and which are just producing traffic.',
     ],
   },
 ] as const;

@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import CTABlock from '../components/CTABlock.astro';
 import Arch from '../components/Arch.astro';
-import { STAGE_DETAIL } from '../lib/method-page';
+import { ORDER, STAGE_DETAIL } from '../lib/method-page';
 import { FAQS } from '../lib/faq';
 import { breadcrumbSchema, faqSchema } from '../lib/schema';
 
@@ -21,28 +21,39 @@ const schema = [
 ---
 
 <Base
-  title="The Sonora Method — Answer Engine Optimization"
-  description="A four-stage framework for turning search into pipeline: Listen, Locate, Saturate, Sustain. Answer engine optimization, SEO, and positioning."
+  title="The Sonora Method — Positioning, Search and Content Strategy"
+  description="Four stages for turning search into pipeline: Listen, Locate, Saturate, Sustain. Positioning, answer engine optimization and measurement for B2B companies."
   path={path}
   schema={schema}
 >
-  <section class="section page-hero">
+  <section class="hero surface-ink">
     <div class="container">
-      <div class="prose">
-        <h1>The Sonora Method</h1>
-        <p class="lead">
-          Four stages for turning search into a source of leads. It covers
-          answer engine optimization &mdash; getting named by ChatGPT,
-          Perplexity, Gemini, Claude, and Google AI Overviews &mdash; alongside
-          traditional search, positioning, and the third-party surfaces buyers
-          check before they contact you.
-        </p>
-        <p>
-          The distinction that matters: this is not a traffic strategy. Plenty of
-          companies rank well for things nobody buys from. The work is being
-          present on the questions people ask when they&rsquo;re about to spend
-          money, and being convincing when they arrive.
-        </p>
+      <p class="eyebrow-gold">The Sonora Method</p>
+      <h1>Four stages for turning search into a source of leads.</h1>
+
+      <nav class="jump" aria-label="The four stages">
+        {
+          STAGE_DETAIL.map((stage) => (
+            <a href={`#stage-${stage.number}`}>
+              <span class="jump-arch" aria-hidden="true"></span>
+              <span class="jump-number">{stage.number}</span>
+              {stage.name}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+  </section>
+
+  <!-- The argument for the sequence, before the stages themselves. It stays on
+       ink like the hero above it, so a rule rather than a colour change marks
+       the join. -->
+  <section class="section order surface-ink" aria-labelledby="order-heading">
+    <div class="container">
+      <div class="prose" data-reveal>
+        <p class="eyebrow-gold">{ORDER.eyebrow}</p>
+        <h2 id="order-heading">{ORDER.heading}</h2>
+        {ORDER.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
       </div>
     </div>
   </section>
@@ -50,8 +61,9 @@ const schema = [
   {
     STAGE_DETAIL.map((stage, index) => (
       <section
-        class:list={['section stage', index % 2 === 0 ? 'surface-ink' : '']}
-        aria-labelledby={`stage-${stage.number}`}
+        class:list={['section stage', index % 2 === 1 ? 'surface-ink' : '']}
+        aria-labelledby={`stage-${stage.number}-heading`}
+        id={`stage-${stage.number}`}
       >
         <div class="container">
           <div class="stage-inner" data-reveal>
@@ -59,7 +71,7 @@ const schema = [
               <Arch variant="outline" label={stage.number} size={96} />
             </div>
             <div class="prose">
-              <h2 id={`stage-${stage.number}`}>
+              <h2 id={`stage-${stage.number}-heading`}>
                 {stage.number} &middot; {stage.name}
               </h2>
               {stage.paragraphs.map((paragraph) => (
@@ -103,12 +115,66 @@ const schema = [
 </Base>
 
 <style>
-  .page-hero {
-    padding-block: clamp(56px, 7vw, 96px) clamp(48px, 6vw, 72px);
+  .hero {
+    padding-block: clamp(64px, 9vw, 112px) clamp(56px, 7vw, 96px);
   }
 
-  .page-hero .lead {
-    margin-top: 28px;
+  .hero h1 {
+    margin-top: 20px;
+    font-size: clamp(2.5rem, 6vw, 4.125rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+
+  /* Jump links to the four stages. The little arch is the brand mark reduced
+     to an outline, drawn with a border rather than shipped as an image. */
+  .jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: clamp(32px, 4vw, 44px);
+  }
+
+  .jump a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--rule-on-ink);
+    border-radius: 2px;
+    padding: 12px 20px 12px 14px;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--paper);
+    transition: border-color 160ms ease-out, transform 160ms ease-out;
+  }
+
+  .jump a:hover,
+  .jump a:focus-visible {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .jump-arch {
+    width: 16px;
+    height: 20px;
+    border: 2px solid var(--accent);
+    border-radius: 8px 8px 1px 1px;
+  }
+
+  .jump-number {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The hero is ink and so is this, so the boundary needs drawing. */
+  .order {
+    border-top: 1px solid var(--rule-on-ink);
+    padding-block: clamp(56px, 7vw, 96px);
+  }
+
+  .order h2 {
+    margin-top: 14px;
   }
 
   .stage-inner {
