@@ -62,7 +62,7 @@ const PAGES = [
   ['method.html', '/method', 'Everything starts with learning the market'],
   ['services.html', '/services', 'Strategy Sprint'],
   ['about.html', '/about', 'It was never a product problem'],
-  ['blog.html', '/blog', 'when the answer arrives before the click'],
+  ['blog.html', '/blog', 'Working notes on search, positioning'],
   ['book.html', '/book', 'Thirty minutes'],
   ['contact.html', '/contact', 'What’s not working?'],
   ['thanks.html', '/thanks', 'within a business day'],

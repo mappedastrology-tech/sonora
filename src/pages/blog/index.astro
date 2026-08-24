@@ -1,14 +1,21 @@
 ---
 import Base from '../../layouts/Base.astro';
-import CTABlock from '../../components/CTABlock.astro';
-import PostCard from '../../components/PostCard.astro';
-import NewsletterForm from '../../components/NewsletterForm.astro';
+import PostIcon from '../../components/PostIcon.astro';
 import { getPublishedPosts, postPath } from '../../lib/posts';
-import { readingTime } from '../../lib/format';
+import { readingTime, formatDate } from '../../lib/format';
 import { breadcrumbSchema } from '../../lib/schema';
 
 const path = '/blog';
 const posts = await getPublishedPosts();
+
+/* Newest post leads; the rest fill the grid. */
+const [featured, ...rest] = posts;
+
+/*
+ * Filters come from the topics actually published, so the page can never offer
+ * a filter that clears the grid.
+ */
+const topics = [...new Set(posts.map((post) => post.data.topic))].sort();
 
 const schema = [
   breadcrumbSchema([
@@ -16,6 +23,8 @@ const schema = [
     { name: 'Blog', path },
   ]),
 ];
+
+const countLabel = `${posts.length} ${posts.length === 1 ? 'post' : 'posts'}`;
 ---
 
 <Base
@@ -24,79 +33,434 @@ const schema = [
   path={path}
   schema={schema}
 >
-  <section class="section blog-hero">
-    <div class="container">
-      <div class="prose">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
         <h1>Blog</h1>
-        <p class="lead">
-          AI search, positioning, and what to do when the answer arrives before
-          the click. Weekly.
+        <p class="hero-lead">
+          Working notes on search, positioning, and what buyers do before they
+          contact you.
         </p>
       </div>
-      <div class="signup">
-        <NewsletterForm id="blog-newsletter" variant="page" />
-      </div>
-    </div>
-  </section>
 
-  <section class="section posts" aria-label="All posts">
-    <div class="container">
       {
-        posts.length > 0 ? (
-          <ul class="post-list">
-            {posts.map((post) => (
-              <PostCard
-                level={2}
-                title={post.data.title}
-                description={post.data.description}
-                date={post.data.date}
-                href={postPath(post)}
-                readingTime={readingTime(post.body ?? '')}
-                detailed={true}
-              />
+        topics.length > 1 && (
+          <div class="filters" data-filters>
+            <button type="button" class="chip" data-topic="" aria-pressed="true">All</button>
+            {topics.map((topic) => (
+              <button type="button" class="chip" data-topic={topic} aria-pressed="false">
+                {topic}
+              </button>
             ))}
-          </ul>
-        ) : (
-          <p class="prose">The first post is on its way.</p>
+          </div>
         )
       }
     </div>
   </section>
 
-  <CTABlock />
+  {
+    featured && (
+      <section class="section featured-wrap" aria-label="Latest post">
+        <div class="container">
+          <a
+            href={postPath(featured)}
+            class="feature"
+            data-post
+            data-topic={featured.data.topic}
+            data-reveal
+          >
+            <div class="feature-body">
+              <p class="meta">
+                <PostIcon topic={featured.data.topic} size={26} />
+                <span class="topic">{featured.data.topic}</span>
+                <span class="sep">&middot;</span>
+                <span class="date">{formatDate(featured.data.date)}</span>
+              </p>
+              <h2>{featured.data.title}</h2>
+              <p class="dek">{featured.data.description}</p>
+              <p class="byline">
+                <span class="author">{featured.data.author}</span>
+                <span class="sep">&middot;</span>
+                <span>{readingTime(featured.body ?? '')} min read</span>
+              </p>
+            </div>
+
+            <div class="feature-quote">
+              {featured.data.pullQuote && <p>&ldquo;{featured.data.pullQuote}&rdquo;</p>}
+            </div>
+          </a>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section grid-wrap" aria-label="All posts">
+    <div class="container">
+      {
+        rest.length > 0 ? (
+          <ul class="cards">
+            {rest.map((post) => (
+              <li data-post data-topic={post.data.topic}>
+                <a href={postPath(post)}>
+                  <PostIcon topic={post.data.topic} size={26} />
+                  <p class="topic">{post.data.topic}</p>
+                  <p class="card-title">{post.data.title}</p>
+                  <p class="dek">{post.data.description}</p>
+                  <p class="card-meta">
+                    {formatDate(post.data.date)} &middot; {readingTime(post.body ?? '')} min read
+                  </p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          !featured && <p class="empty">The first post is on its way.</p>
+        )
+      }
+
+      <p class="count" data-count>{countLabel}</p>
+    </div>
+  </section>
+
+  <section class="ask surface-ink" aria-labelledby="ask-heading">
+    <div class="container ask-inner">
+      <div>
+        <h2 id="ask-heading">Rather ask than read?</h2>
+        <p class="ask-lead">
+          Thirty minutes to work out whether the problem is positioning, the
+          technical layer, or the queries you&rsquo;re chasing.
+        </p>
+      </div>
+      <p class="ask-cta"><a href="/book" class="btn-gold">Book a call</a></p>
+    </div>
+  </section>
 </Base>
 
+<script>
+  /*
+   * Topic filters. Progressive enhancement: without the script every post is
+   * listed and the chips are hidden by CSS, so nothing is unreachable.
+   *
+   * The count line reports what is on screen, so it cannot claim ten posts
+   * while showing two.
+   */
+  const filters = document.querySelector<HTMLElement>('[data-filters]');
+  const count = document.querySelector<HTMLElement>('[data-count]');
+
+  if (filters && count) {
+    const chips = Array.from(filters.querySelectorAll<HTMLButtonElement>('.chip'));
+    const items = Array.from(document.querySelectorAll<HTMLElement>('[data-post]'));
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const wanted = chip.dataset.topic ?? '';
+
+        chips.forEach((other) => other.setAttribute('aria-pressed', String(other === chip)));
+
+        let shown = 0;
+        items.forEach((item) => {
+          const match = !wanted || item.dataset.topic === wanted;
+          item.hidden = !match;
+          if (match) shown += 1;
+        });
+
+        count.textContent = `${shown} ${shown === 1 ? 'post' : 'posts'}${
+          wanted ? ` in ${wanted}` : ''
+        }`;
+      });
+    });
+  }
+</script>
+
 <style>
-  .blog-hero {
-    padding-block: clamp(56px, 7vw, 96px) 0;
+  /* ---- Hero ---- */
+  .hero {
+    padding-block: clamp(48px, 6vw, 80px) 0;
   }
 
-  .blog-hero .lead {
-    margin-top: 24px;
-  }
-
-  .signup {
-    margin-top: clamp(36px, 4vw, 48px);
-  }
-
-  /* The CTA block that follows is full-bleed ink, so the list needs its own
-     bottom padding — without it the last card's text runs into the edge. */
-  .posts {
-    padding-block: clamp(48px, 6vw, 72px) clamp(56px, 7vw, 96px);
-  }
-
-  .post-list {
+  .hero-grid {
     display: grid;
-    gap: 40px;
+    gap: clamp(28px, 3.5vw, 40px);
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, 5.4vw, 3.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+  }
+
+  .hero-lead {
+    margin-top: 10px;
+    font-size: clamp(1.0625rem, 1.5vw, 1.125rem);
+    color: var(--muted);
+    max-width: 62ch;
+  }
+
+  /* Chips do nothing without the script, so they are not shown without it. */
+  .filters {
+    display: none;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  :global(html.js) .filters {
+    display: flex;
+  }
+
+  .chip {
+    font: inherit;
+    font-size: 15px;
+    padding: 9px 16px;
+    border-radius: 2px;
+    background: transparent;
+    color: var(--body);
+    border: 1px solid var(--rule);
+    cursor: pointer;
+    transition: border-color 120ms ease-out;
+  }
+
+  .chip:hover {
+    border-color: var(--accent);
+  }
+
+  .chip[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* ---- Featured ---- */
+  .featured-wrap {
+    padding-block: clamp(28px, 3.5vw, 40px) 0;
+  }
+
+  .feature {
+    display: grid;
+    align-items: stretch;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--paper-raised);
+    overflow: hidden;
+    transition: border-color 140ms ease-out, transform 140ms ease-out;
+  }
+
+  @media (min-width: 900px) {
+    .feature {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+    }
+  }
+
+  .feature:hover {
+    border-color: var(--ink);
+    transform: translateY(-2px);
+  }
+
+  .feature-body {
+    padding: clamp(28px, 3.5vw, 38px) clamp(24px, 3.5vw, 40px);
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .meta .topic {
+    color: var(--ink);
+  }
+
+  .sep {
+    opacity: 0.5;
+  }
+
+  .meta .date {
+    letter-spacing: 0.02em;
+    text-transform: none;
+    font-weight: 500;
+  }
+
+  .feature h2 {
+    margin-top: 16px;
+    font-size: clamp(1.625rem, 2.8vw, 2.125rem);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    max-width: 26ch;
+  }
+
+  .dek {
+    margin-top: 14px;
+    font-size: clamp(1rem, 1.4vw, 1.125rem);
+    color: var(--body);
+    max-width: 52ch;
+  }
+
+  .byline {
+    margin-top: 26px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .byline .author {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* The quote panel is the only ink on the card, so it carries the gold. */
+  .feature-quote {
+    background: var(--ink);
+    padding: clamp(28px, 3.5vw, 38px) clamp(24px, 3.5vw, 36px);
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .feature-quote p {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: clamp(1.125rem, 1.8vw, 1.3125rem);
+    line-height: 1.35;
+    color: var(--accent);
+  }
+
+  /* ---- The grid ---- */
+  .grid-wrap {
+    padding-block: clamp(32px, 4vw, 44px) 0;
+  }
+
+  .cards {
     list-style: none;
     margin: 0;
     padding: 0;
+    display: grid;
+    gap: 2px 40px;
   }
 
-  @media (min-width: 768px) {
-    .post-list {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 48px 56px;
+  @media (min-width: 640px) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+  }
+
+  @media (min-width: 1000px) {
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .cards li {
+    border-top: 1px solid var(--rule);
+  }
+
+  /* A filtered-out card is hidden, and `display: flex` on the link below would
+     otherwise outrank the user agent's rule on the li. */
+  .cards li[hidden] {
+    display: none;
+  }
+
+  .cards a {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 26px 0 32px;
+    transition: opacity 140ms ease-out;
+  }
+
+  .cards a:hover {
+    opacity: 0.72;
+  }
+
+  .cards .topic {
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-title {
+    margin-top: 12px;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: clamp(1.25rem, 1.9vw, 1.4375rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .cards .dek {
+    margin-top: 10px;
+    font-size: 17px;
+  }
+
+  .card-meta {
+    margin-top: auto;
+    padding-top: 20px;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .count {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  .empty {
+    color: var(--muted);
+  }
+
+  /* ---- Closing band ---- */
+  .ask {
+    margin-top: clamp(56px, 7vw, 88px);
+    padding-block: clamp(56px, 7vw, 88px);
+  }
+
+  .ask-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .ask h2 {
+    font-size: clamp(1.75rem, 3.2vw, 2.375rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    max-width: 24ch;
+  }
+
+  .ask-lead {
+    margin-top: 14px;
+    font-size: clamp(1rem, 1.4vw, 1.125rem);
+    color: var(--paper);
+    opacity: 0.82;
+    max-width: 52ch;
+  }
+
+  .btn-gold {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--ink);
+    padding: 18px 32px;
+    border-radius: 2px;
+    font-weight: 600;
+    font-size: 17px;
+    transition: transform 140ms ease-out, box-shadow 140ms ease-out;
+  }
+
+  .btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(243, 198, 119, 0.3);
   }
 </style>

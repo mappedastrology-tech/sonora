@@ -20,6 +20,12 @@ const blog = defineCollection({
     draft: z.boolean().default(false),
     image: z.string().optional(),
     imageAlt: z.string().optional(),
+    /* Drives the topic filters on /blog and the post's arch icon. A closed set
+       rather than free text, so a typo cannot invent a filter nobody can
+       clear. */
+    topic: z.enum(['Search', 'Positioning', 'AI answers', 'Measurement']),
+    /* One line lifted from the post, shown on the featured card. */
+    pullQuote: z.string().optional(),
   }),
 });
 

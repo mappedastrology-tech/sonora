@@ -4,6 +4,8 @@ description: "A four-stage sequence for becoming the answer in AI and traditiona
 date: 2026-08-18
 author: "Taylor Corbett"
 draft: false
+topic: "Search"
+pullQuote: "Search stopped being a list. It became an answer."
 ---
 
 Search stopped being a list. It became an answer. That single change breaks most

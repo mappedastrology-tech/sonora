@@ -1,0 +1,78 @@
+---
+/**
+ * A post's icon: the brand arch, tinted per topic.
+ *
+ * The arch is the real artwork used as a CSS mask rather than four exported
+ * images, so it stays one file and follows the brand if the mark ever changes.
+ * Four treatments, all inside the palette — no colour is invented to make a
+ * topic distinguishable.
+ */
+interface Props {
+  topic: string;
+  size?: number;
+}
+
+const { topic, size = 44 } = Astro.props;
+
+/* The arch artwork is 710 × 1110. */
+const height = Math.round(size / 0.64);
+---
+
+<span
+  class="icon"
+  data-topic={topic}
+  style={`--icon-w:${size}px; --icon-h:${height}px`}
+  aria-hidden="true"><span class="arch"></span></span>
+
+<style>
+  .icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: calc(var(--icon-w) + 20px);
+    height: calc(var(--icon-h) + 12px);
+    border-radius: 2px;
+  }
+
+  .arch {
+    display: block;
+    width: var(--icon-w);
+    height: var(--icon-h);
+    -webkit-mask: url('/brand/sonora-arch.webp') no-repeat center / contain;
+    mask: url('/brand/sonora-arch.webp') no-repeat center / contain;
+  }
+
+  /* Search: gold on ink. */
+  .icon[data-topic='Search'] {
+    background: var(--ink);
+  }
+  .icon[data-topic='Search'] .arch {
+    background-color: var(--accent);
+  }
+
+  /* Positioning: the inverse. */
+  .icon[data-topic='Positioning'] {
+    background: var(--accent);
+  }
+  .icon[data-topic='Positioning'] .arch {
+    background-color: var(--ink);
+  }
+
+  /* AI answers: gold on a raised card. */
+  .icon[data-topic='AI answers'] {
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+  }
+  .icon[data-topic='AI answers'] .arch {
+    background-color: var(--accent);
+  }
+
+  /* Measurement: ink on a raised card. */
+  .icon[data-topic='Measurement'] {
+    background: var(--paper-raised);
+    border: 1px solid var(--ink);
+  }
+  .icon[data-topic='Measurement'] .arch {
+    background-color: var(--ink);
+  }
+</style>

@@ -510,6 +510,18 @@ html.js [data-reveal].is-visible {
    12. Utilities
    -------------------------------------------------------------------------- */
 
+/* The hidden attribute means hidden.
+
+   The user agent's `[hidden] { display: none }` is a plain rule, so any
+   author `display: grid`/`flex` on the same element silently outranks it —
+   and the element stays visible while `el.hidden` reads true. That has bitten
+   twice here (the fit quiz's result panels, the blog's featured card), and it
+   is invisible to any test that asserts on the property instead of the
+   rendered display. */
+[hidden] {
+  display: none !important;
+}
+
 /* Section eyebrows. Three pages set these, so they live here rather than
    being redeclared in each one's scoped styles. */
 .eyebrow-gold,

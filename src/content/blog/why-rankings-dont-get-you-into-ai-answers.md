@@ -4,6 +4,8 @@ description: "Ranking well and getting cited in AI answers are two different sys
 date: 2026-08-24
 author: "Taylor Corbett"
 draft: false
+topic: "AI answers"
+pullQuote: "Ranking well and being cited are two different systems, and most teams are still measuring only one of them."
 ---
 
 Here is a situation I see constantly. A company holds position two or three for the terms that matter in their category. The dashboard looks healthy. Then someone on the team asks ChatGPT the exact question that page was built to answer, and the response names four competitors and not them.

@@ -323,13 +323,7 @@ import { FIT_QUESTIONS, FIT_OUTCOMES } from '../lib/fit-quiz';
     color: var(--muted);
   }
 
-  /* ---- The recommendation ----
-     `display: grid` below outranks the user-agent's `[hidden] { display: none }`,
-     so without this every panel renders at once and the hidden attribute looks
-     like it does nothing. */
-  .result[hidden] {
-    display: none;
-  }
+  /* ---- The recommendation ---- */
 
   .result {
     margin-top: clamp(28px, 3.5vw, 40px);
