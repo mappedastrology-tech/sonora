@@ -67,7 +67,7 @@ const PAGES = [
   ['contact.html', '/contact', 'What’s not working?'],
   ['thanks.html', '/thanks', 'within a business day'],
   ['privacy.html', '/privacy', 'This site collects almost nothing'],
-  ['404.html', '/404', 'opposite of the problem I usually solve'],
+  ['404.html', '/404', 'opposite of the problem we usually solve'],
   ['blog/the-sonora-method.html', '/blog/the-sonora-method', 'The room got too loud'],
 ];
 
@@ -189,6 +189,16 @@ const forbidden = [
   [/without an ad budget/i, '"without an ad budget"'],
   [/category compan(y|ies)/i, '"category company", which is not a real term'],
   [/\bnot visibility\b/i, 'a construction denying that visibility matters'],
+
+  /*
+   * Sonora speaks as "we". These three constructions are unambiguously Sonora
+   * talking about itself, so they catch a slip back into "I" without touching
+   * the places the *buyer* speaks — the FAQ's "How do I increase my pipeline?"
+   * and the fit quiz's answers, which are correct in the first person.
+   */
+  [/\bI(’|')ll\b/, 'Sonora speaking as "I"'],
+  [/\bTell me\b/i, 'Sonora speaking as "me"'],
+  [/\bmore about me\b/i, 'Sonora speaking as "me"'],
 
   // Brand voice: phrasings the build spec bans outright.
   [/in today's landscape/i, '"in today\u2019s landscape"'],

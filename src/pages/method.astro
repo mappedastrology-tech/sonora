@@ -35,19 +35,54 @@ const schema = [
       </div>
 
       {/*
-        The four stages as a vertical stack, with a gold marker stepping down
-        the rail and lighting each one in turn. The rail sits outside the list
-        rather than in it as a fifth item, so the steps number 1-4 for both the
-        delays and a screen reader. Only the rail and the arches are hidden —
-        the names are real content, legible whether or not the motion runs.
+        The four stages as a vertical stack: an icon, a number and a name each,
+        against a faint grid with circuit traces routed behind them.
+
+        The icon carries the state. A stage still to come is a pale arch inside
+        sonar rings; the current stage is a solid gold arch; a stage already
+        passed is just the arch outline. The rail runs gold down to the current
+        stage and grey below it.
+
+        The rail and the traces sit outside the list rather than in it, so the
+        steps number 1-4 for both the script and a screen reader.
       */}
-      <div class="stack">
-        <span class="rail" aria-hidden="true"><span class="rail-marker"></span></span>
+      <div class="stack" data-stack>
+        <span class="grid" aria-hidden="true"></span>
+
+        <svg
+          class="traces"
+          viewBox="0 0 320 420"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <g class="trace">
+            <polyline points="232,0 232,58 290,58" />
+            <circle cx="290" cy="58" r="3" />
+            <polyline points="290,120 290,168 320,168" />
+            <circle cx="290" cy="120" r="3" />
+            <polyline points="266,150 266,214 300,214 300,290" />
+            <circle cx="266" cy="150" r="3" />
+          </g>
+          <g class="trace trace-lit">
+            <polyline points="0,250 44,250 44,206 84,206" />
+            <circle cx="44" cy="206" r="3" />
+            <circle cx="84" cy="206" r="3" />
+          </g>
+        </svg>
+
+        <span class="rail" aria-hidden="true"><span class="rail-lit"></span></span>
+
         <ol class="steps">
           {
             STAGE_DETAIL.map((stage) => (
               <li class="step">
-                <span class="step-arch" aria-hidden="true"></span>
+                <span class="icon" aria-hidden="true">
+                  <span class="ring ring-outer"></span>
+                  <span class="ring ring-inner"></span>
+                  <span class="arch-fill"></span>
+                  <span class="arch-line"></span>
+                </span>
                 <span class="step-number">{stage.number}</span>
                 <span class="step-name">{stage.name}</span>
               </li>
@@ -118,6 +153,47 @@ const schema = [
   <CTABlock />
 </Base>
 
+<script>
+  /*
+   * Walk the four stages: one active at a time, everything above it done and
+   * everything below it still to come.
+   *
+   * Driven from script rather than keyframes because each stage has three
+   * visual states and the rail's length depends on which one is current —
+   * expressing that in CSS animation means one keyframe block per stage per
+   * layer, all of which then have to stay in step with each other by hand.
+   *
+   * With no script, or under prefers-reduced-motion, no state attribute is ever
+   * set and the CSS resting state stands: four gold arches, four names in
+   * paper. Legible, and never caught mid-transition.
+   */
+  const stack = document.querySelector<HTMLElement>('[data-stack]');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (stack && !reduced) {
+    const steps = Array.from(stack.querySelectorAll<HTMLElement>('.step'));
+    const lit = stack.querySelector<HTMLElement>('.rail-lit');
+
+    if (steps.length && lit) {
+      let current = 0;
+
+      const paint = () => {
+        steps.forEach((step, i) => {
+          step.dataset.state = i === current ? 'active' : i < current ? 'done' : 'upcoming';
+        });
+        // The lit rail ends at the bottom of the current stage.
+        lit.style.height = `${((current + 1) / steps.length) * 100}%`;
+      };
+
+      paint();
+      window.setInterval(() => {
+        current = (current + 1) % steps.length;
+        paint();
+      }, 2000);
+    }
+  }
+</script>
+
 <style>
   .hero {
     padding-block: clamp(64px, 9vw, 112px) clamp(56px, 7vw, 96px);
@@ -152,14 +228,58 @@ const schema = [
   }
 
   /* ---- The stage stack ----
-     A rail down the left with the four stages beside it. The rail spans every
-     row, so the marker's 25% height is exactly one row, whatever the rows
-     measure — which is why the rows are forced to equal height. */
+     A rail down the left, the four stages beside it, and a faint grid with
+     circuit traces behind the lot. The rows are forced to equal height so a
+     quarter of the rail is exactly one row, whatever the rows measure. */
   .stack {
+    position: relative;
     display: grid;
     grid-template-columns: 2px 1fr;
     column-gap: clamp(20px, 2.5vw, 28px);
     align-items: stretch;
+    padding: 18px 0 18px 18px;
+  }
+
+  /* Graph paper, barely there. */
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(to right, var(--rule-on-ink) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(to bottom, var(--rule-on-ink) 0 1px, transparent 1px 44px);
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  /* Routed at right angles, like a board trace. Decoration: it carries no
+     state, so it never has to agree with which stage is current. */
+  .traces {
+    position: absolute;
+    inset: -18px;
+    width: calc(100% + 36px);
+    height: calc(100% + 36px);
+    pointer-events: none;
+  }
+
+  .trace polyline {
+    fill: none;
+    stroke: var(--rule-on-ink);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .trace circle {
+    fill: var(--rule-on-ink);
+  }
+
+  .trace-lit polyline {
+    stroke: var(--accent);
+    opacity: 0.55;
+  }
+
+  .trace-lit circle {
+    fill: var(--accent);
+    opacity: 0.55;
   }
 
   .rail {
@@ -167,16 +287,20 @@ const schema = [
     background: var(--rule-on-ink);
   }
 
-  .rail-marker {
+  /* Gold from the top down to the end of the current stage. Four stops, so it
+     always ends on a row boundary rather than between two. */
+  .rail-lit {
     position: absolute;
     inset-inline: 0;
     top: 0;
     height: 25%;
     background: var(--accent);
+    transition: height 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
   /* Equal rows, so a quarter of the rail is exactly one step. */
   .steps {
+    position: relative;
     display: grid;
     grid-auto-rows: 1fr;
     list-style: none;
@@ -185,85 +309,121 @@ const schema = [
   }
 
   .step {
-    display: flex;
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    grid-template-rows: auto auto;
     align-items: center;
-    gap: 14px;
-    padding-block: clamp(14px, 1.8vw, 20px);
+    column-gap: clamp(14px, 1.8vw, 22px);
+    padding-block: clamp(10px, 1.4vw, 16px);
   }
 
-  .step-arch {
-    flex: none;
-    width: 14px;
-    height: 18px;
+  /* Spanning both rows, so it centres against the number and name together
+     rather than lining up with the number. */
+  .icon {
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+
+  /* ---- The icon: three states stacked, one visible at a time ---- */
+  .icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 68px;
+  }
+
+  .arch-fill,
+  .arch-line {
+    grid-area: 1 / 1;
+    width: 34px;
+    height: 46px;
+    /* A semicircular top on a 34px-wide box, then square shoulders. */
+    border-radius: 17px 17px 2px 2px;
+    transition: opacity 320ms ease-out, background-color 320ms ease-out;
+  }
+
+  .arch-fill {
+    background: var(--accent);
+  }
+
+  .arch-line {
     border: 2px solid var(--accent);
-    border-radius: 7px 7px 1px 1px;
+    opacity: 0;
+  }
+
+  /* Sonar rings, the same idiom as the homepage hero: an arc open at the
+     bottom, so it reads as a wave rather than a ring. */
+  .ring {
+    grid-area: 1 / 1;
+    border: 1px solid var(--accent);
+    border-bottom: 0;
+    border-radius: 999px 999px 0 0;
+    opacity: 0;
+    transition: opacity 320ms ease-out;
+  }
+
+  .ring-inner {
+    width: 46px;
+    height: 37px;
+    align-self: end;
+    margin-bottom: 11px;
+  }
+
+  .ring-outer {
+    width: 60px;
+    height: 48px;
+    align-self: end;
+    margin-bottom: 11px;
   }
 
   .step-number {
     font-variant-numeric: tabular-nums;
     font-weight: 600;
-    font-size: 15px;
-    color: var(--accent);
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    color: var(--muted-on-ink);
+    transition: color 320ms ease-out;
   }
 
   .step-name {
+    grid-column: 2;
     font-family: var(--font-heading);
     font-weight: 600;
-    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    font-size: clamp(1.375rem, 2.2vw, 1.75rem);
     letter-spacing: -0.02em;
+    color: var(--muted-on-ink);
+    transition: color 320ms ease-out;
+  }
+
+  /*
+   * Resting state — no script, or a reader who asked for less motion: every
+   * stage is a solid gold arch with its name in full paper. Nothing here needs
+   * the animation to be legible; the states below only ever subtract.
+   */
+  .step-number,
+  .step-name {
     color: var(--paper);
   }
 
-  /* Without the animation every step reads as lit, which is the correct
-     resting state: nothing here depends on the motion to be legible. The
-     animation's job is only to dim the three steps that aren't current. */
-  @media (prefers-reduced-motion: no-preference) {
-    /* One 8s cycle, a stage every 2s, matching the homepage's sonar. */
-    @keyframes step-cycle {
-      0% { opacity: 0.34; }
-      2% { opacity: 1; }
-      22% { opacity: 1; }
-      25% { opacity: 0.34; }
-      100% { opacity: 0.34; }
-    }
-
-    @keyframes step-arch-cycle {
-      0% { background: transparent; }
-      2% { background: var(--accent); }
-      22% { background: var(--accent); }
-      25% { background: transparent; }
-      100% { background: transparent; }
-    }
-
-    @keyframes rail-step {
-      from { transform: translateY(0); }
-      to { transform: translateY(300%); }
-    }
-
-    /* `backwards` holds the 0% frame through the delay. Without it a step
-       waiting its turn renders in its normal state — fully lit — so all four
-       would sit bright and light up one at a time over the first cycle. */
-    .step {
-      animation: step-cycle 8s linear infinite backwards;
-    }
-
-    .step-arch {
-      animation: step-arch-cycle 8s linear infinite backwards;
-    }
-
-    .step:nth-child(2),
-    .step:nth-child(2) .step-arch { animation-delay: 2s; }
-    .step:nth-child(3),
-    .step:nth-child(3) .step-arch { animation-delay: 4s; }
-    .step:nth-child(4),
-    .step:nth-child(4) .step-arch { animation-delay: 6s; }
-
-    /* Four discrete stops rather than a glide, so the marker lands on a row
-       instead of sliding between two. */
-    .rail-marker {
-      animation: rail-step 8s steps(4, jump-none) infinite;
-    }
+  .step[data-state='upcoming'] .arch-fill {
+    /* Mixed toward the ink rather than faded: opacity over navy desaturates
+       the gold into a brown-grey. */
+    background: #6E5C41;
+    background: color-mix(in srgb, var(--accent) 42%, var(--ink));
   }
+
+  .step[data-state='upcoming'] .ring { opacity: 0.4; }
+  .step[data-state='upcoming'] .step-number,
+  .step[data-state='upcoming'] .step-name { color: var(--muted-on-ink); }
+
+  .step[data-state='done'] .arch-fill { opacity: 0; }
+  .step[data-state='done'] .arch-line { opacity: 0.5; }
+  .step[data-state='done'] .step-number,
+  .step[data-state='done'] .step-name { color: var(--muted-on-ink); }
+
+  .step[data-state='active'] .step-number { color: var(--accent); }
+  .step[data-state='active'] .step-name { color: var(--paper); }
 
   /* The stage name and its one-line summary sit in a column of their own,
      under an oversized gold numeral; the body runs beside them. */
