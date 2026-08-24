@@ -199,8 +199,8 @@ const linePoints = ZERO_CLICK.points.map((p) => `${p.x},${p.y}`).join(' ');
         <a href="/method" class="link-gold on-ink">The full method &rarr;</a>
       </div>
       <p data-reveal class="lead-ink method-lead">
-        Four stages for turning search into a source of leads. Not traffic
-        &mdash; leads.
+        Most companies get one or two of them and wonder why the pipeline is
+        flat.
       </p>
 
       <ol class="stage-row">
@@ -783,12 +783,10 @@ const linePoints = ZERO_CLICK.points.map((p) => `${p.x},${p.y}`).join(' ');
     padding: 0;
   }
 
+  /* Two by two, per the handoff — the four-across version squeezed the
+     longer stages into narrow columns of six-word lines. */
   @media (min-width: 620px) {
     .stage-row { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  @media (min-width: 1040px) {
-    .stage-row { grid-template-columns: repeat(4, 1fr); }
   }
 
   .stage-card {
