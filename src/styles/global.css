@@ -446,24 +446,19 @@ ul.arch-list > li::before {
 
 /* Elements opt in with data-reveal. The hiding rule is scoped to html.js —
    set by an inline script before first paint — so with JavaScript off nothing
-   is ever hidden. */
+   is ever hidden.
+
+   Timings come from the design: 18px rise, 520ms ease-out, 80ms stagger
+   between siblings (applied as an inline transition-delay by the script). */
 html.js [data-reveal] {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(18px);
 }
 
 html.js [data-reveal].is-visible {
   opacity: 1;
   transform: none;
-  transition: opacity 400ms ease-out, transform 400ms ease-out;
-}
-
-/* Print and forced-colors: never let the entrance animation hide content. */
-@media print {
-  html.js [data-reveal] {
-    opacity: 1;
-    transform: none;
-  }
+  transition: opacity 520ms ease-out, transform 520ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -480,6 +475,34 @@ html.js [data-reveal].is-visible {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print and forced-colors: never let the entrance animation hide content. */
+@media print {
+  html.js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Blocks whose graphic animates on its own clock opt in with data-animate.
+   The scroll observer sets data-armed when the block is ~35% visible, and
+   data-instant instead when the block was already scrolled past on load. Each
+   page keeps its own reset and keyframes, all of it behind
+   prefers-reduced-motion: no-preference — so a reader who asked for less
+   motion gets the finished graphic with no CSS animation involved at all,
+   without depending on script order.
+
+   data-instant collapses the timings rather than restating every end state,
+   so there is one source of truth for what "finished" looks like. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-animate][data-instant],
+  html.js [data-animate][data-instant] *,
+  html.js [data-animate][data-instant] *::before,
+  html.js [data-animate][data-instant] *::after {
+    animation-delay: 0s !important;
+    animation-duration: 1ms !important;
   }
 }
 

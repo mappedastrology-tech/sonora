@@ -31,6 +31,36 @@ const schema = [
 
 /* Branch geometry: seven endpoints evenly spaced across a 700-unit box. */
 const BRANCH_X = SOURCES.map((_, i) => 50 + i * 100);
+
+/**
+ * Each branch draws itself by animating stroke-dashoffset from its own length
+ * down to zero, so the dash pattern has to match the path. Measuring it at
+ * runtime would mean getTotalLength() and a script; sampling the cubic here
+ * makes it a build-time constant and the animation pure CSS.
+ *
+ * The paths are `M350 0 C350 60 X 50 X 120` — one cubic each.
+ */
+function cubicLength(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number) {
+  const cubic = (t: number, a: number, b: number, c: number, d: number) => {
+    const u = 1 - t;
+    return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d;
+  };
+  const STEPS = 96;
+  let length = 0;
+  let px = 350;
+  let py = 0;
+  for (let i = 1; i <= STEPS; i++) {
+    const t = i / STEPS;
+    const x = cubic(t, 350, x1, x2, x3);
+    const y = cubic(t, 0, y1, y2, y3);
+    length += Math.hypot(x - px, y - py);
+    px = x;
+    py = y;
+  }
+  return Math.ceil(length);
+}
+
+const BRANCH_LENGTH = BRANCH_X.map((x) => cubicLength(350, 60, x, 50, x, 120));
 ---
 
 <Base
@@ -67,7 +97,7 @@ const BRANCH_X = SOURCES.map((_, i) => 50 + i * 100);
             <p class="scene-lead">{scene.lead}</p>
           </div>
 
-          <div class="graphic">
+          <div class="graphic" data-animate>
             <p class="sr">{scene.alt}</p>
 
             {
@@ -153,6 +183,7 @@ const BRANCH_X = SOURCES.map((_, i) => 50 + i * 100);
                       <path
                         d={`M350 0 C350 60 ${x} 50 ${x} 120`}
                         class:list={['branch', { gold: SOURCES[i].yours }]}
+                        style={`--branch-length:${BRANCH_LENGTH[i]}`}
                       />
                     ))}
                   </svg>
@@ -752,5 +783,232 @@ const BRANCH_X = SOURCES.map((_, i) => 50 + i * 100);
 
   .gold-link:hover {
     text-decoration-thickness: 3px;
+  }
+
+  /* ------------------------------------------------------------------------
+     Motion. Each scene's graphic is a [data-animate] block: the shared
+     observer in the layout sets data-armed once the graphic is ~35% visible,
+     and data-instant instead if it was already scrolled past on load, which
+     collapses every duration to 1ms so the graphic simply appears finished.
+
+     The whole section sits behind prefers-reduced-motion: no-preference, so a
+     reader who asked for less motion never gets a reset state to undo — the
+     page renders exactly as it does with JavaScript off. Every reset is also
+     scoped to html.js for the same reason.
+
+     Timings are the design's, to the millisecond.
+     ---------------------------------------------------------------------- */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes wn-rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @keyframes wn-slide-in {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @keyframes wn-fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes wn-grow-x {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    @keyframes wn-type {
+      from { clip-path: inset(0 100% 0 0); }
+      to { clip-path: inset(0 0 0 0); }
+    }
+
+    @keyframes wn-draw {
+      from { stroke-dashoffset: var(--branch-length); }
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes wn-pop {
+      from { opacity: 0; transform: scale(0.4); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes wn-swell {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* ---- Scene 01: the question is typed, then the answer arrives ---- */
+
+    /* Typing needs the line on one line. At the widths where the query wraps
+       it fades in instead — a left-to-right wipe across two lines reads as a
+       glitch rather than as typing. */
+    /* Clipping the bubble rather than the text inside it means the bubble
+       grows as the query is typed, instead of sitting there full-width and
+       empty. The right corner radius is square until the last step; a second
+       of that beats a paper slab waiting to be filled in. */
+    @media (min-width: 480px) {
+      html.js [data-animate] .query { clip-path: inset(0 100% 0 0); }
+
+      html.js [data-animate][data-armed] .query {
+        animation: wn-type 902ms steps(41, end) both;
+      }
+    }
+
+    /* Below this the query wraps to two lines, and a left-to-right wipe
+       across two lines reads as a glitch rather than as typing. */
+    @media (max-width: 479px) {
+      html.js [data-animate] .query { opacity: 0; }
+      html.js [data-animate][data-armed] .query {
+        animation: wn-fade 420ms ease-out both;
+      }
+    }
+
+    html.js [data-animate] .answer-lead,
+    html.js [data-animate] .results li,
+    html.js [data-animate] .verdict,
+    html.js [data-animate] .counter {
+      opacity: 0;
+    }
+
+    html.js [data-animate][data-armed] .answer-lead,
+    html.js [data-animate][data-armed] .results li {
+      animation: wn-rise 420ms ease-out both;
+    }
+
+    html.js [data-animate][data-armed] .answer-lead { animation-delay: 1162ms; }
+    html.js [data-animate][data-armed] .results li:nth-child(1) { animation-delay: 1482ms; }
+    html.js [data-animate][data-armed] .results li:nth-child(2) { animation-delay: 1782ms; }
+    html.js [data-animate][data-armed] .results li:nth-child(3) { animation-delay: 2082ms; }
+
+    html.js [data-animate][data-armed] .verdict {
+      animation: wn-slide-in 420ms ease-out 2642ms both;
+    }
+
+    html.js [data-animate][data-armed] .counter {
+      animation: wn-fade 420ms ease-out 3282ms both;
+    }
+
+    /* ---- Scene 02: the bars grow ---- */
+    html.js [data-animate] .bars .fill { transform: scaleX(0); }
+
+    html.js [data-animate] .bars-card .punchline,
+    html.js [data-animate] .bars-card .source {
+      opacity: 0;
+    }
+
+    html.js [data-animate][data-armed] .bars .fill {
+      animation: wn-grow-x 720ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    }
+
+    html.js [data-animate][data-armed] .bars li:nth-child(1) .fill { animation-delay: 0ms; }
+    html.js [data-animate][data-armed] .bars li:nth-child(2) .fill { animation-delay: 90ms; }
+    html.js [data-animate][data-armed] .bars li:nth-child(3) .fill { animation-delay: 180ms; }
+    html.js [data-animate][data-armed] .bars li:nth-child(4) .fill { animation-delay: 270ms; }
+    html.js [data-animate][data-armed] .bars li:nth-child(5) .fill { animation-delay: 360ms; }
+    html.js [data-animate][data-armed] .bars li:nth-child(6) .fill { animation-delay: 450ms; }
+
+    html.js [data-animate][data-armed] .bars-card .punchline {
+      animation: wn-fade 420ms ease-out 1160ms both;
+    }
+
+    html.js [data-animate][data-armed] .bars-card .source {
+      animation: wn-fade 420ms ease-out 1420ms both;
+    }
+
+    /* ---- Scene 03: seven branches draw out to their sources ---- */
+    html.js [data-animate] .buyer-node {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+
+    html.js [data-animate] .branch {
+      stroke-dasharray: var(--branch-length);
+      stroke-dashoffset: var(--branch-length);
+    }
+
+    html.js [data-animate] .nodes li {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    html.js [data-animate][data-armed] .buyer-node {
+      animation: wn-swell 420ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    }
+
+    html.js [data-animate][data-armed] .branch {
+      animation: wn-draw 520ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    }
+
+    html.js [data-animate][data-armed] .nodes li {
+      animation: wn-rise 380ms ease-out both;
+    }
+
+    html.js [data-animate][data-armed] .branch:nth-child(1) { animation-delay: 260ms; }
+    html.js [data-animate][data-armed] .branch:nth-child(2) { animation-delay: 390ms; }
+    html.js [data-animate][data-armed] .branch:nth-child(3) { animation-delay: 520ms; }
+    html.js [data-animate][data-armed] .branch:nth-child(4) { animation-delay: 650ms; }
+    html.js [data-animate][data-armed] .branch:nth-child(5) { animation-delay: 780ms; }
+    html.js [data-animate][data-armed] .branch:nth-child(6) { animation-delay: 910ms; }
+
+    /* Your own site is the last branch and draws slower, so it lands alone. */
+    html.js [data-animate][data-armed] .branch:nth-child(7) {
+      animation-duration: 700ms;
+      animation-delay: 1040ms;
+    }
+
+    html.js [data-animate][data-armed] .nodes li:nth-child(1) { animation-delay: 640ms; }
+    html.js [data-animate][data-armed] .nodes li:nth-child(2) { animation-delay: 770ms; }
+    html.js [data-animate][data-armed] .nodes li:nth-child(3) { animation-delay: 900ms; }
+    html.js [data-animate][data-armed] .nodes li:nth-child(4) { animation-delay: 1030ms; }
+    html.js [data-animate][data-armed] .nodes li:nth-child(5) { animation-delay: 1160ms; }
+    html.js [data-animate][data-armed] .nodes li:nth-child(6) { animation-delay: 1290ms; }
+    html.js [data-animate][data-armed] .nodes li:nth-child(7) { animation-delay: 1560ms; }
+
+    /* ---- Scene 04: the timeline sweeps to the decision, then to the call ---- */
+    html.js [data-animate] .timeline .fill {
+      transform: scaleX(0);
+      transform-origin: left center;
+    }
+
+    html.js [data-animate] .gold-seg {
+      transform: scaleX(0);
+      transform-origin: left center;
+    }
+
+    html.js [data-animate] .decided-tick,
+    html.js [data-animate] .tl-above .decided,
+    html.js [data-animate] .tl-below .yourcall {
+      opacity: 0;
+    }
+
+    html.js [data-animate] .dot {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+
+    /* 1445ms is the design's 1700ms clock stopped at 85% — the point the
+       reader's attention is meant to land on. */
+    html.js [data-animate][data-armed] .timeline .fill {
+      animation: wn-grow-x 1445ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    }
+
+    html.js [data-animate][data-armed] .decided-tick,
+    html.js [data-animate][data-armed] .tl-above .decided {
+      animation: wn-fade 300ms ease-out 1445ms both;
+    }
+
+    html.js [data-animate][data-armed] .gold-seg {
+      animation: wn-grow-x 520ms cubic-bezier(0.22, 0.61, 0.36, 1) 1625ms both;
+    }
+
+    html.js [data-animate][data-armed] .dot {
+      animation: wn-pop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) 1820ms both;
+    }
+
+    html.js [data-animate][data-armed] .tl-below .yourcall {
+      animation: wn-fade 300ms ease-out 1820ms both;
+    }
   }
 </style>

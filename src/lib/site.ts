@@ -29,12 +29,34 @@ export const AUTHOR = {
 export const LINKEDIN_URL = 'https://www.linkedin.com/in/taylorjcorbett/';
 
 /**
- * Google Calendar appointment schedule. `?gv=true` is what turns the booking
- * page into an embeddable view; the bare link is what people click if the
- * iframe is blocked.
+ * Google Calendar appointment schedule.
+ *
+ * Two link shapes come out of Google. "Share → copy link" gives the short
+ * calendar.app.google form; "Open booking page" gives the long
+ * calendar.google.com/calendar/appointments/schedules/… form. Only the long
+ * one is documented as embeddable, so if the panel on /book renders blank,
+ * paste the long one here.
+ *
+ * `gv=true` is what turns a booking page into the embeddable view.
  */
 export const BOOKING_URL = 'https://calendar.app.google/KB26roAeFacVbngg6';
-export const BOOKING_EMBED_URL = `${BOOKING_URL}?gv=true`;
+
+const BOOKING_SHAPES = [
+  /^https:\/\/calendar\.google\.com\/calendar\/appointments\/schedules\//,
+  /^https:\/\/calendar\.app\.google\//,
+];
+
+/** True when the link is a shape Google will serve as an embed. */
+export const BOOKING_URL_IS_VALID = BOOKING_SHAPES.some((shape) =>
+  shape.test(BOOKING_URL)
+);
+
+/** True for the long form, which is the one Google documents for embedding. */
+export const BOOKING_URL_IS_LONG_FORM = BOOKING_SHAPES[0].test(BOOKING_URL);
+
+export const BOOKING_EMBED_URL = BOOKING_URL.includes('gv=true')
+  ? BOOKING_URL
+  : `${BOOKING_URL}${BOOKING_URL.includes('?') ? '&' : '?'}gv=true`;
 
 /** Google Analytics 4 measurement ID. */
 export const GA_MEASUREMENT_ID = 'G-L1SZMT6MFL';

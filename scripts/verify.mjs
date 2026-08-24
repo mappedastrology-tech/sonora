@@ -390,8 +390,14 @@ if (book?.includes('calendar.app.google') && book.includes('gv=true')) {
 } else {
   fail('booking embed is not wired to the Google Calendar link');
 }
-if (book?.includes('Open the booking page directly')) {
-  pass('booking page has a non-iframe fallback');
+/*
+ * Some browsers and extensions block third-party calendar frames, so the page
+ * has to carry a plain link too. Test the structure rather than the wording:
+ * an anchor to the schedule that survives the iframe being stripped out.
+ */
+const bookWithoutFrames = book?.replace(/<iframe[\s\S]*?<\/iframe>/g, '') ?? '';
+if (/<a\b[^>]*href="https:\/\/calendar\.(app\.google|google\.com)\//.test(bookWithoutFrames)) {
+  pass('booking page has a non-iframe fallback link');
 } else {
   fail('booking page has no fallback if the iframe is blocked');
 }

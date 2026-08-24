@@ -1,89 +1,501 @@
 ---
+/**
+ * /book — the conversion page.
+ *
+ * The scheduler is a Google Calendar appointment-schedule iframe. Google
+ * handles availability, confirmation and the Meet link; nothing about the
+ * booking touches this site.
+ *
+ * "Ask a question instead" is a real Netlify form rather than the design's
+ * mailto link, since Netlify Forms is available here. Submissions land in the
+ * Netlify dashboard and notify hello@sonoramethod.com.
+ */
 import Base from '../layouts/Base.astro';
-import { BOOKING_URL, BOOKING_EMBED_URL, EMAIL } from '../lib/site';
+import { EMAIL, BOOKING_URL, BOOKING_EMBED_URL, BOOKING_URL_IS_VALID } from '../lib/site';
 import { breadcrumbSchema } from '../lib/schema';
 
 const path = '/book';
-
 const schema = [
   breadcrumbSchema([
     { name: 'Home', path: '/' },
     { name: 'Book a call', path },
   ]),
 ];
+
+const STAGES = [
+  {
+    when: 'First 10 minutes',
+    title: 'You talk',
+    body: 'Where pipeline comes from today, what you’ve already tried, and what changed recently. We ask about numbers, not aspirations.',
+  },
+  {
+    when: 'Next 15',
+    title: 'We give you our read',
+    body: 'Which questions in your category you could realistically own, what’s already being answered without you, and how long a serious attempt would take.',
+  },
+  {
+    when: 'Last 5',
+    title: 'Yes, no, or not yet',
+    body: 'A scope and a number if it’s a fit, a referral or a plain no if it isn’t. Either way you get the reasoning.',
+  },
+];
+
+const WORTH = [
+  'You have customers and want more of them.',
+  'Paid is working but costs more every quarter.',
+  'You can give it six months before judging the result.',
+];
+
+const NOT_YET = [
+  'You need pipeline inside 30 days.',
+  'You’re still looking for your first customers.',
+  'You want a set number of posts on a schedule rather than a strategy.',
+];
 ---
 
 <Base
   title="Book a call — Sonora"
-  description="Thirty minutes. Tell me what is not working and I will tell you whether I can fix it."
+  description="Thirty minutes. Tell us what is not working and we will tell you whether we can fix it. Pick a time on the calendar, or ask a question first."
   path={path}
   schema={schema}
 >
-  <section class="section book">
-    <div class="container">
-      <div class="prose">
-        <h1>Book a call</h1>
+  <section class="top surface-ink">
+    <div class="container top-grid">
+      <div class="pitch">
+        <p class="eyebrow-gold">Book a call</p>
+        <h1>Get a straight answer about your pipeline</h1>
         <p class="lead">
-          Thirty minutes. Tell me what&rsquo;s not working and I&rsquo;ll tell
-          you whether I can fix it.
+          Most companies with a lead problem are told to make more content.
+          Usually the real issue is positioning, the technical layer, or
+          competing for queries nobody buys from.
         </p>
-        <p>Your site and one sentence about the problem is plenty to send ahead.</p>
+        <p class="lead">Thirty minutes to figure out which one you have.</p>
+        <ul class="dashes">
+          <li>
+            Search compounds over six to twelve months. If you need leads next
+            quarter, we&rsquo;ll say so and point you somewhere faster.
+          </li>
+          <li>
+            If you have customers but can&rsquo;t explain in one sentence who
+            they&rsquo;re for, that&rsquo;s the work.
+          </li>
+        </ul>
+        <p class="pitch-cta"><a href="#pick" class="btn-gold-lg">Book a call</a></p>
       </div>
 
-      <div class="embed-wrap">
-        <iframe
-          src={BOOKING_EMBED_URL}
-          title="Book a thirty-minute call with Taylor Corbett"
-          loading="lazy"
-          class="booking-frame"
-        ></iframe>
+      <div class="card" id="pick">
+        <div class="card-head">
+          <h2>Pick a time</h2>
+          <p class="meta-line">30 min &middot; Google Meet</p>
+        </div>
 
-        <!-- Always present, never hidden. Some browsers and privacy extensions
-             block third-party calendar frames, and the booking still has to
-             work when they do. -->
-        <p class="fallback">
+        {
+          BOOKING_URL_IS_VALID ? (
+            <iframe
+              src={BOOKING_EMBED_URL}
+              title="Book a thirty-minute call with Sonora"
+              loading="lazy"
+              class="scheduler"
+            ></iframe>
+          ) : (
+            <div class="pending">
+              <p>
+                The booking link in <code>src/lib/site.ts</code> isn&rsquo;t a
+                Google appointment-schedule URL, so the scheduler can&rsquo;t
+                load.
+              </p>
+            </div>
+          )
+        }
+
+        <p class="card-note">
+          Times shown in your own timezone. You&rsquo;ll get a Google Calendar
+          invite with a Meet link the moment you confirm &mdash; reply to it with
+          anything you want read beforehand.
+        </p>
+
+        <!-- Always present, never hidden: some browsers and extensions block
+             third-party calendar frames, and booking still has to work. -->
+        <p class="card-fallback">
           Calendar not loading?{' '}
-          <a href={BOOKING_URL} class="textlink" rel="noopener">Open the booking page directly</a>, or
-          email{' '}
-          <a href={`mailto:${EMAIL}`} class="textlink">{EMAIL}</a>.
+          <a href={BOOKING_URL} class="textlink" rel="noopener">Open the booking page</a>.
         </p>
       </div>
+    </div>
+  </section>
+
+  <section class="ask">
+    <div class="container ask-grid">
+      <div data-reveal>
+        <h2>Have a question first?</h2>
+        <p class="ask-sub">Ask it here instead.</p>
+      </div>
+
+      <form
+        data-reveal
+        name="question"
+        method="POST"
+        action="/thanks"
+        data-netlify="true"
+        netlify-honeypot="fax-number"
+        class="ask-form"
+      >
+        <input type="hidden" name="form-name" value="question" />
+        <p class="hp">
+          <label for="q-fax">Leave this field empty</label>
+          <input id="q-fax" name="fax-number" tabindex="-1" autocomplete="off" />
+        </p>
+
+        <p class="field">
+          <label for="q-name">Name</label>
+          <input id="q-name" name="name" type="text" autocomplete="name" required />
+        </p>
+        <p class="field">
+          <label for="q-email">Work email</label>
+          <input id="q-email" name="email" type="email" autocomplete="email" required />
+        </p>
+        <p class="field">
+          <label for="q-question">Your question</label>
+          <textarea id="q-question" name="question" rows={5} required></textarea>
+        </p>
+        <p class="submit"><button type="submit" class="btn">Send</button></p>
+        <p class="reply-note">Replies within a business day.</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="happens">
+    <div class="container">
+      <h2 data-reveal>What actually happens on the call</h2>
+      <ol class="stage-cols">
+        {
+          STAGES.map((stage) => (
+            <li data-reveal>
+              <p class="when">{stage.when}</p>
+              <h3>{stage.title}</h3>
+              <p class="stage-body">{stage.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="fit surface-ink">
+    <div class="container fit-grid">
+      <div data-reveal>
+        <p class="eyebrow-gold">Worth booking if</p>
+        <ul class="arrows">
+          {WORTH.map((item) => <li>{item}</li>)}
+        </ul>
+        <p class="fit-cta"><a href="#pick" class="btn-gold-lg">Book a call</a></p>
+      </div>
+      <div data-reveal>
+        <p class="eyebrow-gold">Probably not yet if</p>
+        <ul class="arrows">
+          {NOT_YET.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="read-first">
+    <div class="container" data-reveal>
+      <p>
+        Rather read first? The <a href="/method" class="textlink">method page</a>{' '}
+        has the whole approach written out, and the{' '}
+        <a href="/why-now" class="textlink">why-now page</a> has the data behind it.
+      </p>
     </div>
   </section>
 </Base>
 
 <style>
-  .book {
-    padding-block: clamp(56px, 7vw, 96px);
+  .eyebrow-gold {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
   }
 
-  .book .lead {
-    margin-top: 28px;
+  /* ---- Top: pitch beside the scheduler ---- */
+  .top {
+    padding-block: clamp(56px, 7vw, 92px) clamp(64px, 8vw, 104px);
   }
 
-  .embed-wrap {
-    margin-top: clamp(40px, 5vw, 64px);
+  .top-grid {
+    display: grid;
+    gap: clamp(40px, 5vw, 72px);
+    align-items: start;
   }
 
-  .booking-frame {
-    display: block;
-    width: 100%;
-    max-width: 820px;
-    height: 680px;
-    border: 1px solid var(--rule);
-    border-radius: 2px;
-    background: var(--paper);
-  }
-
-  @media (max-width: 640px) {
-    .booking-frame {
-      height: 760px;
+  @media (min-width: 940px) {
+    .top-grid {
+      grid-template-columns: minmax(320px, 1fr) minmax(400px, 1fr);
     }
   }
 
-  .fallback {
-    margin-top: 24px;
+  .pitch h1 {
+    margin-top: 20px;
+    font-size: clamp(2.25rem, 5vw, 3.625rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    color: var(--paper);
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+
+  .pitch .lead {
+    margin-top: 22px;
+    font-size: clamp(1.0625rem, 1.6vw, 1.1875rem);
+    color: var(--paper);
+    opacity: 0.82;
+    max-width: 46ch;
+  }
+
+  .dashes {
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+  }
+
+  .dashes li {
+    position: relative;
+    padding-left: 22px;
     font-size: 1rem;
+    line-height: 1.6;
+    color: var(--paper);
+    opacity: 0.82;
+    max-width: 48ch;
+  }
+
+  /* A gold em-dash rather than a bullet, per the design. */
+  .dashes li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.72em;
+    width: 12px;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  .pitch-cta { margin-top: 32px; }
+
+  .btn-gold-lg {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--ink);
+    padding: 19px 36px;
+    border-radius: 2px;
+    font-weight: 600;
+    font-size: 17px;
+    transition: transform 140ms ease-out, box-shadow 140ms ease-out;
+  }
+
+  .btn-gold-lg:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(243, 198, 119, 0.3);
+  }
+
+  /* ---- The scheduler card: the one shadow in the design ---- */
+  .card {
+    background: var(--paper);
+    color: var(--body);
+    border-radius: 3px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+    padding: 26px 24px 24px;
+    scroll-margin-top: 24px;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-bottom: 20px;
+  }
+
+  .card-head h2 {
+    font-size: clamp(1.5rem, 2.4vw, 1.875rem);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .meta-line {
+    font-size: 15px;
     color: var(--muted);
+  }
+
+  .scheduler {
+    display: block;
+    width: 100%;
+    height: 640px;
+    border: 0;
+    background: var(--paper);
+  }
+
+  .pending {
+    padding: 32px 24px;
+    border: 2px dashed var(--rule);
+    border-radius: 2px;
+    background: #F4EFE7;
+  }
+
+  .pending code {
+    background: #E8E1D6;
+    padding: 2px 5px;
+    border-radius: 2px;
+    font-size: 0.9375em;
+  }
+
+  .card-note {
+    margin-top: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .card-fallback {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  /* ---- Ask a question ---- */
+  .ask {
+    padding-block: clamp(56px, 7vw, 88px);
+  }
+
+  .ask-grid {
+    display: grid;
+    gap: clamp(28px, 4vw, 64px);
+    align-items: start;
+  }
+
+  @media (min-width: 860px) {
+    .ask-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .ask h2 {
+    font-size: clamp(1.5rem, 2.8vw, 2.125rem);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .ask-sub {
+    margin-top: 10px;
+    font-size: 1.125rem;
+  }
+
+  .ask-form { max-width: 520px; }
+
+  .submit { margin-top: 28px; }
+
+  .reply-note {
+    margin-top: 14px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  /* ---- What happens on the call ---- */
+  .happens {
+    padding-block: 0 clamp(56px, 7vw, 88px);
+  }
+
+  .happens h2 {
+    font-size: clamp(1.5rem, 2.8vw, 2.125rem);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .stage-cols {
+    display: grid;
+    gap: 32px;
+    list-style: none;
+    margin: 40px 0 0;
+    padding: 0;
+  }
+
+  @media (min-width: 800px) {
+    .stage-cols { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .stage-cols li {
+    border-top: 2px solid var(--accent);
+    padding-top: 22px;
+  }
+
+  .when {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .stage-cols h3 {
+    margin-top: 8px;
+    font-size: 1.375rem;
+    letter-spacing: -0.01em;
+  }
+
+  .stage-body {
+    margin-top: 12px;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+
+  /* ---- Worth booking / not yet ---- */
+  .fit {
+    padding-block: clamp(56px, 7vw, 88px);
+  }
+
+  .fit-grid {
+    display: grid;
+    gap: clamp(36px, 5vw, 72px);
+  }
+
+  @media (min-width: 800px) {
+    .fit-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .arrows {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 16px;
+  }
+
+  .arrows li {
+    position: relative;
+    padding-left: 28px;
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    color: var(--paper);
+    max-width: 40ch;
+  }
+
+  .arrows li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--accent);
+  }
+
+  .fit-cta { margin-top: 32px; }
+
+  /* ---- Read first ---- */
+  .read-first {
+    padding-block: 0 clamp(56px, 7vw, 80px);
+  }
+
+  .read-first p {
+    max-width: 62ch;
+    font-size: 1.0625rem;
   }
 </style>

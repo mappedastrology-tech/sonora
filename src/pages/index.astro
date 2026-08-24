@@ -65,7 +65,7 @@ const linePoints = ZERO_CLICK.points.map((p) => `${p.x},${p.y}`).join(' ');
         <p class="pull">You can win the ranking and receive nothing.</p>
       </div>
 
-      <figure data-reveal class="chart-figure">
+      <figure data-reveal data-animate class="chart-figure">
         <svg
           viewBox="0 0 920 360"
           role="img"
@@ -565,6 +565,65 @@ const linePoints = ZERO_CLICK.points.map((p) => `${p.x},${p.y}`).join(' ');
     font-weight: 600;
     font-size: 30px;
     fill: var(--ink);
+  }
+
+  /* The chart draws itself when the reader reaches it: the line strokes on
+     over 1.6s, then each dot pops with its value label just behind it.
+
+     The whole block sits behind prefers-reduced-motion: no-preference, so
+     there is no reset state to undo for a reader who asked for less motion —
+     they get the finished chart. `both` holds the opening frame through the
+     delay, which is what stops a dot appearing before its turn. */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes draw-line {
+      from { stroke-dashoffset: 900; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes pop-dot {
+      from { opacity: 0; transform: scale(0.2); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Reset: scoped to html.js, so with JavaScript off nothing is hidden. */
+    html.js [data-animate] .chart .series {
+      stroke-dasharray: 900;
+      stroke-dashoffset: 900;
+    }
+
+    html.js [data-animate] .chart .dots circle,
+    html.js [data-animate] .chart .values text {
+      opacity: 0;
+    }
+
+    html.js [data-animate][data-armed] .chart .series {
+      animation: draw-line 1.6s ease-out 0.2s both;
+    }
+
+    /* SVG needs the fill box to scale about the shape's own centre. */
+    html.js [data-animate][data-armed] .chart .dots circle,
+    html.js [data-animate][data-armed] .chart .values text {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    html.js [data-animate][data-armed] .chart .dots circle {
+      animation: pop-dot 300ms ease-out both;
+    }
+
+    html.js [data-animate][data-armed] .chart .values text {
+      animation: pop-dot 320ms ease-out both;
+    }
+
+    html.js [data-animate][data-armed] .chart .dots circle:nth-child(1) { animation-delay: 0.5s; }
+    html.js [data-animate][data-armed] .chart .dots circle:nth-child(2) { animation-delay: 0.9s; }
+    html.js [data-animate][data-armed] .chart .dots circle:nth-child(3) { animation-delay: 1.3s; }
+    html.js [data-animate][data-armed] .chart .dots circle:nth-child(4) { animation-delay: 1.7s; }
+
+    html.js [data-animate][data-armed] .chart .values text:nth-child(1) { animation-delay: 0.6s; }
+    html.js [data-animate][data-armed] .chart .values text:nth-child(2) { animation-delay: 1s; }
+    html.js [data-animate][data-armed] .chart .values text:nth-child(3) { animation-delay: 1.4s; }
+    html.js [data-animate][data-armed] .chart .values text:nth-child(4) { animation-delay: 1.8s; }
   }
 
   /* ---- Stats ---- */
