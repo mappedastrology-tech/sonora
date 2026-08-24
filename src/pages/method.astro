@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import CTABlock from '../components/CTABlock.astro';
-import { ORDER, STAGE_DETAIL } from '../lib/method-page';
+import { STAGE_DETAIL } from '../lib/method-page';
 import { FAQS } from '../lib/faq';
 import { breadcrumbSchema, faqSchema } from '../lib/schema';
 
@@ -41,19 +41,6 @@ const schema = [
           ))
         }
       </nav>
-    </div>
-  </section>
-
-  <!-- The argument for the sequence, before the stages themselves. It stays on
-       ink like the hero above it, so a rule rather than a colour change marks
-       the join. -->
-  <section class="section order surface-ink" aria-labelledby="order-heading">
-    <div class="container">
-      <div class="prose" data-reveal>
-        <p class="eyebrow-gold">{ORDER.eyebrow}</p>
-        <h2 id="order-heading">{ORDER.heading}</h2>
-        {ORDER.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-      </div>
     </div>
   </section>
 
@@ -168,16 +155,6 @@ const schema = [
 
   .jump-number {
     font-variant-numeric: tabular-nums;
-  }
-
-  /* The hero is ink and so is this, so the boundary needs drawing. */
-  .order {
-    border-top: 1px solid var(--rule-on-ink);
-    padding-block: clamp(56px, 7vw, 96px);
-  }
-
-  .order h2 {
-    margin-top: 14px;
   }
 
   /* The stage name and its one-line summary sit in a column of their own,

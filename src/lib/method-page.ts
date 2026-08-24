@@ -4,17 +4,6 @@
  * and the card does not.
  */
 
-/** The section that argues for the sequence, before the stages themselves. */
-export const ORDER = {
-  eyebrow: 'Why the order matters',
-  heading: 'Sequencing is where this usually fails',
-  paragraphs: [
-    'Teams run acquisition before they’ve settled positioning. They add channels before choosing a motion. Then they publish a post a week and wait for something to rank.',
-    'That isn’t a strategy. It’s a habit, and it produces exactly what you’d expect: rising output against flat pipeline.',
-    'The four stages run in order because each one depends on the answer before it. You can’t decide what to publish before you know what you’re the answer to. You can’t measure whether it worked without knowing what you were aiming at.',
-  ],
-} as const;
-
 export const STAGE_DETAIL = [
   {
     number: '01',
