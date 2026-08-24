@@ -18,7 +18,7 @@ export const SERVICE_DETAIL = [
       'Real query set, built from how your buyers talk',
       'AI visibility baseline against named competitors',
       'Citation source mapping — what gets cited in your category instead of you',
-      'Technical AEO findings, prioritized by impact',
+      'Technical findings, prioritized by impact',
       'Positioning consistency across every surface you own',
       'Sequenced roadmap',
     ],
@@ -51,7 +51,7 @@ export const SERVICE_DETAIL = [
       'Editorial standards and review',
       'Channel direction across blog, social, video, and email',
       'Agency, freelancer, and contractor management',
-      'Quarterly measurement against a fixed prompt set',
+      'Quarterly reporting on search and AI visibility',
       'Alignment with sales and demand generation',
     ],
     startHereIf:
@@ -61,9 +61,8 @@ export const SERVICE_DETAIL = [
     slug: 'ai-visibility-monitoring',
     name: 'AI Visibility Monitoring',
     cadence: 'Ongoing · Quarterly',
-    body: 'How you appear in AI answers, measured on a fixed prompt set, against named competitors, on a set cadence. Most AI visibility reporting is unreliable because the measurement basis keeps moving. This doesn’t.',
+    body: 'Where you appear in AI answers each quarter, who appears instead of you, and what that’s doing to your pipeline.',
     includes: [
-      'Locked prompt set with documented methodology',
       'Share of voice and citation position, quarter over quarter',
       'Competitive citation mapping',
       'Sentiment tracking',

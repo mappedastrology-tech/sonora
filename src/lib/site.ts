@@ -122,29 +122,21 @@ export const SERVICES = [
     name: 'Visibility Audit',
     oneLiner:
       'Where you stand in AI and traditional search, and what to fix first.',
-    description:
-      'Where you stand right now in AI and traditional search, and what to fix in what order. Covers the real query set your buyers use, an AI visibility baseline against named competitors, citation source mapping, technical AEO findings, and positioning consistency across every surface you own.',
   },
   {
     slug: 'strategy-sprint',
     name: 'Strategy Sprint',
     oneLiner: 'The plan: positioning, channels, content architecture.',
-    description:
-      'The audit says what is wrong; the sprint decides what you are doing about it. Positioning and the term you intend to own, a message architecture your whole company can repeat, content and channel strategy, and technical requirements written as scoped tickets your engineers can pick up.',
   },
   {
     slug: 'fractional-head-of-content',
     name: 'Fractional Head of Content',
     oneLiner:
       'Ongoing ownership of strategy, standards, channels, and vendors.',
-    description:
-      'Senior content leadership without the hire. Sonora owns the strategy, the editorial standard, the channels, and the vendors. Your team executes; Sonora decides what gets made and whether it ships.',
   },
   {
     slug: 'ai-visibility-monitoring',
     name: 'AI Visibility Monitoring',
     oneLiner: 'Quarterly measurement against named competitors.',
-    description:
-      'How you appear in AI answers, measured on a fixed prompt set, against named competitors, on a set cadence. Most AI visibility reporting is unreliable because the measurement basis keeps moving. This does not.',
   },
 ] as const;
