@@ -105,10 +105,40 @@ slightly less polished. Both are fine.
 title: "SEO isn't dead, it's evolved"
 description: "One or two sentences. This is what shows up in Google and in link previews. Keep it under 155 characters."
 date: 2026-09-01
+topic: "Search"
+pullQuote: "One line lifted from the post. Shown on the blog page if this is the newest post."
 draft: false
 ---
 
 Your first paragraph goes here. Just write normally.
+
+**`topic` is required.** It has to be one of exactly four: `Search`,
+`Positioning`, `AI answers`, `Measurement`. It sets which filter the post
+appears under on `/blog` and which of the four icons it gets. A typo fails the
+build rather than inventing a fifth filter nobody can clear.
+
+**`pullQuote` is optional.** The newest post is featured on `/blog` with this
+line set in gold beside it. Without one the panel is simply empty.
+
+**Do not start the post with a `#` heading.** The title above is already the
+page's h1; a second one makes the page fail its accessibility check. Start
+sections at `##`.
+
+### Artwork for a post
+
+Optional. Drop an SVG into `assets/blog/` named after the post's file, then run
+`npm run assets` — it renders a 1200x630 PNG into `public/images/blog/`. Point
+the post at the **PNG**, not the SVG:
+
+```markdown
+image: "/images/blog/seo-isnt-dead.png"
+imageAlt: "Sonora arch mark on a deep navy field"
+```
+
+It appears at the top of the post and is the image used in link previews on
+LinkedIn, Slack and X. It has to be a PNG: none of those platforms render an
+SVG in a social card. Without an `image`, the post falls back to a generated
+card, so this is never required.
 
 ## A section heading uses two hash marks
 

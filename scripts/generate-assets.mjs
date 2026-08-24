@@ -549,6 +549,31 @@ async function recolourMark(file, colour) {
  * Open Graph cards: the ink background and title come from an SVG, the mark
  * itself is the supplied artwork composited on top in paper.
  */
+/**
+ * Blog artwork: the supplied SVGs in assets/blog/, rasterised to PNG.
+ *
+ * They exist as PNGs because that is what a social card has to be — no major
+ * platform renders an SVG in og:image. The SVG stays the source of truth.
+ */
+async function generateBlogArt() {
+  const sourceDir = path.join(root, 'assets', 'blog');
+  if (!(await exists(sourceDir))) {
+    log('blog art: no assets/blog directory, skipped');
+    return;
+  }
+
+  const outDir = path.join(imagesDir, 'blog');
+  await mkdir(outDir, { recursive: true });
+
+  const files = (await readdir(sourceDir)).filter((file) => file.endsWith('.svg'));
+  for (const file of files) {
+    const svg = await readFile(path.join(sourceDir, file), 'utf8');
+    const png = renderPng(svg, 1200);
+    await writeFile(path.join(outDir, file.replace(/\.svg$/, '.png')), png);
+  }
+  log(`blog art: ${files.length} card(s) rendered to images/blog/`);
+}
+
 async function generateOgImages() {
   await mkdir(imagesDir, { recursive: true });
 
@@ -659,6 +684,7 @@ await generateCompactIcon();
 await generateKnockout();
 await generateBrandWebp();
 await generateFavicons();
+await generateBlogArt();
 await generateOgImages();
 await generateHeadshot();
 await writeBrandManifest();

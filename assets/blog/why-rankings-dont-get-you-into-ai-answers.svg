@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-labelledby="t2 d2">
+<title id="t2">Sonora</title>
+<desc id="d2">The Sonora arch mark in navy on a warm paper field, with faint gold waves radiating outward.</desc>
+
+<rect width="1200" height="630" fill="#F1EDE4"/>
+
+<g fill="none" stroke="#C9922B">
+<path d="M420 210 A200 200 0 0 1 780 210" stroke-width="2" stroke-opacity="0.3"/>
+<path d="M420 420 A200 200 0 0 0 780 420" stroke-width="2" stroke-opacity="0.3"/>
+<path d="M348 152 A272 272 0 0 1 852 152" stroke-width="1.8" stroke-opacity="0.2"/>
+<path d="M348 478 A272 272 0 0 0 852 478" stroke-width="1.8" stroke-opacity="0.2"/>
+<path d="M276 94 A344 344 0 0 1 924 94" stroke-width="1.6" stroke-opacity="0.12"/>
+<path d="M276 536 A344 344 0 0 0 924 536" stroke-width="1.6" stroke-opacity="0.12"/>
+</g>
+
+<path d="M546 396 V300 A54 54 0 0 1 654 300 V396 Z" fill="#0C0A3E"/>
+
+</svg>

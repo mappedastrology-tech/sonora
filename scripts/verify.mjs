@@ -7,7 +7,7 @@
  *
  * Usage: npm run build && npm run verify
  */
-import { readFile, access } from 'node:fs/promises';
+import { readFile, readdir, access } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -68,8 +68,28 @@ const PAGES = [
   ['thanks.html', '/thanks', 'within a business day'],
   ['privacy.html', '/privacy', 'This site collects almost nothing'],
   ['404.html', '/404', 'opposite of the problem we usually solve'],
-  ['blog/the-sonora-method.html', '/blog/the-sonora-method', 'The room got too loud'],
 ];
+
+/*
+ * Posts are appended from the content directory rather than listed here, and
+ * the phrase each one is checked for comes out of its own body. A hardcoded
+ * list went stale the moment a post was renamed, and the checks it owned went
+ * quiet instead of failing.
+ */
+const blogSource = path.join(root, 'src', 'content', 'blog');
+const POST_SLUGS = [];
+for (const file of (await readdir(blogSource)).filter((f) => f.endsWith('.md'))) {
+  const raw = await readFile(path.join(blogSource, file), 'utf8');
+  if (/^draft:\s*true/m.test(raw)) continue;
+  const body = raw.slice(raw.indexOf('\n---\n', 4) + 5);
+  const sentence = body
+    .split('\n')
+    .map((line) => line.replace(/^#+\s*/, '').trim())
+    .find((line) => line.length > 60 && !line.startsWith('*') && !line.startsWith('-'));
+  const slug = file.replace(/\.md$/, '');
+  POST_SLUGS.push(slug);
+  PAGES.push([`blog/${slug}.html`, `/blog/${slug}`, sentence.slice(0, 48)]);
+}
 
 heading('Body copy present in the served HTML (JS disabled)');
 const documents = new Map();
@@ -140,13 +160,21 @@ for (const [route, source] of documents) {
 if (failures === before) pass('every page has canonical, og:*, and twitter:card');
 
 heading('Structured data');
-const TYPES_BY_ROUTE = {
+let TYPES_BY_ROUTE = {
   '/': ['Organization', 'WebSite', 'BreadcrumbList'],
   '/method': ['Organization', 'WebSite', 'FAQPage', 'BreadcrumbList'],
   '/services': ['Organization', 'WebSite', 'Service', 'BreadcrumbList'],
   '/about': ['Organization', 'WebSite', 'Person', 'BreadcrumbList'],
-  '/blog/the-sonora-method': ['Organization', 'WebSite', 'BlogPosting', 'BreadcrumbList'],
 };
+
+for (const slug of POST_SLUGS) {
+  TYPES_BY_ROUTE[`/blog/${slug}`] = [
+    'Organization',
+    'WebSite',
+    'BlogPosting',
+    'BreadcrumbList',
+  ];
+}
 
 for (const [route, source] of documents) {
   const raw = source.match(
@@ -327,10 +355,11 @@ for (const file of ['llms.txt', 'robots.txt', 'rss.xml', 'sitemap-index.xml']) {
 }
 
 const llms = await readFile(path.join(dist, 'llms.txt'), 'utf8');
-if (llms.includes('/blog/the-sonora-method')) {
-  pass('llms.txt lists published posts');
+const missingFromLlms = POST_SLUGS.filter((slug) => !llms.includes(`/blog/${slug}`));
+if (missingFromLlms.length) {
+  fail(`llms.txt is missing posts: ${missingFromLlms.join(', ')}`);
 } else {
-  fail('llms.txt is not listing posts');
+  pass(`llms.txt lists all ${POST_SLUGS.length} published post(s)`);
 }
 
 const robots = await readFile(path.join(dist, 'robots.txt'), 'utf8');
@@ -346,7 +375,8 @@ for (const file of [
   'favicon-32.png',
   'apple-touch-icon.png',
   'images/og-default.png',
-  'images/og/the-sonora-method.png',
+  /* Every post's card, derived — a named one goes stale on a rename. */
+  ...POST_SLUGS.map((slug) => `images/og/${slug}.png`),
 ]) {
   if (await exists(path.join(dist, file))) {
     pass(`/${file}`);
