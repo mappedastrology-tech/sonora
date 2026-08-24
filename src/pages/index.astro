@@ -175,10 +175,12 @@ const linePoints = ZERO_CLICK.points.map((p) => `${p.x},${p.y}`).join(' ');
               </span>
               <span class="path-title">{p.title}</span>
               <span class="path-body">{p.body}</span>
-              <span class="path-cta">
-                <span class="when-active">{p.ctaActive}</span>
-                <span class="when-idle">{p.ctaInactive}</span>
-              </span>
+              {(p.ctaActive || p.ctaInactive) && (
+                <span class="path-cta">
+                  <span class="when-active">{p.ctaActive}</span>
+                  <span class="when-idle">{p.ctaInactive}</span>
+                </span>
+              )}
             </button>
           ))
         }

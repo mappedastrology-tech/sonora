@@ -18,8 +18,11 @@ export const PATHS = [
     kicker: 'The usual response',
     title: 'Hire another rep',
     body: 'A rep with no leads spends the week prospecting cold instead of closing. It is the slowest and most expensive way to create demand — and it is why so many first sales hires quietly don’t work out.',
-    ctaActive: 'You are here →',
-    ctaInactive: 'See what happens',
+    /* No call to action: this is the path the page is arguing against, and
+       inviting a click on it was working against the point. The card is still
+       the other half of the toggle. */
+    ctaActive: null,
+    ctaInactive: null,
   },
   {
     key: 'engine',
