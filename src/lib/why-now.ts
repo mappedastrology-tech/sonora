@@ -5,6 +5,8 @@
  * handoff retires several earlier numbers — 222%, 220%, the Paddle CAC index,
  * the 107/134-day sales cycles — and they must not come back.
  */
+export { AI_ANSWER } from './ai-answer';
+
 export const SCENES = [
   {
     id: 'ask-a-model',
@@ -36,18 +38,6 @@ export const SCENES = [
   },
 ] as const;
 
-/** The AI-answer card. Clicking it cycles the query; each has its own count. */
-export const AI_ANSWER = {
-  query: 'what are the best options in our category?',
-  lead: 'Three names come up most often in current sources:',
-  results: [
-    'A competitor',
-    'A competitor with a worse product',
-    'A competitor you’ve never lost to',
-  ],
-  verdict: 'You aren’t in this answer.',
-  counter: '0 of 12 cited sources mention you',
-} as const;
 
 /** Clicks reaching the open web, per 1,000 Google searches. */
 export const CLICK_BARS = [

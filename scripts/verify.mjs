@@ -61,7 +61,7 @@ const PAGES = [
   ['index.html', '/', 'Ranking first isn’t the same as getting found'],
   ['method.html', '/method', 'Everything starts with learning the market'],
   ['services.html', '/services', 'Strategy Sprint'],
-  ['about.html', '/about', 'nobody owned inbound'],
+  ['about.html', '/about', 'It was never a product problem'],
   ['blog.html', '/blog', 'when the answer arrives before the click'],
   ['book.html', '/book', 'Thirty minutes'],
   ['contact.html', '/contact', 'What’s not working?'],
