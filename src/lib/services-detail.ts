@@ -12,7 +12,7 @@ export const SERVICE_DETAIL = [
   {
     slug: 'visibility-audit',
     name: 'Visibility Audit',
-    cadence: 'One-time. Two to three weeks.',
+    cadence: 'One-time · Two to three weeks',
     body: 'Where you stand right now in AI and traditional search, and what to fix in what order.',
     includes: [
       'Real query set, built from how your buyers talk',
@@ -28,7 +28,7 @@ export const SERVICE_DETAIL = [
   {
     slug: 'strategy-sprint',
     name: 'Strategy Sprint',
-    cadence: 'One-time. Four to six weeks.',
+    cadence: 'One-time · Four to six weeks',
     body: 'The audit says what’s wrong. This decides what you’re doing about it.',
     includes: [
       'Positioning and the term you’re going to own',
@@ -39,13 +39,13 @@ export const SERVICE_DETAIL = [
       'Technical requirements written as scoped tickets your engineers can pick up',
     ],
     startHereIf:
-      'you know you have a pipeline problem and need a plan your team can run without me on retainer.',
+      'you know you have a pipeline problem and need a plan your team can run without us on retainer.',
   },
   {
     slug: 'fractional-head-of-content',
     name: 'Fractional Head of Content',
-    cadence: 'Ongoing. Three-month minimum.',
-    body: 'Senior content leadership without the hire. I own strategy, standards, channels, and vendors. Your team executes; I decide what gets made and whether it ships.',
+    cadence: 'Ongoing · Three-month minimum',
+    body: 'Senior content leadership without the hire. We own strategy, standards, channels, and vendors. Your team executes; we decide what gets made and whether it ships.',
     includes: [
       'Positioning and content strategy',
       'Editorial standards and review',
@@ -60,7 +60,7 @@ export const SERVICE_DETAIL = [
   {
     slug: 'ai-visibility-monitoring',
     name: 'AI Visibility Monitoring',
-    cadence: 'Ongoing. Quarterly.',
+    cadence: 'Ongoing · Quarterly',
     body: 'How you appear in AI answers, measured on a fixed prompt set, against named competitors, on a set cadence. Most AI visibility reporting is unreliable because the measurement basis keeps moving. This doesn’t.',
     includes: [
       'Locked prompt set with documented methodology',

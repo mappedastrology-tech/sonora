@@ -27,17 +27,26 @@ const schema = [
   path={path}
   schema={schema}
 >
-  <section class="section page-hero">
+  <section class="hero surface-ink">
     <div class="container">
-      <div class="prose">
-        <h1>Services</h1>
-        <p class="lead">
-          I set strategy and direct the work. I don&rsquo;t write, design, or
-          build &mdash; your team or your contractors do that, and I make sure
-          what they produce is worth having made.
-        </p>
-        <p>Most engagements start with the audit.</p>
-      </div>
+      <p class="eyebrow-gold">Services</p>
+      <h1>Four ways to fix your pipeline</h1>
+      <p class="hero-lead">
+        Where you start depends on whether the problem is what you&rsquo;re
+        saying, where you&rsquo;re saying it, or whether anyone&rsquo;s checking.
+        We set the strategy and direct the work &mdash; your team builds it.
+      </p>
+
+      <nav class="jump" aria-label="The four services">
+        {
+          SERVICE_DETAIL.map((service) => (
+            <a href={`#${service.slug}`}>
+              <span class="jump-arch" aria-hidden="true"></span>
+              {service.name}
+            </a>
+          ))
+        }
+      </nav>
     </div>
   </section>
 
@@ -45,32 +54,33 @@ const schema = [
     SERVICE_DETAIL.map((service, index) => (
       <section
         id={service.slug}
-        class:list={['section service', index % 2 === 0 ? 'surface-ink' : '']}
+        class:list={['section service', index % 2 === 1 ? 'surface-ink' : '']}
         aria-labelledby={`${service.slug}-heading`}
       >
-        <div class="container">
-          <div class="service-inner" data-reveal>
-            <div class="prose">
-              <p class="eyebrow">{service.cadence}</p>
-              <h2 id={`${service.slug}-heading`}>{service.name}</h2>
-              <p>{service.body}</p>
-            </div>
+        <div class="container service-inner">
+          <div class="pitch" data-reveal>
+            <p class="cadence">{service.cadence}</p>
+            <h2 id={`${service.slug}-heading`}>{service.name}</h2>
+            <p class="service-body">{service.body}</p>
+            <p class="book">
+              <a href="/book" class="btn-solid">Book a call</a>
+            </p>
+          </div>
 
-            <div class="detail">
-              <ul class="arch-list">
-                {service.includes.map((item) => (
-                  <li>{item}</li>
-                ))}
-              </ul>
+          <div class="detail" data-reveal>
+            <p class="detail-label">What it includes</p>
+            <ul class="includes">
+              {service.includes.map((item) => (
+                <li>
+                  <span class="bullet" aria-hidden="true"></span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
 
-              <p class="start-here">
-                <strong>Start here if</strong> {service.startHereIf}
-              </p>
-
-              <p class="book">
-                <a href="/book" class="btn">Book a call</a>
-              </p>
-            </div>
+            <p class="start-here">
+              <strong>Start here if</strong> {service.startHereIf}
+            </p>
           </div>
         </div>
       </section>
@@ -81,50 +91,193 @@ const schema = [
 </Base>
 
 <style>
-  .page-hero {
-    padding-block: clamp(56px, 7vw, 96px) clamp(48px, 6vw, 72px);
+  /* ---- Hero ---- */
+  .hero {
+    padding-block: clamp(64px, 9vw, 112px) clamp(56px, 7vw, 96px);
   }
 
-  .page-hero .lead {
-    margin-top: 28px;
+  .hero h1 {
+    margin-top: 20px;
+    font-size: clamp(2.5rem, 6vw, 4.125rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    max-width: 18ch;
+    text-wrap: balance;
   }
 
+  .hero-lead {
+    margin-top: 26px;
+    font-size: clamp(1.1875rem, 2vw, 1.375rem);
+    line-height: 1.5;
+    max-width: 56ch;
+    color: var(--paper);
+    opacity: 0.82;
+  }
+
+  /* Jump links to the four services. Filled arches here rather than the
+     outlines on /method, because these name a service rather than a step. */
+  .jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: clamp(32px, 4vw, 44px);
+  }
+
+  .jump a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--rule-on-ink);
+    border-radius: 2px;
+    padding: 12px 20px 12px 14px;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--paper);
+    transition: border-color 160ms ease-out, transform 160ms ease-out;
+  }
+
+  .jump a:hover,
+  .jump a:focus-visible {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .jump-arch {
+    flex: none;
+    width: 14px;
+    height: 17px;
+    background: var(--accent);
+    border-radius: 7px 7px 1px 1px;
+  }
+
+  /* ---- One service ----
+     The pitch and its CTA on the left, what you get on the right. */
   .service-inner {
     display: grid;
-    gap: clamp(32px, 4vw, 48px);
+    gap: clamp(36px, 4.5vw, 48px);
   }
 
   @media (min-width: 900px) {
     .service-inner {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(300px, 420px) 1fr;
       gap: 72px;
       align-items: start;
     }
   }
 
-  .eyebrow {
-    margin-bottom: 16px;
+  .cadence {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--surface-muted);
+  }
+
+  /* On ink the cadence carries the accent; on paper it stays quiet so it does
+     not compete with the heading under it. */
+  .surface-ink .cadence {
+    color: var(--accent);
   }
 
   .service h2 {
-    margin-bottom: 20px;
+    margin-top: 16px;
+    font-size: clamp(1.875rem, 3.6vw, 2.75rem);
+    line-height: 1.06;
+    letter-spacing: -0.03em;
   }
 
-  .detail li {
+  .service-body {
+    margin-top: 20px;
+    font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
+    max-width: 44ch;
+  }
+
+  .book {
+    margin-top: 30px;
+  }
+
+  /* Ink section, gold button; paper section, ink button. Either way it is the
+     strongest thing in the column. */
+  .btn-solid {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 16px 28px;
+    border-radius: 2px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: transform 140ms ease-out, box-shadow 140ms ease-out;
+  }
+
+  .surface-ink .btn-solid {
+    background: var(--accent);
+    color: var(--ink);
+  }
+
+  .btn-solid:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(12, 10, 62, 0.22);
+  }
+
+  .surface-ink .btn-solid:hover {
+    box-shadow: 0 10px 26px rgba(243, 198, 119, 0.3);
+  }
+
+  /* ---- What it includes ---- */
+  .detail-label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--surface-muted);
+  }
+
+  .includes {
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .includes li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding-block: 14px;
+    border-top: 1px solid var(--surface-rule);
+    font-size: clamp(1rem, 1.4vw, 1.125rem);
     color: var(--surface-text);
+  }
+
+  /* The brand arch, filled, standing in for a bullet. */
+  .bullet {
+    flex: none;
+    width: 12px;
+    height: 15px;
+    margin-top: 7px;
+    background: var(--accent);
+    border-radius: 6px 6px 1px 1px;
   }
 
   .start-here {
     margin-top: 32px;
-    max-width: 46ch;
+    padding: 24px 26px;
+    border-left: 3px solid var(--accent);
+    border-radius: 2px;
+    background: var(--paper-raised);
+    font-size: clamp(1rem, 1.4vw, 1.125rem);
+    line-height: 1.6;
     color: var(--surface-text);
+  }
+
+  .surface-ink .start-here {
+    background: #12104A;
   }
 
   .start-here strong {
     color: var(--surface-heading);
   }
 
-  .book {
-    margin-top: 36px;
+  .surface-ink .start-here strong {
+    color: var(--accent);
   }
 </style>
