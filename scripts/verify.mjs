@@ -91,10 +91,13 @@ heading('Unique titles and descriptions');
 const titles = new Map();
 const descriptions = new Map();
 for (const [route, source] of documents) {
-  const title = source.match(/<title>([^<]*)<\/title>/)?.[1];
-  const description = source.match(
-    /<meta name="description" content="([^"]*)"/
-  )?.[1];
+  /* Decode before measuring: an ampersand is five characters in the markup and
+     one on a results page, so measuring the raw HTML overstates any title
+     containing one. */
+  const title = decode(source.match(/<title>([^<]*)<\/title>/)?.[1] ?? '');
+  const description = decode(
+    source.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? ''
+  );
 
   if (!title) {
     fail(`${route} has no <title>`);
