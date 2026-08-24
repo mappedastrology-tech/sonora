@@ -18,6 +18,12 @@
   --rose:     #B33F62;  /* RESERVED — data viz only */
   --flame:    #F9564F;  /* RESERVED — data viz only */
 
+  /* Added with the v5 design handoff. */
+  --paper-raised:  #FFFDFA;  /* cards on paper */
+  --input-border:  #D8D2C7;  /* form field borders */
+  --muted-on-ink:  #A9A6C4;  /* secondary text on navy */
+  --rule-on-ink:   #2A2760;  /* rules and borders on navy */
+
   --font-heading: 'Poppins', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
@@ -25,6 +31,7 @@
   --content-width: 1180px;
   --prose-width: 68ch;
   --gutter: 24px;
+  --gutter-wide: 64px;   /* the design's desktop page padding */
   --section-gap: clamp(72px, 10vw, 140px);
   --nav-height: 72px;
 
@@ -39,6 +46,10 @@
 
 @media (min-width: 768px) {
   :root { --gutter: 48px; }
+}
+
+@media (min-width: 1100px) {
+  :root { --gutter: 64px; }
 }
 
 /* --------------------------------------------------------------------------
@@ -237,8 +248,8 @@ body > :not(.surface-ink) :focus-visible {
   --surface: var(--ink);
   --surface-text: var(--paper);
   --surface-heading: var(--paper);
-  --surface-muted: #A9A6C4;
-  --surface-rule: #2A2760;
+  --surface-muted: var(--muted-on-ink);
+  --surface-rule: var(--rule-on-ink);
   background: var(--ink);
   color: var(--paper);
 }

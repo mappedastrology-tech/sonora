@@ -18,6 +18,7 @@ const out = process.argv[2];
 const PAGES = [
   ['/', 'index.html', 'Home'],
   ['/method', 'method.html', 'Method'],
+  ['/why-now', 'why-now.html', 'Why now'],
   ['/services', 'services.html', 'Services'],
   ['/about', 'about.html', 'About'],
   ['/blog', 'blog.html', 'Writing'],

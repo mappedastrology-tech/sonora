@@ -1,136 +1,87 @@
 ---
-import NewsletterForm from './NewsletterForm.astro';
-import { EMAIL, DESCRIPTOR, NAV_LINKS, LINKEDIN_URL } from '../lib/site';
-import { heightAt } from '../lib/brand';
-
-const WORDMARK_WIDTH = 150;
+/**
+ * Site footer. Three link columns beside the descriptor — no newsletter here;
+ * the design moves the signup onto the homepage.
+ */
+import { EMAIL, DESCRIPTOR, SITE_NAME } from '../lib/site';
 
 const year = 2026;
 ---
 
 <footer class="site-footer surface-ink">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <img
-          src="/brand/sonora-wordmark-knockout.webp"
-          alt="Sonora"
-          width={WORDMARK_WIDTH}
-          height={heightAt('sonora-wordmark-knockout', WORDMARK_WIDTH)}
-          loading="lazy"
-          decoding="async"
-        />
-        <p class="tagline">{DESCRIPTOR}</p>
-      </div>
+  <div class="container footer-inner">
+    <p class="descriptor">{SITE_NAME} &mdash; {DESCRIPTOR.charAt(0).toLowerCase() + DESCRIPTOR.slice(1)}</p>
 
-      <nav aria-label="Footer">
-        <h2 class="col-heading">Sonora</h2>
-        <ul class="footer-links">
-          {NAV_LINKS.map((link) => (
-            <li><a href={link.href}>{link.label}</a></li>
-          ))}
-          <li><a href="/book">Book a call</a></li>
-        </ul>
-      </nav>
+    <nav class="footer-nav" aria-label="Footer">
+      <ul>
+        <li><a href="/method">Method</a></li>
+        <li><a href="/services">Services</a></li>
+        <li><a href="/why-now">Why now</a></li>
+      </ul>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+      <ul>
+        <li><a href={`mailto:${EMAIL}`}>{EMAIL}</a></li>
+      </ul>
+    </nav>
+  </div>
 
-      <div>
-        <h2 class="col-heading">Get in touch</h2>
-        <ul class="footer-links">
-          <li><a href={`mailto:${EMAIL}`}>{EMAIL}</a></li>
-          <li><a href={LINKEDIN_URL} rel="me noopener">LinkedIn</a></li>
-        </ul>
-        <div class="newsletter-slot">
-          <NewsletterForm id="footer-newsletter" variant="footer" />
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <p class="meta">&copy; {year} Sonora</p>
-      <p class="meta"><a href="/privacy" class="bottom-link">Privacy</a></p>
-    </div>
+  <div class="container bottom">
+    <p class="meta">&copy; {year} {SITE_NAME}</p>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    padding-block: clamp(56px, 7vw, 88px) 32px;
-    margin-top: var(--section-gap);
+    padding-block: 56px 28px;
   }
 
-  .footer-grid {
-    display: grid;
-    gap: 48px;
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px 48px;
+    font-size: 16px;
   }
 
-  @media (min-width: 768px) {
-    .footer-grid {
-      grid-template-columns: 1.2fr 0.8fr 1fr;
-      gap: 56px;
-    }
+  .descriptor {
+    color: var(--muted-on-ink);
+    max-width: 30ch;
   }
 
-  .tagline {
-    margin-top: 24px;
-    max-width: 34ch;
-    font-size: 1.0625rem;
-    line-height: 1.6;
-    color: var(--paper);
+  .footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 48px;
   }
 
-  .meta { margin-top: 12px; }
-
-  .col-heading {
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--surface-muted);
-    margin-bottom: 20px;
-  }
-
-  .footer-links {
+  .footer-nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
-  .footer-links li + li { margin-top: 12px; }
-
-  .footer-links a {
+  .footer-nav a {
     color: var(--paper);
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
-    transition: text-decoration-color 120ms ease-out;
+    border-bottom: 1px solid transparent;
+    transition: border-color 140ms ease-out;
   }
 
-  .footer-links a:hover {
-    text-decoration-color: var(--accent);
+  .footer-nav a:hover {
+    border-bottom-color: var(--accent);
   }
 
-  .newsletter-slot { margin-top: 32px; }
-
-  .footer-bottom {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 8px 24px;
-    margin-top: clamp(48px, 6vw, 72px);
-    padding-top: 24px;
-    border-top: 1px solid var(--surface-rule);
+  .bottom {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule-on-ink);
   }
-
-  .footer-bottom .meta { margin-top: 0; }
-
-  .bottom-link {
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    text-underline-offset: 4px;
-    text-decoration-thickness: 2px;
-  }
-
-  .bottom-link:hover { text-decoration-color: var(--accent); }
 </style>

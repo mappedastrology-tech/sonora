@@ -45,6 +45,7 @@ export const SAME_AS: string[] = [LINKEDIN_URL];
 export const NAV_LINKS = [
   { label: 'Method', href: '/method' },
   { label: 'Services', href: '/services' },
+  { label: 'Why now', href: '/why-now' },
   { label: 'About', href: '/about' },
   { label: 'Blog', href: '/blog' },
 ] as const;
@@ -54,6 +55,7 @@ export const PAGE_LABELS: Record<string, string> = {
   '/method': 'Method',
   '/services': 'Services',
   '/about': 'About',
+  '/why-now': 'Why now',
   '/blog': 'Blog',
   '/book': 'Book a call',
   '/contact': 'Contact',
