@@ -1,6 +1,6 @@
 ---
 import NewsletterForm from './NewsletterForm.astro';
-import { EMAIL, LOCATION, SITE_TAGLINE, NAV_LINKS, LINKEDIN_URL } from '../lib/site';
+import { EMAIL, DESCRIPTOR, NAV_LINKS, LINKEDIN_URL } from '../lib/site';
 import { heightAt } from '../lib/brand';
 
 const WORDMARK_WIDTH = 150;
@@ -20,8 +20,7 @@ const year = 2026;
           loading="lazy"
           decoding="async"
         />
-        <p class="tagline">{SITE_TAGLINE}</p>
-        <p class="meta">{LOCATION}.</p>
+        <p class="tagline">{DESCRIPTOR}</p>
       </div>
 
       <nav aria-label="Footer">

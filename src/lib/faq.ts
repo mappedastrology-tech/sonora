@@ -1,5 +1,5 @@
 /**
- * The four FAQs on /method.
+ * The FAQs on /method.
  *
  * These are written to be extracted. The first sentence of every answer is a
  * complete, standalone response to the question — an answer engine that lifts
@@ -10,23 +10,33 @@
  */
 export const FAQS = [
   {
+    question: 'How do I increase my pipeline?',
+    answer:
+      'Build the marketing engine first and the sales team second. A rep with no leads spends the week prospecting cold instead of closing, which is the slowest and most expensive way to create demand — and it’s why so many first sales hires don’t work out. Marketing that’s aimed correctly puts you in front of people at the moment they’re deciding, and it keeps working after the spend stops. Hire salespeople to work that flow, not to create it.',
+  },
+  {
     question: 'What is answer engine optimization?',
     answer:
-      'Answer engine optimization, or AEO, is the practice of getting a company named and cited inside the answers AI assistants generate, rather than ranked in a list of links. It covers three things: the questions buyers actually ask, whether a model can read your site at all, and which third-party sources it pulls from when it answers those questions.',
+      'Answer engine optimization, or AEO, is the practice of getting your company named and cited by AI systems that answer questions directly instead of returning a list of links. In practice it means making your site readable by models, structuring content so answers can be extracted from it, and getting into the third-party sources those models cite when describing your category.',
   },
   {
     question: 'How is AEO different from SEO?',
     answer:
-      'AEO competes to be one of the few sources a model cites inside an answer; SEO competes for a position among ten links on a results page. The technical foundations overlap almost entirely, so good SEO work is rarely wasted. What changes is the target and the measurement: there is no position one in an answer, only whether you are in it.',
+      'SEO optimizes for ranking in a list of results; AEO optimizes for being named inside an answer where no list appears. Clean technical foundations help both, but AEO depends much more on third-party sources you don’t own, structured data, and whether your category has a term a model can attach to you.',
   },
   {
-    question: 'How long does it take to see results in AI search?',
+    question: 'How do you get cited by AI search engines?',
     answer:
-      'Expect the first measurable movement within a quarter and a defensible position in three to four. Technical fixes register fastest, because they change what a crawler can read on the next pass. Citation patterns move slowly, because models reflect sources that have been published, indexed, and repeated over time. Anyone promising faster is measuring something that was never comparable.',
+      'Three conditions have to be met: the model can access and parse your content, your site describes what you are in consistent language, and the sources it trusts in your category already reference you. This applies across ChatGPT, Perplexity, Gemini, Claude, and Google AI Overviews — the mechanics differ but the conditions don’t. Most companies fail the first or second and spend their budget on the third.',
   },
   {
-    question: 'Do you write the content?',
+    question: 'Does this actually generate leads?',
     answer:
-      'No. Sonora sets strategy and direction and manages whoever executes. Your team, your freelancers, or an agency produce the work; I decide what should be made, set the standard it has to meet, review what comes back, and say whether it is good enough to ship. If you need someone to execute, I will tell you honestly and help you find them.',
+      'Yes, and that’s the only reason to do it. The work targets the questions people ask when they’re close to spending money, not whatever has the most search volume. People who arrive from AI answers have usually already defined their problem and narrowed their options, which is why they convert at higher rates than general organic traffic.',
+  },
+  {
+    question: 'How long before it shows up in pipeline?',
+    answer:
+      'Plan on six months. Training and retrieval cycles aren’t published, changes usually surface in retrieval-based engines like Perplexity before they appear elsewhere, and search compounds slowly by nature. Anyone promising results in thirty days is guessing.',
   },
 ] as const;

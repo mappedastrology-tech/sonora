@@ -1,13 +1,13 @@
 /**
  * /llms.txt — a plain-text map of the site for language models.
  *
- * Generated as a route rather than a static file so the Writing section lists
+ * Generated as a route rather than a static file so the Blog section lists
  * every published post automatically. Nothing to update by hand when a post
  * ships.
  */
 import type { APIRoute } from 'astro';
 import { getPublishedPosts, postPath } from '../lib/posts';
-import { SITE_URL, EMAIL } from '../lib/site';
+import { SITE_URL, EMAIL, SERVICES } from '../lib/site';
 
 const url = (path: string) => `${SITE_URL}${path}`;
 
@@ -18,22 +18,31 @@ export const GET: APIRoute = async () => {
     .map((post) => `- [${post.data.title}](${url(postPath(post))}): ${post.data.description}`)
     .join('\n');
 
+  const services = SERVICES.map(
+    (service) => `- ${service.name}: ${service.oneLiner}`
+  ).join('\n');
+
   const body = `# Sonora
 
-> Sonora is a strategic consultancy run by Taylor Corbett. It provides content
-> strategy, AI search visibility (answer engine optimization), SEO, and category
-> positioning for startups and B2B software companies. Sonora sells strategy and
-> direction only and does not produce content or engineering work.
+> Sonora is a search and content strategy practice run by Taylor Corbett. It
+> helps companies that need pipeline get found by their buyers — AI search
+> visibility (answer engine optimization), SEO, positioning, and content
+> direction. Sonora sets strategy and directs the work; the client's team or
+> contractors produce it.
 
 ## Core pages
 
-- [The Sonora Method](${url('/method')}): A four-stage framework — Listen, Locate, Saturate, Sustain.
-- [Services](${url('/services')}): Visibility audits, fractional content leadership, AI visibility monitoring, original research programs, roadmap execution management.
+- [The Sonora Method](${url('/method')}): A four-stage framework for turning search into pipeline — Listen, Locate, Saturate, Sustain. Covers answer engine optimization across ChatGPT, Perplexity, Gemini, Claude, and Google AI Overviews.
+- [Services](${url('/services')}): Visibility audit, strategy sprint, fractional head of content, AI visibility monitoring.
 - [About](${url('/about')}): Background of Taylor Corbett, founder.
 
-## Writing
+## Services
 
-- [Blog](${url('/blog')}): Notes on AI search, SEO, and category strategy.
+${services}
+
+## Blog
+
+- [Blog](${url('/blog')}): AI search, positioning, and what to do when the answer arrives before the click.
 ${writing}
 
 ## Contact

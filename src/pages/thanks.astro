@@ -8,7 +8,7 @@ const path = '/thanks';
 
 <Base
   title="Thank you — Sonora"
-  description="Your message reached Sonora. A reply usually follows within one business day."
+  description="Your message reached Sonora. A reply follows within one business day."
   path={path}
   noindex={true}
   schema={[breadcrumbSchema([{ name: 'Home', path: '/' }, { name: 'Thank you', path }])]}
@@ -16,11 +16,10 @@ const path = '/thanks';
   <section class="section thanks">
     <div class="container">
       <div class="prose">
-        <h1>That came through.</h1>
+        <h1>Got it.</h1>
         <p class="lead">
-          I read everything myself and usually reply within a business day. If
-          it&rsquo;s urgent, <a href={`mailto:${EMAIL}`}>{EMAIL}</a> reaches the
-          same inbox.
+          I&rsquo;ll come back to you within a business day. If it&rsquo;s
+          urgent, <a href={`mailto:${EMAIL}`}>{EMAIL}</a> reaches the same inbox.
         </p>
         <p>
           <a href="/blog" class="textlink">Read something while you wait</a> or

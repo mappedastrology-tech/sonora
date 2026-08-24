@@ -1,30 +1,31 @@
 /**
- * The four stages. The homepage renders the short form; /method renders the
- * expanded form. Both read from here so they can never drift apart.
+ * The four stages, short form. The homepage renders these; /method renders the
+ * expanded version from method-page.ts. Both read from one place so they can
+ * never drift apart.
  */
 export const STAGES = [
   {
     number: '01',
     name: 'Listen',
     short:
-      'Find out what’s actually being asked and who currently gets the answer. The real query set, in your buyers’ words. A baseline of how you show up in AI answers today, and which sources those citations come from.',
+      'What your buyers search when they have a budget and a problem. Buying-intent queries, not whatever has the highest volume. Plus a baseline of who currently gets the answer.',
   },
   {
     number: '02',
     name: 'Locate',
     short:
-      'Find the position you can plausibly own within a year. Sometimes it exists and nobody’s claimed it. Sometimes it doesn’t exist yet and the work is naming it.',
+      'The position you can own within a year, and the language that makes a stranger understand what you sell in one line.',
   },
   {
     number: '03',
     name: 'Saturate',
     short:
-      'Get into every surface where that question gets asked. Owned content is the smallest part. The larger part is the infrastructure that determines whether a model can read you at all, and the third-party sources it actually pulls from.',
+      'Show up across the whole path, from the question that starts the search to the comparison page where it ends. Being present at the top is worthless if you’re absent where the decision gets made.',
   },
   {
     number: '04',
     name: 'Sustain',
     short:
-      'Measure against a fixed prompt set, on a fixed cadence, against named competitors. Fixed is the operative word. A number that isn’t comparable quarter over quarter isn’t a number.',
+      'Measure against pipeline, not pageviews. Fixed prompt set, named competitors, numbers that stay comparable quarter over quarter.',
   },
 ] as const;

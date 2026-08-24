@@ -1,6 +1,6 @@
 /**
  * Single source of truth for everything that appears in more than one place:
- * URLs, contact details, nav, and the values Taylor still needs to supply.
+ * URLs, contact details, nav, and the four services.
  *
  * If you are looking for something to change, it is probably in this file.
  */
@@ -9,18 +9,20 @@ export const SITE_URL = 'https://sonoramethod.com';
 
 export const SITE_NAME = 'Sonora';
 
-export const SITE_TAGLINE =
-  'Content and search strategy for companies that need to be found.';
+/** The brand line. */
+export const TAGLINE = 'Be discoverable everywhere they look.';
+
+/** What Sonora is, in one sentence. Used in the footer and in metadata. */
+export const DESCRIPTOR =
+  'Search and content strategy for companies that need pipeline.';
 
 export const EMAIL = 'hello@sonoramethod.com';
-
-export const LOCATION = 'Texas Hill Country';
 
 export const AUTHOR = {
   name: 'Taylor Corbett',
   jobTitle: 'Founder and Principal Strategist',
   bioShort:
-    'Taylor Corbett runs Sonora, a content and search strategy practice for startups and B2B software companies.',
+    'Taylor Corbett runs Sonora, a search and content strategy practice for companies that need pipeline.',
 };
 
 /** Taylor's public LinkedIn profile. */
@@ -52,50 +54,47 @@ export const PAGE_LABELS: Record<string, string> = {
   '/method': 'Method',
   '/services': 'Services',
   '/about': 'About',
-  '/blog': 'Writing',
+  '/blog': 'Blog',
   '/book': 'Book a call',
   '/contact': 'Contact',
   '/privacy': 'Privacy',
 };
 
+/**
+ * The four services. One-liners here, full detail in services-detail.ts.
+ *
+ * Ongoing implementation oversight belongs to Fractional Head of Content and
+ * nowhere else — do not add a separate execution-management service.
+ */
 export const SERVICES = [
   {
     slug: 'visibility-audit',
     name: 'Visibility Audit',
     oneLiner:
-      'A baseline of where you stand in AI and traditional search, and a prioritized roadmap for changing it.',
+      'Where you stand in AI and traditional search, and what to fix first.',
     description:
-      'Where you stand right now in AI answers and traditional search, and what to do about it in what order. Covers the real query set your buyers use, an AI share-of-voice baseline against named competitors, a technical teardown of whether models can read your site at all, and the citation sources you are missing.',
+      'Where you stand right now in AI and traditional search, and what to fix in what order. Covers the real query set your buyers use, an AI visibility baseline against named competitors, citation source mapping, technical AEO findings, and positioning consistency across every surface you own.',
+  },
+  {
+    slug: 'strategy-sprint',
+    name: 'Strategy Sprint',
+    oneLiner: 'The plan: positioning, channels, content architecture.',
+    description:
+      'The audit says what is wrong; the sprint decides what you are doing about it. Positioning and the term you intend to own, a message architecture your whole company can repeat, content and channel strategy, and technical requirements written as scoped tickets your engineers can pick up.',
   },
   {
     slug: 'fractional-head-of-content',
     name: 'Fractional Head of Content',
-    oneLiner: 'Strategy, editorial direction, and standards. Ongoing.',
+    oneLiner:
+      'Ongoing ownership of strategy, standards, channels, and vendors.',
     description:
-      'Content leadership without the hire. I own the strategy, the editorial standard, the measurement, and the vendors. Your team or your freelancers execute; I decide what gets made and hold the line on whether it is good enough.',
+      'Senior content leadership without the hire. Sonora owns the strategy, the editorial standard, the channels, and the vendors. Your team executes; Sonora decides what gets made and whether it ships.',
   },
   {
     slug: 'ai-visibility-monitoring',
     name: 'AI Visibility Monitoring',
-    oneLiner:
-      'Fixed prompt set, quarterly reporting, named competitors, comparable numbers.',
+    oneLiner: 'Quarterly measurement against named competitors.',
     description:
-      'Ongoing measurement of how you appear in AI answers, on a fixed prompt set, against named competitors, on a set cadence. Most AI visibility reporting is unreliable because the measurement basis moves. This does not.',
-  },
-  {
-    slug: 'original-research-programs',
-    name: 'Original Research Programs',
-    oneLiner:
-      'Become the source that gets cited instead of the company chasing citations.',
-    description:
-      'The most reliable way to get cited is to be the source. I design the research, direct the analysis, shape the story, and manage production. Surveys, analysis of data you already have, or a recurring index that gives PR a news hook four times a year.',
-  },
-  {
-    slug: 'roadmap-execution-management',
-    name: 'Roadmap Execution Management',
-    oneLiner:
-      'Your team ships it. I write the tickets, brief the engineers, and verify it worked.',
-    description:
-      'The audit produces a roadmap. Most roadmaps do not get executed because nobody translates them into work an engineering team will actually prioritize. I write the tickets, brief the team, review what ships, and verify it did what it was supposed to.',
+      'How you appear in AI answers, measured on a fixed prompt set, against named competitors, on a set cadence. Most AI visibility reporting is unreliable because the measurement basis keeps moving. This does not.',
   },
 ] as const;

@@ -9,7 +9,7 @@
  *   - `alumniOf` or any past employer on the Person node
  *   - `offers`, `price`, or any price field on the Service nodes
  */
-import { SITE_URL, SITE_NAME, SITE_TAGLINE, EMAIL, AUTHOR, SAME_AS } from './site';
+import { SITE_URL, SITE_NAME, DESCRIPTOR, EMAIL, AUTHOR, SAME_AS } from './site';
 
 export const ORG_ID = `${SITE_URL}/#organization`;
 export const SITE_ID = `${SITE_URL}/#website`;
@@ -24,7 +24,7 @@ export function organizationSchema() {
     '@id': ORG_ID,
     name: SITE_NAME,
     url: SITE_URL,
-    description: SITE_TAGLINE,
+    description: DESCRIPTOR,
     email: EMAIL,
     logo: {
       '@type': 'ImageObject',

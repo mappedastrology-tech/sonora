@@ -1,78 +1,75 @@
 /**
- * Full service copy for /services. The short one-liners on the homepage live
- * in site.ts; these are the expanded versions.
+ * Full service copy for /services. The one-liners on the homepage live in
+ * site.ts; these are the expanded versions.
  *
  * No prices, no rates, no packages. That is deliberate and it is not an
  * oversight to be corrected later without asking.
+ *
+ * Fractional Head of Content is the only service that includes ongoing
+ * implementation oversight. Do not add a separate execution-management service.
  */
 export const SERVICE_DETAIL = [
   {
     slug: 'visibility-audit',
     name: 'Visibility Audit',
-    body: 'Where you stand right now in AI answers and traditional search, and what to do about it in what order. Covers the real query set your buyers use, an AI share-of-voice baseline against named competitors, a technical teardown of whether models can read your site at all, and the citation sources you are missing.',
+    cadence: 'One-time. Two to three weeks.',
+    body: 'Where you stand right now in AI and traditional search, and what to fix in what order.',
     includes: [
-      'Query set and search intent map',
-      'AI visibility baseline vs. named competitors',
-      'Technical AEO findings, prioritised by impact',
-      'Category positioning assessment',
+      'Real query set, built from how your buyers talk',
+      'AI visibility baseline against named competitors',
+      'Citation source mapping — what gets cited in your category instead of you',
+      'Technical AEO findings, prioritized by impact',
+      'Positioning consistency across every surface you own',
       'Sequenced roadmap',
     ],
-    bestWhen:
-      'You suspect you are invisible in AI answers and want to know how bad it is before committing to a plan.',
+    startHereIf:
+      'you’re not generating enough inbound and don’t know whether the problem is the content, the technical layer, or the positioning.',
+  },
+  {
+    slug: 'strategy-sprint',
+    name: 'Strategy Sprint',
+    cadence: 'One-time. Four to six weeks.',
+    body: 'The audit says what’s wrong. This decides what you’re doing about it.',
+    includes: [
+      'Positioning and the term you’re going to own',
+      'Message architecture your whole company can repeat',
+      'Content architecture — pillars, definitional layer, comparison surfaces',
+      'Channel strategy across owned, social, and video',
+      'Video and social direction: which formats, which platforms, what they’re for',
+      'Technical requirements written as scoped tickets your engineers can pick up',
+    ],
+    startHereIf:
+      'you know you have a pipeline problem and need a plan your team can run without me on retainer.',
   },
   {
     slug: 'fractional-head-of-content',
     name: 'Fractional Head of Content',
-    body: 'Content leadership without the hire. I own the strategy, the editorial standard, the measurement, and the vendors. Your team or your freelancers execute; I decide what gets made and hold the line on whether it is good enough.',
+    cadence: 'Ongoing. Three-month minimum.',
+    body: 'Senior content leadership without the hire. I own strategy, standards, channels, and vendors. Your team executes; I decide what gets made and whether it ships.',
     includes: [
-      'Content and category strategy',
+      'Positioning and content strategy',
       'Editorial standards and review',
+      'Channel direction across blog, social, video, and email',
+      'Agency, freelancer, and contractor management',
       'Quarterly measurement against a fixed prompt set',
-      'Agency and freelancer management',
-      'Alignment with sales and demand gen',
+      'Alignment with sales and demand generation',
     ],
-    bestWhen:
-      'You need senior content direction but not a full-time salary, or you have people producing work with nobody setting the direction.',
+    startHereIf:
+      'you need senior direction but not a full-time salary — or you have people producing work with nobody setting the direction.',
   },
   {
     slug: 'ai-visibility-monitoring',
     name: 'AI Visibility Monitoring',
-    body: 'Ongoing measurement of how you appear in AI answers, on a fixed prompt set, against named competitors, on a set cadence. Most AI visibility reporting is unreliable because the measurement basis moves. This does not.',
+    cadence: 'Ongoing. Quarterly.',
+    body: 'How you appear in AI answers, measured on a fixed prompt set, against named competitors, on a set cadence. Most AI visibility reporting is unreliable because the measurement basis keeps moving. This doesn’t.',
     includes: [
-      'Locked prompt set',
-      'Quarterly share-of-voice and citation position',
+      'Locked prompt set with documented methodology',
+      'Share of voice and citation position, quarter over quarter',
       'Competitive citation mapping',
       'Sentiment tracking',
-      'A report you can put in front of a board',
+      'A report that survives follow-up questions',
     ],
-    bestWhen:
-      'Someone is going to ask whether the content is working and you need an answer that holds up.',
-  },
-  {
-    slug: 'original-research-programs',
-    name: 'Original Research Programs',
-    body: 'The most reliable way to get cited is to be the source. I design the research, direct the analysis, shape the story, and manage production. Surveys, analysis of data you already have, or a recurring index that gives PR a news hook four times a year.',
-    includes: [
-      'Research design and question framing',
-      'Survey instrument and sourcing strategy',
-      'Analysis direction and narrative',
-      'Production management',
-      'Distribution and derivative content plan',
-    ],
-    bestWhen:
-      'Your category has no authoritative data and you would rather create it than cite someone else’s.',
-  },
-  {
-    slug: 'roadmap-execution-management',
-    name: 'Roadmap Execution Management',
-    body: 'The audit produces a roadmap. Most roadmaps do not get executed because nobody translates them into work an engineering team will actually prioritise. I write the tickets, brief the team, review what ships, and verify it did what it was supposed to.',
-    includes: [
-      'Roadmap translated into scoped tickets',
-      'Technical briefing for your engineers',
-      'Implementation review',
-      'Verification against the original baseline',
-    ],
-    bestWhen: 'You have the plan and the dev capacity but no one who can bridge them.',
-    note: 'This requires your team’s development capacity. It is oversight, not implementation.',
+    startHereIf:
+      'someone is going to ask whether the content is working and you need a defensible answer.',
   },
 ] as const;

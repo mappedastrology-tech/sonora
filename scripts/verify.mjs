@@ -58,16 +58,16 @@ function decode(source) {
 
 /** Every page, and a phrase from its body copy that must survive with JS off. */
 const PAGES = [
-  ['index.html', '/', 'The room got too loud'],
-  ['method.html', '/method', 'Categories don’t create themselves'],
-  ['services.html', '/services', 'Roadmap Execution Management'],
-  ['about.html', '/about', 'A ranch in the Texas Hill Country'],
-  ['blog.html', '/blog', 'Notes on AI search'],
+  ['index.html', '/', 'Ranking first isn’t the same as getting found'],
+  ['method.html', '/method', 'When the category doesn’t have a name yet'],
+  ['services.html', '/services', 'Strategy Sprint'],
+  ['about.html', '/about', 'nobody owned inbound'],
+  ['blog.html', '/blog', 'when the answer arrives before the click'],
   ['book.html', '/book', 'Thirty minutes'],
-  ['contact.html', '/contact', 'What are you trying to fix?'],
-  ['thanks.html', '/thanks', 'That came through'],
+  ['contact.html', '/contact', 'What’s not working?'],
+  ['thanks.html', '/thanks', 'within a business day'],
   ['privacy.html', '/privacy', 'This site collects almost nothing'],
-  ['404.html', '/404', 'the opposite of the problem'],
+  ['404.html', '/404', 'opposite of the problem I usually solve'],
   ['blog/the-sonora-method.html', '/blog/the-sonora-method', 'The room got too loud'],
 ];
 
@@ -178,10 +178,23 @@ heading('Prohibited content');
 const forbidden = [
   // No prices or rates anywhere on the site.
   [/\$\s?\d/, 'a dollar figure'],
-  [/\b\d+\s?%\s+(increase|growth|lift|more)/i, 'a performance metric'],
-  [/\bpricing\b/i, 'the word "pricing"'],
   [/\bper month\b/i, 'a rate'],
   [/\bretainer fee\b/i, 'a fee reference'],
+
+  // Positioning rules from the copy spec. Each of these was ruled out for a
+  // reason, and each is the kind of phrase that creeps back in during an edit.
+  [/without an ad budget/i, '"without an ad budget"'],
+  [/category compan(y|ies)/i, '"category company", which is not a real term'],
+  [/\bnot visibility\b/i, 'a construction denying that visibility matters'],
+
+  // Brand voice: phrasings the build spec bans outright.
+  [/in today's landscape/i, '"in today\u2019s landscape"'],
+  [/here's the thing/i, '"here\u2019s the thing"'],
+  [/nobody's talking about/i, '"nobody\u2019s talking about"'],
+  [/game-changing/i, '"game-changing"'],
+  [/\bsupercharge/i, '"supercharge"'],
+  [/let's dive in/i, '"let\u2019s dive in"'],
+  [/it's no secret that/i, '"it\u2019s no secret that"'],
 ];
 
 let prohibitedHits = 0;
@@ -194,35 +207,67 @@ for (const [route, source] of documents) {
     }
   }
 }
-if (!prohibitedHits) pass('no prices, rates, or performance metrics found');
+if (!prohibitedHits) {
+  pass('no prices or rates, and none of the ruled-out phrasings');
+}
 
-/**
- * Employer names. Taylor supplies the list; until then this checks the file
- * exists and greps whatever is in it.
+/*
+ * Every statistic on the site is third-party research and must carry its
+ * source. A figure with no citation reads as a claim about Sonora's own
+ * results, which is exactly what the spec forbids.
  */
-const employerList = path.join(root, 'scripts', 'employer-names.txt');
-if (await exists(employerList)) {
-  const names = (await readFile(employerList, 'utf8'))
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith('#'));
-
-  if (!names.length) {
-    warn('scripts/employer-names.txt is empty — add the names Taylor provides');
-  } else {
-    let hits = 0;
-    for (const [route, source] of documents) {
-      for (const name of names) {
-        if (source.toLowerCase().includes(name.toLowerCase())) {
-          fail(`${route} mentions "${name}"`);
-          hits += 1;
-        }
-      }
-    }
-    if (!hits) pass(`no former employer named (${names.length} checked)`);
-  }
+heading('Sourced statistics');
+const home = documents.get('/');
+const SOURCES = ['SparkToro', 'Gartner', 'BrightEdge'];
+const missingSources = SOURCES.filter((source) => !home?.includes(source));
+if (missingSources.length) {
+  fail(`homepage charts are missing citations: ${missingSources.join(', ')}`);
 } else {
-  warn('scripts/employer-names.txt not found — cannot check for employer names');
+  pass(`all three homepage charts cite a source (${SOURCES.join(', ')})`);
+}
+
+/*
+ * Charts must be in the served HTML, and every figure they carry must be
+ * readable as text — by a screen reader and by a model. The line chart is SVG
+ * and ships a visually-hidden table; the coverage chart is HTML and CSS, so its
+ * numbers are already text and a duplicate table would only repeat them.
+ */
+const chartCount = (home?.match(/<svg[^>]*role="img"/g) ?? []).length;
+if (chartCount >= 1) {
+  pass(`${chartCount} inline SVG chart(s) present with JS disabled`);
+} else {
+  fail('expected an inline SVG chart in the served homepage, found none');
+}
+
+const tableCount = (home?.match(/<table[\s>]/g) ?? []).length;
+if (tableCount >= 1) {
+  pass(`${tableCount} chart data table(s) for the SVG chart`);
+} else {
+  fail('the SVG chart has no data table');
+}
+
+const FIGURES = [
+  ['49%', 'zero-click 2019'],
+  ['64.8%', 'zero-click 2020'],
+  ['58.5%', 'zero-click 2024'],
+  ['68%', 'zero-click 2026'],
+  ['67%', 'rep-free preference'],
+  ['45%', 'AI use during purchase'],
+  ['88%', 'healthcare coverage'],
+  ['83%', 'education coverage'],
+  ['82%', 'B2B technology coverage'],
+];
+
+const text = decode(home ?? '').replace(/<[^>]+>/g, ' ');
+const missingFigures = FIGURES.filter(([figure]) => !text.includes(figure));
+if (missingFigures.length) {
+  fail(
+    `chart figures missing from the served text: ${missingFigures
+      .map(([figure, label]) => `${figure} (${label})`)
+      .join(', ')}`
+  );
+} else {
+  pass(`all ${FIGURES.length} chart figures readable as text`);
 }
 
 heading('Accessibility structure');

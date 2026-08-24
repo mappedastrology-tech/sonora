@@ -1,47 +1,51 @@
 /**
- * The expanded stage copy used on /method. 150–200 words each. The homepage
- * uses the short form in method.ts; this is the long form.
+ * The expanded stage copy used on /method. The homepage uses the short form in
+ * method.ts.
+ *
+ * Locate carries a sub-section on naming a category. That is the only place
+ * category creation appears on the site — it is one possible output of the
+ * diagnosis, not a pitch, and it never belongs on the homepage.
  */
 export const STAGE_DETAIL = [
   {
     number: '01',
     name: 'Listen',
     paragraphs: [
-      'The first stage finds out what is actually being asked, and who currently gets to answer it.',
-      'That means the real query set, in the words your buyers use rather than the words your category page uses. It comes out of sales calls, support tickets, churn interviews, and the questions your team fields so often they have stopped noticing them. Those questions are usually the most valuable thing in the building, and almost nobody has written them down.',
-      'It also means a baseline. A fixed set of prompts goes to the major assistants and the results get recorded: whether you appear, in what position, described how, and which sources the answer was assembled from. That last part carries the most weight. Models cite what they trust, the list of what they trust is short and specific, and most of it is not your website.',
-      'The stage ends when you know the questions and you know who owns them today.',
+      'Find what your buyers search when they have a budget and a problem, and who currently gets to answer it. That means the real query set in their language rather than whatever a tool says has volume, sorted by buying intent rather than traffic potential.',
+      'It means a baseline of where you appear in AI answers and which sources get cited in your category — often third-party surfaces you don’t control, like review sites, forums, comparison posts, and press, as much as anyone’s own content.',
+      'And it means reading your own site the way a stranger does: when your homepage, pricing page, and docs disagree about what you are, that’s the finding.',
     ],
   },
   {
     number: '02',
     name: 'Locate',
     paragraphs: [
-      'The second stage decides which position you can plausibly own within a year.',
-      'Plausibly is doing real work in that sentence. Most positioning exercises pick the position the company wants. This one picks the position the company can hold, given who is already there, which surfaces the answers come from, and how much time you actually have.',
-      'Sometimes the position exists and nobody has claimed it. That is the easy case, and rarer than you would hope. Sometimes it does not exist yet, and the work is naming it, which is slower and more expensive than occupying something already named. Occasionally it is still the only honest option, because the existing category actively misdescribes what you do.',
-      'The output is a sentence you can defend under pressure and a specific set of questions you intend to own. Everything in the next two stages is sequenced against that sentence.',
+      'Find the position you can own within a year. Not the one you want, and not the one three funded competitors are already buying.',
+      'The test is whether a stranger can read one line and understand what you sell.',
     ],
+    aside: {
+      heading: 'When the category doesn’t have a name yet',
+      paragraphs: [
+        'AI has created a lot of genuinely new categories, and buyers don’t have words for them. When every prospect describes the same problem five different ways, there’s no term to search for, nothing for a model to attach to you, and no shorthand a customer can hand a colleague.',
+        'Sometimes the right move is naming it. Often it isn’t — most companies that think they need a new category just need to commit to an existing one. The diagnosis tells you which.',
+      ],
+    },
   },
   {
     number: '03',
     name: 'Saturate',
     paragraphs: [
-      'The third stage gets you into every surface where the question gets asked.',
-      'Owned content is the smallest part of this. It is the part most teams start with, because it is the part they control, and controlling a channel is not the same as being found through it.',
-      'The larger part is infrastructure and third parties. Infrastructure means whether a model can read you at all: content in the served HTML, semantic markup, structured data that matches what is on the page, nothing material hidden behind a click or injected by a script. A site that needs JavaScript to reveal its own paragraphs is invisible to much of what now decides whether you exist.',
-      'Third parties means the sources models actually pull from. Comparison sites, review platforms, community threads, documentation, trade publications, directories nobody thinks about. Your presence there is a bigger input to what a model says about you than your blog is.',
-      'The output is a roadmap, sequenced by impact rather than by what is easiest to start.',
+      'Get present across the whole path, not just the front of it. That’s owned content, the technical layer that lets a model parse you at all — structured data, served HTML, content not buried behind JavaScript — and the third-party surfaces that carry weight in your category: reviews, forums, comparison sites, press.',
+      'It also means the bottom of the funnel, which most content programs neglect. Comparison pages, alternatives pages, pricing clarity, and the specific objections your sales calls keep running into.',
+      'Ranking for the question that starts the search is worth very little if you’re absent from the page where the decision gets made.',
     ],
   },
   {
     number: '04',
     name: 'Sustain',
     paragraphs: [
-      'The fourth stage measures whether any of it worked, on a basis that holds still.',
-      'Measurement in AI search is unreliable for a boring reason: the basis moves. Ask a different question, phrase it differently, ask it a week later, and the answer changes. Most reporting in this space compares numbers that were never comparable in the first place.',
-      'The fix is to fix the basis. A locked prompt set, written down and unchanged quarter to quarter. A named competitor list. A set cadence. Then share of voice — the proportion of answers to that prompt set in which you appear at all — followed by citation position, sentiment, and which sources drove each result.',
-      'Fixed is the operative word. A number that is not comparable quarter over quarter is not a number. It is a mood, and it will not survive the first question from your board.',
+      'Measure against pipeline, not pageviews. A fixed prompt set, a fixed cadence, and named competitors, so the numbers stay comparable quarter over quarter.',
+      'Then the part most reporting skips: which queries and which pages are attached to deals, and which ones are just traffic.',
     ],
   },
 ] as const;

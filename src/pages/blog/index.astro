@@ -13,24 +13,24 @@ const posts = await getPublishedPosts();
 const schema = [
   breadcrumbSchema([
     { name: 'Home', path: '/' },
-    { name: 'Writing', path },
+    { name: 'Blog', path },
   ]),
 ];
 ---
 
 <Base
-  title="Writing on AI search, SEO, and category strategy — Sonora"
-  description="Notes on AI search visibility, content strategy, and building a category. New writing roughly weekly from Taylor Corbett."
+  title="Blog — AI Search, SEO, and Positioning | Sonora"
+  description="Writing on AI search visibility, answer engine optimization, positioning, and building inbound pipeline."
   path={path}
   schema={schema}
 >
   <section class="section blog-hero">
     <div class="container">
       <div class="prose">
-        <h1>Writing</h1>
+        <h1>Blog</h1>
         <p class="lead">
-          Notes on AI search, content strategy, and building a category. Roughly
-          weekly.
+          AI search, positioning, and what to do when the answer arrives before
+          the click. Weekly.
         </p>
       </div>
       <div class="signup">

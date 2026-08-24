@@ -1,0 +1,75 @@
+---
+/**
+ * Three figures about how B2B buyers decide.
+ *
+ * Not a chart: three unrelated numbers with no shared scale have nothing to
+ * plot against each other. Stat blocks say it faster and read better on a
+ * phone than any bar chart of three different units would.
+ */
+const STATS = [
+  { value: '7', label: 'information sources weighed before a decision' },
+  { value: '67%', label: 'prefer a rep-free process' },
+  { value: '45%', label: 'used AI during a recent purchase' },
+];
+---
+
+<figure class="stats">
+  <ul>
+    {
+      STATS.map((stat) => (
+        <li>
+          <p class="value">{stat.value}</p>
+          <p class="label">{stat.label}</p>
+        </li>
+      ))
+    }
+  </ul>
+  <figcaption class="meta">
+    Gartner, survey of 646 B2B buyers, fielded 2025.
+  </figcaption>
+</figure>
+
+<style>
+  .stats {
+    margin: 0;
+  }
+
+  ul {
+    display: grid;
+    gap: 40px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 700px) {
+    ul {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+    }
+  }
+
+  .value {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: clamp(3.25rem, 7vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    /* Gold is legible at display size on paper; it is never used for body
+       text, where it would fail contrast. */
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .label {
+    margin-top: 14px;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    max-width: 22ch;
+    color: var(--surface-text);
+  }
+
+  figcaption {
+    margin-top: 40px;
+  }
+</style>

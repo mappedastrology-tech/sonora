@@ -26,11 +26,6 @@ One item.
 
 | What | Where it goes |
 |------|---------------|
-| List of former employer names | `scripts/employer-names.txt`, one per line |
-
-`npm run verify` cannot check that no former employer is named anywhere on the
-site until that file has names in it. Everything else — the logos, the
-headshot, the booking calendar, analytics, LinkedIn — is in place.
 
 The `hello@sonoramethod.com` mailbox still needs creating in Google Workspace,
 but that is an inbox, not a code change; the site already links to it.
@@ -51,7 +46,7 @@ Every page is one file. Open it, find the sentence, change it, save.
 | About | `src/pages/about.astro` |
 | Book a call | `src/pages/book.astro` |
 | Contact | `src/pages/contact.astro` |
-| Writing (the blog index) | `src/pages/blog/index.astro` |
+| Blog (the index) | `src/pages/blog/index.astro` |
 | Privacy | `src/pages/privacy.astro` |
 | The "page not found" page | `src/pages/404.astro` |
 
@@ -70,7 +65,7 @@ Three things live in one place because they appear on several pages:
   `src/lib/site.ts`
 - **The four method stages** — `src/lib/method.ts` (short version, homepage) and
   `src/lib/method-page.ts` (long version, Method page)
-- **The five services** — `src/lib/site.ts` (one-liners) and
+- **The four services** — `src/lib/site.ts` (one-liners) and
   `src/lib/services-detail.ts` (full descriptions)
 - **The four FAQ answers** — `src/lib/faq.ts`
 
@@ -254,9 +249,8 @@ Some rules from the brief are enforced by the code, not by memory:
   half-configured.
 - **A blog post without a description stops the build.**
 - **Draft posts never reach the live site**, even by a stray link.
-- `npm run verify` **fails** if a price, a rate, or a former employer name
-  appears anywhere in the built site (once you have filled in
-  `scripts/employer-names.txt`).
+- `npm run verify` **fails** if a price or a rate appears anywhere in the built
+  site.
 - `npm run verify` **fails** if the booking embed loses its fallback link, or if
   the privacy page stops describing the analytics that are actually installed.
 - The testimonial component has **no field for a company name**. That is

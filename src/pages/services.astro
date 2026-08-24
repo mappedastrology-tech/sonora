@@ -22,8 +22,8 @@ const schema = [
 ---
 
 <Base
-  title="Services — Sonora"
-  description="Visibility audits, fractional content leadership, AI visibility monitoring, original research programs, and roadmap execution management."
+  title="AI Visibility Audits & Fractional Content Leadership — Sonora"
+  description="AI visibility audits, strategy sprints, fractional head of content, and quarterly AI search monitoring for companies that need pipeline."
   path={path}
   schema={schema}
 >
@@ -32,12 +32,11 @@ const schema = [
       <div class="prose">
         <h1>Services</h1>
         <p class="lead">
-          Sonora sells strategy and direction. I don&rsquo;t write, design, or
-          build &mdash; I decide what should be made, set the standard it has to
-          meet, and make sure whoever produces it delivers. Most engagements
-          start with the audit, because I&rsquo;m not going to tell you what to do
-          before I know what&rsquo;s true.
+          I set strategy and direct the work. I don&rsquo;t write, design, or
+          build &mdash; your team or your contractors do that, and I make sure
+          what they produce is worth having made.
         </p>
+        <p>Most engagements start with the audit.</p>
       </div>
     </div>
   </section>
@@ -52,24 +51,21 @@ const schema = [
         <div class="container">
           <div class="service-inner" data-reveal>
             <div class="prose">
-              <p class="eyebrow">{String(index + 1).padStart(2, '0')}</p>
+              <p class="eyebrow">{service.cadence}</p>
               <h2 id={`${service.slug}-heading`}>{service.name}</h2>
               <p>{service.body}</p>
-              {'note' in service && service.note && (
-                <p class="note">{service.note}</p>
-              )}
             </div>
 
             <div class="detail">
-              <h3 class="detail-heading">What you get</h3>
               <ul class="arch-list">
                 {service.includes.map((item) => (
                   <li>{item}</li>
                 ))}
               </ul>
 
-              <h3 class="detail-heading best-when">Best when</h3>
-              <p>{service.bestWhen}</p>
+              <p class="start-here">
+                <strong>Start here if</strong> {service.startHereIf}
+              </p>
 
               <p class="book">
                 <a href="/book" class="btn">Book a call</a>
@@ -114,36 +110,18 @@ const schema = [
     margin-bottom: 20px;
   }
 
-  .note {
-    margin-top: 20px;
-    font-size: 1rem;
-    color: var(--surface-muted);
-  }
-
-  .detail-heading {
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--surface-muted);
-  }
-
-  .detail ul {
-    margin-top: 16px;
-  }
-
   .detail li {
     color: var(--surface-text);
   }
 
-  .best-when {
-    margin-top: 36px;
+  .start-here {
+    margin-top: 32px;
+    max-width: 46ch;
+    color: var(--surface-text);
   }
 
-  .best-when + p {
-    margin-top: 12px;
-    max-width: 46ch;
+  .start-here strong {
+    color: var(--surface-heading);
   }
 
   .book {
