@@ -159,8 +159,13 @@ exactly as you supplied them, and nothing ever modifies them:
 Everything the site actually serves is derived from them on each build: the
 marks recoloured from black to the brand navy and trimmed of their padding, the
 cream version for the dark footer, a tighter crop of the icon for small sizes,
-the WebP copies the pages load, the favicon, the apple touch icon, and both
+the WebP copies the pages load, the favicons, the apple touch icon, and both
 social share images.
+
+The tab icons have transparent backgrounds and ship in two colours — the navy
+mark for light browser chrome and a cream one for dark, picked automatically.
+The apple touch icon is the one exception and keeps a solid background, because
+iOS puts a transparent home-screen icon on black.
 
 **To change a logo:** replace the file in `public/brand/source/`, keeping the
 same name. That is the whole process. Do not edit the files that sit directly in
