@@ -96,10 +96,23 @@ function transform(html, route) {
   let body = html.slice(html.indexOf('<body'), html.lastIndexOf('</body>'));
   body = body.slice(body.indexOf('>') + 1);
 
-  // Strip every script: analytics has no business in a preview, and the
-  // preview drives the scroll animation itself (see below) because the pages
-  // are stitched into one document and each one has to replay on its visit.
-  body = body.replace(/<script[\s\S]*?<\/script>/g, '');
+  /*
+   * Keep the interactive component scripts — the fit quiz, the nav toggle, the
+   * homepage path switcher — so the preview behaves rather than just looking
+   * right. Astro inlines them all as type="module", so there is nothing to
+   * fetch from a server a standalone file does not have.
+   *
+   * Two kinds go: analytics has no business in a preview, and the layout's
+   * scroll observer would fight the preview's own. The preview replaces it
+   * because these pages are stitched into one document and each has to replay
+   * on its visit — `data-reveal` identifies it, being the only script that
+   * mentions it.
+   */
+  body = body.replace(/<script([^>]*)>([\s\S]*?)<\/script>/g, (tag, attrs, source) => {
+    const isModule = /type="module"/.test(attrs);
+    const isObserver = source.includes('data-reveal');
+    return isModule && !isObserver ? tag : '';
+  });
 
   // Inline the images.
   for (const [asset, uri] of assets) {
