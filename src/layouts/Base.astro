@@ -111,7 +111,18 @@ const { title, description, path, image, ogType, schema, noindex, bodyClass } =
         dataLayer.push(arguments);
       }
       gtag('js', new Date());
-      gtag('config', GA_MEASUREMENT_ID);
+      /*
+       * Measurement only. Google Signals ties visits to signed-in Google
+       * accounts across devices, and ad personalisation lets the data feed
+       * advertising profiles — neither of which this site needs, and both of
+       * which are what makes an analytics cookie hard to justify. Off by
+       * request rather than by property setting, so it holds even if the GA
+       * property is reconfigured.
+       */
+      gtag('config', GA_MEASUREMENT_ID, {
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false,
+      });
     </script>
   </head>
 

@@ -269,6 +269,17 @@ body > :not(.surface-ink) :focus-visible {
   color: var(--body);
 }
 
+/* A paper island inside an ink section — the booking card, the enquiry form —
+   is still a descendant of .surface-ink, and the rule above sets link colour
+   directly rather than through a token, so it wins on nothing but source
+   order. Same specificity, declared later: paper links go back to ink.
+   Without this the booking page's "Open the booking page" fallback was paper
+   on paper, i.e. invisible. */
+.surface-paper .prose a,
+.surface-paper a.textlink {
+  color: var(--ink);
+}
+
 .grid {
   display: grid;
   gap: clamp(32px, 4vw, 56px);

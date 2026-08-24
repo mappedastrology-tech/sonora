@@ -22,7 +22,7 @@ something genuinely needs a developer, it says so.
 
 ## What is still outstanding
 
-Two things, both in dashboards rather than in code.
+Three things, none of them code.
 
 **1. Point the form notifications at your inbox.** The three forms — `question`
 on the booking page, `contact`, and `newsletter` — are live and Netlify is
@@ -36,7 +36,23 @@ send them, and that switch only exists in the dashboard:
 Do it once per form. Until then, submissions are still safely stored — Forms
 → the form name lists them, and you can export as a spreadsheet.
 
-**2. Create the `hello@sonoramethod.com` mailbox** in Google Workspace. That is
+**2. Decide how analytics handles EU and UK visitors.** Google Analytics sets
+cookies, and in the EU and UK cookies like these need consent *before* they are
+set. Right now the tag fires on page load for everyone. Two honest ways out:
+
+- **Switch to cookieless analytics** — Plausible or Fathom, both paid, both
+  count page views without cookies or personal data. No banner needed, nothing
+  to consent to, and it is what the original build spec called for. One line
+  changes in `src/layouts/Base.astro`.
+- **Add a consent banner** and hold GA until someone accepts. More code, a
+  banner on every page, and most people click it away.
+
+I would take the first. Either way it is a decision, not a code change, so it
+is yours to make. In the meantime Google Signals and ad personalisation are
+switched off in the tag, which is the difference between "counts visits" and
+"feeds an advertising profile".
+
+**3. Create the `hello@sonoramethod.com` mailbox** in Google Workspace. That is
 an inbox, not a code change; the site already links to it. The notifications
 above need it to exist before they are any use.
 

@@ -68,7 +68,7 @@ import { FIT_QUESTIONS, FIT_OUTCOMES } from '../lib/fit-quiz';
 
     {
       FIT_OUTCOMES.map((outcome) => (
-        <div class="result" data-result={outcome.key} hidden>
+        <div class="result surface-ink" data-result={outcome.key} hidden>
           <div>
             <p class="result-eyebrow">Start with</p>
             <h3 class="result-name" tabindex="-1" data-result-heading>
@@ -304,6 +304,14 @@ import { FIT_QUESTIONS, FIT_OUTCOMES } from '../lib/fit-quiz';
 
   .submit:hover:not(:disabled) {
     transform: translateY(-2px);
+  }
+
+  /* It sets its own background and border, which overrode the focus ring the
+     rest of the site gets for free. */
+  .submit:focus-visible,
+  .option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
   }
 
   .submit:disabled {

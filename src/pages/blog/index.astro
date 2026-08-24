@@ -282,8 +282,10 @@ const countLabel = `${posts.length} ${posts.length === 1 ? 'post' : 'posts'}`;
     color: var(--ink);
   }
 
+  /* Halved opacity put these at 2:1. They are punctuation, but they are still
+     text, and inheriting the muted colour they sit beside costs nothing. */
   .sep {
-    opacity: 0.5;
+    opacity: 1;
   }
 
   .meta .date {

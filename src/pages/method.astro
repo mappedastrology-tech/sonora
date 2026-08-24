@@ -440,12 +440,19 @@ const schema = [
     }
   }
 
+  /* Ink on the paper stages, gold on the ink ones. Gold on paper measures
+     1.49:1 — below the 3:1 large text needs — and this numeral is the only
+     place the stage's number appears, so it has to be readable. */
   .stage-numeral {
     font-family: var(--font-heading);
     font-weight: 600;
     font-size: clamp(3.5rem, 6.4vw, 5.5rem);
     line-height: 0.9;
     letter-spacing: -0.04em;
+    color: var(--ink);
+  }
+
+  .surface-ink .stage-numeral {
     color: var(--accent);
   }
 

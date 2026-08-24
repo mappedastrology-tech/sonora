@@ -16,7 +16,16 @@
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    # Two years, subdomains included, and eligible for the HSTS preload list.
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    Cross-Origin-Opener-Policy = "same-origin"
+    # Everything the site loads, named. Anything not on this list is blocked,
+    # so an injected script has nowhere to send data. Astro inlines its styles
+    # and its small scripts, hence 'unsafe-inline' on those two — the tradeoff
+    # is deliberate and the alternative is per-build nonces the CDN cannot add
+    # to a static file.
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self' https://*.netlify.app https://sonoramethod.com; img-src 'self' data: https://www.googletagmanager.com https://www.google-analytics.com; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; frame-src https://calendar.google.com; upgrade-insecure-requests"
 
 # Fingerprinted CSS and JS are safe to cache forever.
 [[headers]]
