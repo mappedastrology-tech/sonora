@@ -26,6 +26,6 @@ export const STAGES = [
     number: '04',
     name: 'Sustain',
     short:
-      'Measuring against pipeline instead of pageviews, on a fixed set of prompts and a fixed cadence, so the numbers stay comparable.',
+      'Measuring against pipeline instead of pageviews — where you show up, who shows up instead of you, and which of it is attached to deals.',
   },
 ] as const;
