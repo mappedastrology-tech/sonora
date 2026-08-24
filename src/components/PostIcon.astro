@@ -1,78 +1,53 @@
 ---
 /**
- * A post's icon: the brand arch, tinted per topic.
+ * A post's mark: the brand arch, no container.
  *
- * The arch is the real artwork used as a CSS mask rather than four exported
- * images, so it stays one file and follows the brand if the mark ever changes.
- * Four treatments, all inside the palette — no colour is invented to make a
- * topic distinguishable.
+ * Drawn as a box with a semicircular top rather than masked from the arch
+ * artwork, because that is the only way to get an outlined version — and the
+ * outline is what distinguishes two of the four topics now that there is no
+ * tile behind it to carry a colour.
  */
 interface Props {
   topic: string;
   size?: number;
 }
 
-const { topic, size = 44 } = Astro.props;
+const { topic, size = 26 } = Astro.props;
 
-/* The arch artwork is 710 × 1110. */
+/* The brand arch is 710 x 1110. */
 const height = Math.round(size / 0.64);
 ---
 
 <span
-  class="icon"
+  class="arch"
   data-topic={topic}
-  style={`--icon-w:${size}px; --icon-h:${height}px`}
-  aria-hidden="true"><span class="arch"></span></span>
+  style={`--arch-w:${size}px; --arch-h:${height}px; --arch-r:${size / 2}px`}
+  aria-hidden="true"></span>
 
 <style>
-  .icon {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: calc(var(--icon-w) + 20px);
-    height: calc(var(--icon-h) + 12px);
-    border-radius: 2px;
-  }
-
   .arch {
     display: block;
-    width: var(--icon-w);
-    height: var(--icon-h);
-    -webkit-mask: url('/brand/sonora-arch.webp') no-repeat center / contain;
-    mask: url('/brand/sonora-arch.webp') no-repeat center / contain;
+    flex: none;
+    width: var(--arch-w);
+    height: var(--arch-h);
+    border-radius: var(--arch-r) var(--arch-r) 1px 1px;
   }
 
-  /* Search: gold on ink. */
-  .icon[data-topic='Search'] {
-    background: var(--ink);
-  }
-  .icon[data-topic='Search'] .arch {
-    background-color: var(--accent);
-  }
-
-  /* Positioning: the inverse. */
-  .icon[data-topic='Positioning'] {
+  /* Filled, then outlined, in each of the two brand colours: four topics,
+     four marks, no fifth colour and no box. */
+  .arch[data-topic='Search'] {
     background: var(--accent);
   }
-  .icon[data-topic='Positioning'] .arch {
-    background-color: var(--ink);
+
+  .arch[data-topic='Positioning'] {
+    background: var(--ink);
   }
 
-  /* AI answers: gold on a raised card. */
-  .icon[data-topic='AI answers'] {
-    background: var(--paper-raised);
-    border: 1px solid var(--rule);
-  }
-  .icon[data-topic='AI answers'] .arch {
-    background-color: var(--accent);
+  .arch[data-topic='AI answers'] {
+    border: 2px solid var(--accent);
   }
 
-  /* Measurement: ink on a raised card. */
-  .icon[data-topic='Measurement'] {
-    background: var(--paper-raised);
-    border: 1px solid var(--ink);
-  }
-  .icon[data-topic='Measurement'] .arch {
-    background-color: var(--ink);
+  .arch[data-topic='Measurement'] {
+    border: 2px solid var(--ink);
   }
 </style>
