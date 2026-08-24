@@ -59,7 +59,7 @@ async function readStylesheets(html) {
   return sheets.join('\n');
 }
 
-const css = await readStylesheets(await readFile(path.join(dist, 'index.html'), 'utf8'));
+let css = await readStylesheets(await readFile(path.join(dist, 'index.html'), 'utf8'));
 
 // Every local image becomes a data URI so the page is self-contained.
 const assets = new Map();
@@ -71,6 +71,13 @@ for (const asset of [
   '/images/taylor-corbett.webp',
 ]) {
   assets.set(asset, await dataUri(asset));
+}
+
+/* Assets are referenced from CSS as well as from markup — the wordmark is a
+   mask-image, not an <img>. Missing this left the logo invisible in every
+   preview, since a standalone file has no server to resolve /brand/ against. */
+for (const [asset, uri] of assets) {
+  css = css.split(asset).join(uri);
 }
 
 const known = new Set(PAGES.map(([route]) => route));

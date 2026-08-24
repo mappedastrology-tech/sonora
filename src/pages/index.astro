@@ -1,16 +1,23 @@
 ---
+/**
+ * Homepage, v5 design.
+ *
+ * The hero's sonar arches are pure CSS on nine empty divs behind the content,
+ * so they cost no JavaScript and no image. Everything else renders in its
+ * final state; the reveal-on-scroll pass is layered on separately.
+ */
 import Base from '../layouts/Base.astro';
-import MethodStages from '../components/MethodStages.astro';
-import ServiceCard from '../components/ServiceCard.astro';
-import CTABlock from '../components/CTABlock.astro';
-import SectionDivider from '../components/SectionDivider.astro';
-import ZeroClickChart from '../components/charts/ZeroClickChart.astro';
-import BuyerStats from '../components/charts/BuyerStats.astro';
-import CoverageChart from '../components/charts/CoverageChart.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
 import { SERVICES } from '../lib/site';
+import { STAGES } from '../lib/method';
+import { STATS, PATHS, ZERO_CLICK } from '../lib/home';
 import { breadcrumbSchema } from '../lib/schema';
 
 const schema = [breadcrumbSchema([{ name: 'Home', path: '/' }])];
+
+/* Nine arches, evenly staggered across the 8s loop. */
+const ARCHES = Array.from({ length: 9 }, (_, i) => (i * 8) / 9);
+const linePoints = ZERO_CLICK.points.map((p) => `${p.x},${p.y}`).join(' ');
 ---
 
 <Base
@@ -19,269 +26,874 @@ const schema = [breadcrumbSchema([{ name: 'Home', path: '/' }])];
   path="/"
   schema={schema}
 >
-  <!-- 1 — Hero -->
-  <section class="section hero">
-    <div class="container">
-      <img
-        src="/brand/sonora-full.webp"
-        alt="Sonora"
-        width="280"
-        height="194"
-        fetchpriority="high"
-        decoding="async"
-        class="mark"
-      />
-      <div class="prose">
-        <h1>Your competitors aren&rsquo;t better. They&rsquo;re just easier to find.</h1>
-        <p class="lead">
-          Sonora is search and content strategy for companies that need
-          pipeline. I find where your buyers are actually looking, get you in
-          front of them, and build a channel that keeps working after the
-          campaign ends.
-        </p>
-        <div class="btn-row">
-          <a href="/book" class="btn">Book a call</a>
-          <a href="/method" class="btn-secondary">See the method</a>
-        </div>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="sonar" aria-hidden="true">
+      {ARCHES.map((delay) => <span class="arch" style={`animation-delay:${delay.toFixed(2)}s`} />)}
+      <span class="glow"></span>
+      <span class="pillar"></span>
+    </div>
+
+    <div class="container hero-inner">
+      <h1>
+        Your competitors aren&rsquo;t better.
+        <span class="line-gap"></span>
+        They&rsquo;re just easier to find.
+      </h1>
+      <p class="hero-lead">
+        Sonora is search and content strategy for companies that need pipeline.
+        We find where your buyers are actually looking, get you in front of
+        them, and build a channel that keeps working after the campaign ends.
+      </p>
+      <div class="hero-ctas">
+        <a href="/book" class="btn-paper">Book a call</a>
+        <a href="/method" class="link-gold">See the method</a>
       </div>
     </div>
   </section>
 
-  <!-- 2 — Why the old playbook stopped working -->
-  <section class="section surface-ink" aria-labelledby="ranking">
-    <div class="container">
-      <div class="prose" data-reveal>
-        <h2 id="ranking">Ranking first isn&rsquo;t the same as getting found.</h2>
-        <p>
+  <!-- Proof -->
+  <section class="section-pad proof" aria-labelledby="proof-heading">
+    <div class="container proof-grid">
+      <div data-reveal>
+        <p class="eyebrow-muted">Why now</p>
+        <h2 id="proof-heading">Ranking first isn&rsquo;t the same as getting found.</h2>
+        <p class="body-19">
           In early 2026, 68% of US Google searches ended without a single click.
-          Only about 276 of every 1,000 now reach the open web at all.
+          Only about 231 of every 1,000 now reach the open web at all.
         </p>
-        <p>You can win the ranking and receive nothing.</p>
+        <p class="pull">You can win the ranking and receive nothing.</p>
       </div>
-      <div class="chart-slot" data-reveal>
-        <ZeroClickChart />
-      </div>
+
+      <figure data-reveal class="chart-figure">
+        <svg
+          viewBox="0 0 920 360"
+          role="img"
+          aria-label="Zero-click share of US Google searches: 49% in 2019, 64.8% in 2020, 58.5% in 2024, 68% in 2026"
+          class="chart"
+        >
+          <g class="grid">
+            {ZERO_CLICK.gridY.map((y) => <line x1="90" y1={y} x2="900" y2={y} />)}
+          </g>
+          <g class="axis" text-anchor="end">
+            {
+              ZERO_CLICK.gridY.map((y, i) => (
+                <text x="72" y={y + 7}>{ZERO_CLICK.axisLabels[i]}</text>
+              ))
+            }
+          </g>
+          <g class="axis" text-anchor="middle">
+            {ZERO_CLICK.points.map((p) => <text x={p.x} y="344">{p.year}</text>)}
+          </g>
+          <polyline points={linePoints} class="series" />
+          <g class="dots">
+            {ZERO_CLICK.points.map((p) => <circle cx={p.x} cy={p.y} r="9" />)}
+          </g>
+          <g class="values" text-anchor="middle">
+            {
+              ZERO_CLICK.points.map((p) => (
+                <text x={p.labelX} y={p.labelY}>{p.value}%</text>
+              ))
+            }
+          </g>
+        </svg>
+
+        <div class="visually-hidden">
+          <table>
+            <caption>Share of US Google searches ending without a click</caption>
+            <thead>
+              <tr><th scope="col">Year</th><th scope="col">Zero-click share</th></tr>
+            </thead>
+            <tbody>
+              {
+                ZERO_CLICK.points.map((p) => (
+                  <tr><th scope="row">{p.year}</th><td>{p.value}%</td></tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <figcaption class="source">{ZERO_CLICK.source}</figcaption>
+      </figure>
     </div>
   </section>
 
-  <!-- 3 — Where the decision happens -->
-  <section class="section" aria-labelledby="decision">
+  <!-- The buying process -->
+  <section class="section-pad surface-ink" aria-labelledby="buying-heading">
     <div class="container">
-      <div class="prose" data-reveal>
-        <h2 id="decision">They decide before they contact you.</h2>
-        <p>
+      <div data-reveal class="intro-wide">
+        <p class="eyebrow-gold">The buying process</p>
+        <h2 id="buying-heading">They decide before they contact you.</h2>
+        <p class="lead-ink">
           B2B buyers weigh an average of seven information sources before
           choosing. Two thirds want to get through it without talking to anyone.
-        </p>
-        <p>
-          Most of those sources aren&rsquo;t yours. If you&rsquo;re absent from
-          them you&rsquo;re not in the running, and you&rsquo;ll never see the
-          deal you didn&rsquo;t get.
+          Most of those sources aren&rsquo;t yours &mdash; and you&rsquo;ll never
+          see the deal you didn&rsquo;t get.
         </p>
       </div>
-      <div class="chart-slot" data-reveal>
-        <BuyerStats />
-      </div>
-    </div>
-  </section>
 
-  <!-- 4 — The real problem -->
-  <section class="section surface-ink" aria-labelledby="real-problem">
-    <div class="container">
-      <div class="prose" data-reveal>
-        <h2 id="real-problem">Marketing first. Sales second.</h2>
-        <p>
-          Most early-stage companies don&rsquo;t have a product problem. They
-          have a nobody-knows-we-exist problem, and the usual response is to hire
-          another salesperson.
-        </p>
-        <p>
-          But a rep with no leads spends the week prospecting cold instead of
-          closing. That&rsquo;s the slowest and most expensive way to create
-          demand, and it&rsquo;s why so many first sales hires quietly
-          don&rsquo;t work out.
-        </p>
-        <p>
-          Build the engine that brings people to you. Then hire salespeople to
-          work the flow, not to create it.
-        </p>
-        <p>
-          Being good isn&rsquo;t a distribution strategy. Right now a competitor
-          with a worse product is showing up in every search, every AI answer,
-          and every comparison page, and taking deals you should be winning.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 5 — The Method -->
-  <section class="section" aria-labelledby="method-heading">
-    <div class="container">
-      <div class="prose section-intro" data-reveal>
-        <h2 id="method-heading">The Sonora Method</h2>
-        <p class="lead">
-          Four stages for turning search into a source of leads. Not traffic
-          &mdash; leads.
-        </p>
-      </div>
-      <MethodStages />
-      <p class="section-link" data-reveal>
-        <a href="/method" class="textlink">The full method &rarr;</a>
-      </p>
-    </div>
-  </section>
-
-  <SectionDivider />
-
-  <!-- 6 — Services -->
-  <section class="section" aria-labelledby="services-heading">
-    <div class="container">
-      <div class="prose section-intro" data-reveal>
-        <h2 id="services-heading">How we work together</h2>
-      </div>
-      <ul class="service-grid" data-reveal>
+      <ul data-reveal class="stat-row">
         {
-          SERVICES.map((service) => (
-            <ServiceCard
-              name={service.name}
-              oneLiner={service.oneLiner}
-              href={`/services#${service.slug}`}
-            />
+          STATS.map((stat) => (
+            <li>
+              <p class="stat-value">{stat.value}</p>
+              <p class="stat-label">{stat.label}</p>
+            </li>
           ))
         }
       </ul>
-      <p class="section-link" data-reveal>
-        <a href="/services" class="textlink">What&rsquo;s included &rarr;</a>
-      </p>
+      <p class="source on-ink">Gartner, survey of 646 B2B buyers, fielded 2025.</p>
     </div>
   </section>
 
-  <!-- 7 — Your category, already -->
-  <section class="section surface-ink" aria-labelledby="already">
+  <!-- Marketing first -->
+  <section class="section-pad" aria-labelledby="marketing-heading">
     <div class="container">
-      <div class="prose" data-reveal>
-        <h2 id="already">This is already happening in your market.</h2>
-      </div>
-      <div class="chart-slot" data-reveal>
-        <CoverageChart />
-      </div>
-      <div class="prose after-chart" data-reveal>
-        <p>
-          Four out of five searches in your category already return an AI answer.
-          Waiting isn&rsquo;t a strategy.
+      <div data-reveal class="split-head">
+        <h2 id="marketing-heading">Marketing first. Sales second.</h2>
+        <p class="body-19">
+          Most early-stage companies don&rsquo;t have a product problem. They
+          have a nobody-knows-we-exist problem &mdash; and the usual response is
+          to hire another salesperson.
         </p>
+      </div>
+
+      <div data-reveal class="paths" data-paths>
+        {
+          PATHS.map((p) => (
+            <button
+              type="button"
+              class:list={['path', p.key, { active: p.key === 'engine' }]}
+              data-path={p.key}
+              aria-pressed={p.key === 'engine' ? 'true' : 'false'}
+            >
+              <span class="path-top">
+                <span class="kicker">{p.kicker}</span>
+                <span class="marker" aria-hidden="true"></span>
+              </span>
+              <span class="path-title">{p.title}</span>
+              <span class="path-body">{p.body}</span>
+              <span class="path-cta">
+                <span class="when-active">{p.ctaActive}</span>
+                <span class="when-idle">{p.ctaInactive}</span>
+              </span>
+            </button>
+          ))
+        }
       </div>
     </div>
   </section>
 
-  <!-- 8 — About preview -->
-  <section class="section about-preview" aria-labelledby="about-heading">
-    <div class="container about-grid">
-      <img
-        src="/images/taylor-corbett.webp"
-        alt="Taylor Corbett, founder of Sonora"
-        width="400"
-        height="400"
-        loading="lazy"
-        decoding="async"
-        class="headshot"
-      />
-      <div class="prose" data-reveal>
-        <h2 id="about-heading">Who you&rsquo;d be working with</h2>
-        <p>
-          My name is Taylor. I started Sonora after watching a lot of good
-          startups hit the same wall &mdash; building, hiring, raising, and
-          almost nothing coming in the door. It was never a product problem.
-          Nobody owned inbound.
-        </p>
-        <p><a href="/about" class="textlink">About &rarr;</a></p>
+  <!-- Method -->
+  <section class="section-pad surface-ink" aria-labelledby="method-heading">
+    <div class="container">
+      <div data-reveal class="split-head">
+        <div>
+          <p class="eyebrow-gold">How we work</p>
+          <h2 id="method-heading">The Sonora Method</h2>
+        </div>
+        <a href="/method" class="link-gold on-ink">The full method &rarr;</a>
       </div>
+      <p data-reveal class="lead-ink method-lead">
+        Four stages for turning search into a source of leads. Not traffic
+        &mdash; leads.
+      </p>
+
+      <ol class="stage-row">
+        {
+          STAGES.map((stage) => (
+            <li data-reveal class="stage-card">
+              <span class="numeral">{stage.number}</span>
+              <h3>{stage.name}</h3>
+              <p>{stage.short}</p>
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </section>
 
-  <!-- 9 — CTA block -->
-  <CTABlock />
+  <!-- Services -->
+  <section class="section-pad" aria-labelledby="services-heading">
+    <div class="container">
+      <div data-reveal class="split-head">
+        <div>
+          <p class="eyebrow-muted">Pick your plan</p>
+          <h2 id="services-heading">Services</h2>
+        </div>
+        <a href="/services" class="link-gold">All services &rarr;</a>
+      </div>
+
+      <ul data-reveal class="service-grid">
+        {
+          SERVICES.map((service) => (
+            <li>
+              <a href={`/services#${service.slug}`}>
+                <span class="tile-arch" aria-hidden="true"></span>
+                <h3>{service.name}</h3>
+                <p>{service.oneLiner}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Book -->
+  <section class="cta-band surface-ink">
+    <div class="container" data-reveal>
+      <h2>Start with what&rsquo;s actually true.</h2>
+      <p class="lead-ink">
+        Thirty minutes. Tell us what&rsquo;s not working and we&rsquo;ll tell you
+        whether we can fix it.
+      </p>
+      <p class="cta-btn"><a href="/book" class="btn-gold-lg">Book a call</a></p>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="newsletter-band" aria-labelledby="newsletter-heading">
+    <div class="container news-grid" data-reveal>
+      <div>
+        <h2 id="newsletter-heading">What changed in search</h2>
+        <p>
+          A monthly newsletter on search and pipeline &mdash; marketing trends,
+          AI search shifts, and resources worth your time.
+        </p>
+      </div>
+      <NewsletterForm id="home-newsletter" variant="page" label="" />
+    </div>
+  </section>
 </Base>
 
 <style>
-  .hero {
-    padding-block: clamp(48px, 6vw, 88px) clamp(56px, 7vw, 96px);
+  .section-pad {
+    padding-block: clamp(64px, 8vw, 104px);
   }
 
-  .mark {
-    width: min(280px, 60vw);
-    height: auto;
-    margin-bottom: clamp(32px, 4vw, 48px);
+  /* ---- Hero ---- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--ink);
+    color: var(--paper);
+    min-height: min(100vh, 860px);
+    display: flex;
+    align-items: center;
+    padding-block: clamp(64px, 9vw, 120px) clamp(96px, 13vw, 170px);
+  }
+
+  /* Nine arches expanding out of the pillar at the bottom centre. The mask
+     fades them out toward the top so they do not collide with the headline. */
+  .sonar {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask: linear-gradient(to top, #000 12%, rgba(0, 0, 0, 0.5) 42%, rgba(0, 0, 0, 0.12) 62%, rgba(0, 0, 0, 0) 88%);
+    mask: linear-gradient(to top, #000 12%, rgba(0, 0, 0, 0.5) 42%, rgba(0, 0, 0, 0.12) 62%, rgba(0, 0, 0, 0) 88%);
+  }
+
+  .arch {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    margin-left: -620px;
+    width: 1240px;
+    height: 520px;
+    border: 2px solid var(--accent);
+    border-bottom: 0;
+    border-radius: 620px 620px 0 0;
+    transform-origin: 50% 100%;
+    animation: sonar-ring 8s linear infinite;
+  }
+
+  .glow {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    margin-left: -140px;
+    width: 280px;
+    height: 170px;
+    background: radial-gradient(60% 90% at 50% 100%, rgba(243, 198, 119, 0.5), rgba(243, 198, 119, 0) 70%);
+    animation: cave-glow 8s ease-in-out infinite;
+  }
+
+  .pillar {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    margin-left: -48px;
+    width: 96px;
+    height: 120px;
+    background: var(--accent);
+    border-radius: 48px 48px 0 0;
+  }
+
+  @keyframes sonar-ring {
+    0%   { transform: scale(0.14); opacity: 0; }
+    7%   { opacity: 0.85; }
+    70%  { opacity: 0.18; }
+    100% { transform: scale(1.7); opacity: 0; }
+  }
+
+  @keyframes cave-glow {
+    0%, 100% { opacity: 0.30; transform: scale(1); }
+    50%      { opacity: 0.55; transform: scale(1.06); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .arch {
+      animation: none;
+      opacity: 0.35;
+      transform: scale(1.1);
+    }
+
+    .glow {
+      animation: none;
+    }
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
   .hero h1 {
-    max-width: 18ch;
+    font-size: clamp(2.5rem, 5.6vw, 4.125rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    color: var(--paper);
+    max-width: 17ch;
+    text-wrap: balance;
   }
 
-  .hero .lead {
-    margin-top: 28px;
+  /* The design breaks the headline with a blank line between the two
+     sentences rather than a single line break. */
+  .line-gap {
+    display: block;
+    height: 0.7em;
   }
 
-  .section-intro {
-    margin-bottom: clamp(40px, 5vw, 64px);
+  .hero-lead {
+    margin-top: 26px;
+    font-size: clamp(1.0625rem, 1.9vw, 1.375rem);
+    line-height: 1.5;
+    color: var(--paper);
+    opacity: 0.82;
+    max-width: 62ch;
+    text-wrap: pretty;
   }
 
-  .section-intro .lead {
+  .hero-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 16px 28px;
+    margin-top: 36px;
+  }
+
+  .btn-paper {
+    background: var(--paper);
+    color: var(--ink);
+    padding: 19px 34px;
+    border-radius: 2px;
+    font-weight: 600;
+    font-size: 17px;
+    transition: transform 140ms ease-out, background-color 140ms ease-out;
+  }
+
+  .btn-paper:hover {
+    transform: translateY(-2px);
+    background-color: var(--accent);
+  }
+
+  .link-gold {
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+  }
+
+  .link-gold:hover {
+    text-decoration-thickness: 3px;
+  }
+
+  .hero .link-gold,
+  .link-gold.on-ink {
+    color: var(--paper);
+  }
+
+  /* ---- Shared type ---- */
+  .eyebrow-muted,
+  .eyebrow-gold {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow-muted { color: var(--muted); }
+  .eyebrow-gold { color: var(--accent); }
+
+  .section-pad h2,
+  .cta-band h2 {
+    margin-top: 18px;
+    font-size: clamp(1.75rem, 3.6vw, 2.875rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .body-19 {
+    margin-top: 22px;
+    font-size: clamp(1.0625rem, 1.5vw, 1.1875rem);
+  }
+
+  .lead-ink {
     margin-top: 20px;
+    font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+    color: var(--paper);
+    opacity: 0.82;
+    text-wrap: pretty;
   }
 
-  .section-link {
-    margin-top: clamp(40px, 4vw, 56px);
-    font-weight: 500;
+  .source {
+    margin-top: 20px;
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 60ch;
   }
 
-  .chart-slot {
-    margin-top: clamp(40px, 5vw, 64px);
+  .source.on-ink {
+    margin-top: 24px;
+    color: var(--muted-on-ink);
   }
 
-  .after-chart {
-    margin-top: clamp(40px, 5vw, 56px);
+  .intro-wide {
+    max-width: 74ch;
   }
 
-  .service-grid {
+  .split-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px 48px;
+    flex-wrap: wrap;
+  }
+
+  .split-head h2 {
+    margin-top: 0;
+  }
+
+  .split-head > div h2 {
+    margin-top: 18px;
+  }
+
+  /* ---- Proof ---- */
+  .proof-grid {
     display: grid;
-    gap: 24px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  @media (min-width: 640px) {
-    .service-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1000px) {
-    .service-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-
-  .about-grid {
-    display: grid;
-    gap: clamp(32px, 5vw, 64px);
-    align-items: start;
+    gap: clamp(40px, 5vw, 80px);
+    align-items: center;
   }
 
   @media (min-width: 900px) {
-    .about-grid {
-      grid-template-columns: 400px 1fr;
-      gap: 72px;
+    .proof-grid {
+      grid-template-columns: minmax(320px, 440px) 1fr;
     }
   }
 
-  /* Square with rounded top corners: the arch, applied to the headshot. */
-  .headshot {
-    width: min(400px, 100%);
+  .pull {
+    margin-top: 18px;
+    padding-left: 16px;
+    border-left: 3px solid var(--accent);
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+    line-height: 1.35;
+    color: var(--ink);
+  }
+
+  .chart-figure { margin: 0; }
+
+  .chart {
+    width: 100%;
     height: auto;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border-radius: 200px 200px 2px 2px;
+    overflow: visible;
+  }
+
+  .chart .grid line {
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+
+  .chart .axis text {
+    font-family: var(--font-body);
+    font-size: 19px;
+    fill: var(--muted);
+  }
+
+  .chart .series {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .chart .dots circle { fill: var(--accent); }
+
+  .chart .values text {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 30px;
+    fill: var(--ink);
+  }
+
+  /* ---- Stats ---- */
+  .stat-row {
+    display: grid;
+    gap: 20px;
+    list-style: none;
+    margin: clamp(40px, 5vw, 56px) 0 0;
+    padding: 0;
+  }
+
+  @media (min-width: 760px) {
+    .stat-row {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .stat-row li {
+    border-top: 2px solid var(--accent);
+    padding-top: 26px;
+    transition: transform 160ms ease-out;
+  }
+
+  .stat-row li:hover {
+    transform: translateY(-4px);
+  }
+
+  .stat-value {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: clamp(3.25rem, 6.4vw, 5.125rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-label {
+    margin-top: 14px;
+    font-size: 18px;
+    color: var(--paper);
+    opacity: 0.82;
+    max-width: 24ch;
+  }
+
+  /* ---- The two paths ---- */
+  .paths {
+    display: grid;
+    gap: 20px;
+    margin-top: clamp(36px, 5vw, 52px);
+  }
+
+  @media (min-width: 820px) {
+    .paths {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .path {
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 2px;
+    padding: 34px 32px 32px;
+    background: var(--paper-raised);
+    color: var(--body);
+    border: 1px solid var(--rule);
+    transition: transform 180ms ease-out, background-color 180ms ease-out,
+      color 180ms ease-out, border-color 180ms ease-out;
+    display: block;
+  }
+
+  .path:hover {
+    transform: translateY(-3px);
+  }
+
+  .path.rep.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .path.engine.active {
+    background: var(--accent);
+    color: var(--ink);
+    border-color: var(--accent);
+  }
+
+  .path-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .kicker {
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .marker {
+    width: 12px;
+    height: 14px;
+    border-radius: 6px 6px 0 0;
+    background: var(--accent);
+    opacity: 0.45;
+    flex-shrink: 0;
+  }
+
+  .path.rep.active .marker { opacity: 1; }
+  .path.engine.active .marker { background: var(--ink); opacity: 1; }
+
+  .path-title {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    letter-spacing: -0.02em;
+    margin-top: 18px;
+  }
+
+  .path-body {
+    display: block;
+    margin-top: 14px;
+    font-size: 18px;
+    line-height: 1.6;
+    opacity: 0.9;
+  }
+
+  .path-cta {
+    display: block;
+    margin-top: 22px;
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .path .when-active { display: none; }
+  .path.active .when-active { display: inline; }
+  .path.active .when-idle { display: none; }
+
+  /* ---- Method stages ---- */
+  .method-lead {
+    max-width: 60ch;
+  }
+
+  .stage-row {
+    display: grid;
+    gap: 20px;
+    list-style: none;
+    margin: clamp(36px, 5vw, 52px) 0 0;
+    padding: 0;
+  }
+
+  @media (min-width: 620px) {
+    .stage-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 1040px) {
+    .stage-row { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .stage-card {
+    background: #12104A;
+    border: 1px solid var(--rule-on-ink);
+    border-radius: 2px;
+    padding: 28px 24px 30px;
+    transition: transform 160ms ease-out, border-color 160ms ease-out;
+  }
+
+  .stage-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+
+  /* An arch outline with the stage number sitting inside it. */
+  .numeral {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 34px;
+    height: 42px;
+    padding-bottom: 5px;
+    border: 2px solid var(--accent);
+    border-radius: 17px 17px 2px 2px;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--accent);
+  }
+
+  .stage-card h3 {
+    margin-top: 18px;
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    color: var(--paper);
+  }
+
+  .stage-card p {
+    margin-top: 12px;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--paper);
+    opacity: 0.8;
+  }
+
+  /* ---- Services tiles ---- */
+  .service-grid {
+    display: grid;
+    gap: 2px;
+    list-style: none;
+    margin: 40px 0 0;
+    padding: 0;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  @media (min-width: 700px) {
+    .service-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .service-grid a {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    min-height: 196px;
+    padding: 36px 34px 40px;
+    background: var(--paper);
+    transition: background-color 160ms ease-out, box-shadow 160ms ease-out;
+  }
+
+  .service-grid a:hover {
+    background-color: var(--paper-raised);
+    box-shadow: inset 0 3px 0 0 var(--accent);
+  }
+
+  .tile-arch {
+    width: 20px;
+    height: 24px;
+    background: var(--accent);
+    border-radius: 10px 10px 0 0;
+  }
+
+  .service-grid h3 {
+    margin-top: 6px;
+    font-size: clamp(1.375rem, 2vw, 1.625rem);
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .service-grid p {
+    font-size: 18px;
+  }
+
+  /* ---- CTA band ---- */
+  .cta-band {
+    padding-block: clamp(64px, 8vw, 96px) clamp(60px, 7vw, 88px);
+    text-align: center;
+  }
+
+  .cta-band .container > * {
+    max-width: 760px;
+    margin-inline: auto;
+  }
+
+  .cta-band h2 {
+    font-size: clamp(1.875rem, 4vw, 3rem);
+    letter-spacing: -0.03em;
+    color: var(--paper);
+  }
+
+  .cta-btn { margin-top: 32px; }
+
+  .btn-gold-lg {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--ink);
+    padding: 19px 36px;
+    border-radius: 2px;
+    font-weight: 600;
+    font-size: 17px;
+    transition: transform 140ms ease-out, box-shadow 140ms ease-out;
+  }
+
+  .btn-gold-lg:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(243, 198, 119, 0.3);
+  }
+
+  /* ---- Newsletter ---- */
+  .newsletter-band {
+    padding-block: clamp(56px, 7vw, 72px);
+  }
+
+  .news-grid {
+    display: grid;
+    gap: clamp(28px, 4vw, 64px);
+    align-items: center;
+  }
+
+  @media (min-width: 860px) {
+    .news-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .news-grid h2 {
+    font-size: clamp(1.5rem, 2.8vw, 2.125rem);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .news-grid p {
+    margin-top: 12px;
+    max-width: 48ch;
   }
 </style>
+
+<script>
+  /* The two-path toggle. Progressive: the page renders with "engine" active,
+     which is a complete state on its own, and this only swaps which card is
+     highlighted. */
+  const group = document.querySelector<HTMLElement>('[data-paths]');
+
+  if (group) {
+    const cards = Array.from(group.querySelectorAll<HTMLButtonElement>('[data-path]'));
+
+    cards.forEach((card) => {
+      card.addEventListener('click', () => {
+        cards.forEach((other) => {
+          const active = other === card;
+          other.classList.toggle('active', active);
+          other.setAttribute('aria-pressed', String(active));
+        });
+      });
+    });
+  }
+</script>

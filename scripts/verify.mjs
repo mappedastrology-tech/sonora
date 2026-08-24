@@ -198,6 +198,13 @@ const forbidden = [
   [/\bsupercharge/i, '"supercharge"'],
   [/let's dive in/i, '"let\u2019s dive in"'],
   [/it's no secret that/i, '"it\u2019s no secret that"'],
+
+  // Figures the v5 handoff retires by name.
+  [/\b222%/, 'the retired 222% figure'],
+  [/\b220%/, 'the retired 220% figure'],
+  [/Paddle/i, 'the retired Paddle CAC index'],
+  [/\b(107|134)[- ]day/i, 'the retired sales-cycle figures'],
+  [/276 of every 1,000/i, 'the superseded 276-per-1,000 figure (use 231)'],
 ];
 
 let prohibitedHits = 0;
@@ -221,7 +228,7 @@ if (!prohibitedHits) {
  */
 heading('Sourced statistics');
 const home = documents.get('/');
-const SOURCES = ['SparkToro', 'Gartner', 'BrightEdge'];
+const SOURCES = ['SparkToro', 'Gartner'];
 const missingSources = SOURCES.filter((source) => !home?.includes(source));
 if (missingSources.length) {
   fail(`homepage charts are missing citations: ${missingSources.join(', ')}`);
@@ -254,11 +261,9 @@ const FIGURES = [
   ['64.8%', 'zero-click 2020'],
   ['58.5%', 'zero-click 2024'],
   ['68%', 'zero-click 2026'],
+  ['231', 'clicks per 1,000 reaching the open web'],
   ['67%', 'rep-free preference'],
   ['45%', 'AI use during purchase'],
-  ['88%', 'healthcare coverage'],
-  ['83%', 'education coverage'],
-  ['82%', 'B2B technology coverage'],
 ];
 
 const text = decode(home ?? '').replace(/<[^>]+>/g, ' ');
