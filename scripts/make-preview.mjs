@@ -21,7 +21,11 @@ const PAGES = [
   ['/services', 'services.html', 'Services'],
   ['/about', 'about.html', 'About'],
   ['/blog', 'blog.html', 'Writing'],
-  ['/blog/the-sonora-method', 'blog/the-sonora-method.html', 'A post'],
+  [
+    '/blog/why-rankings-dont-get-you-into-ai-answers',
+    'blog/why-rankings-dont-get-you-into-ai-answers.html',
+    'A post',
+  ],
   ['/book', 'book.html', 'Book'],
   ['/contact', 'contact.html', 'Contact'],
   ['/privacy', 'privacy.html', 'Privacy'],
