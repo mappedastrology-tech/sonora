@@ -19,6 +19,7 @@ export const STAGE_DETAIL = [
   {
     number: '01',
     name: 'Listen',
+    summary: 'What buyers actually search, and who currently gets the answer.',
     paragraphs: [
       'Everything starts with learning the market. Who else is in it, what they claim, and which of them get named when someone goes looking for a solution like yours.',
       'Then the buyers. What they search, in their words, and where they are in the process. There’s a real difference between someone reading about a problem and someone comparing two vendors, and most content programs only serve the first.',
@@ -29,6 +30,7 @@ export const STAGE_DETAIL = [
   {
     number: '02',
     name: 'Locate',
+    summary: 'The position you can own, in language a stranger understands.',
     paragraphs: [
       'Next we find your strongest differentiator — something your competitors can’t claim, that your buyers actually care about, and that you can hold onto for at least a year. It’s often not the thing the founder expects.',
       'A stranger should be able to read one line and know what you sell and who it’s for. Most companies can’t manage that, usually because their homepage, sales deck, and documentation each answer it differently.',
@@ -46,16 +48,22 @@ export const STAGE_DETAIL = [
   {
     number: '03',
     name: 'Saturate',
+    summary: 'Present across the whole path, not just the front of it.',
     paragraphs: [
       'Then the position goes out into the world, which is the part most engagements skip.',
       'Lean teams spend around 90% of their effort on making content and 10% on distributing it. It should be closer to even. A page nobody finds is not a marketing asset.',
       'That means three layers at once. Your owned content. The technical layer that decides whether a model can read you at all — structured data, clean served HTML, content not buried behind JavaScript. And the third-party surfaces that carry the most weight in AI answers: reviews, forums, comparison sites, press.',
-      'Those are the places. What matters just as much is where someone is in their process when they land. Most content programs pile everything at the front — explainers, definitions, problem-awareness posts — and put almost nothing at the point of decision. Comparison pages, alternatives pages, clear pricing, direct answers to the objections your sales calls keep hitting. Ranking for the question that starts a search is worth very little if you’re missing from the page where it ends.',
+      'Those are the places. What matters just as much is where someone is in their process when they land. Most content programs pile everything at the front — explainers, definitions, problem-awareness posts — and put almost nothing at the point of decision. Comparison pages, alternatives pages, clear pricing, direct answers to the objections your sales calls keep hitting.',
     ],
+    /* The closing line carries the whole stage, so the layout sets it apart
+       rather than burying it at the end of a long paragraph. */
+    pullQuote:
+      'Ranking for the question that starts a search is worth very little if you’re missing from the page where it ends.',
   },
   {
     number: '04',
     name: 'Sustain',
+    summary: 'Measurement that stays comparable quarter over quarter.',
     paragraphs: [
       'Last, we measure what happened — against pipeline rather than pageviews.',
       'Every quarter: where you’re showing up in AI answers and search results, who’s showing up instead of you, and which sources those answers pull from.',

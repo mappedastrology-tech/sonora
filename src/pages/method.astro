@@ -1,7 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
 import CTABlock from '../components/CTABlock.astro';
-import Arch from '../components/Arch.astro';
 import { ORDER, STAGE_DETAIL } from '../lib/method-page';
 import { FAQS } from '../lib/faq';
 import { breadcrumbSchema, faqSchema } from '../lib/schema';
@@ -66,14 +65,14 @@ const schema = [
         id={`stage-${stage.number}`}
       >
         <div class="container">
-          <div class="stage-inner" data-reveal>
-            <div class="numeral">
-              <Arch variant="outline" label={stage.number} size={96} />
+          <div class="stage-inner">
+            <div class="stage-mark" data-reveal>
+              <p class="stage-numeral">{stage.number}</p>
+              <h2 id={`stage-${stage.number}-heading`}>{stage.name}</h2>
+              <p class="stage-summary">{stage.summary}</p>
             </div>
-            <div class="prose">
-              <h2 id={`stage-${stage.number}-heading`}>
-                {stage.number} &middot; {stage.name}
-              </h2>
+
+            <div class="stage-body prose" data-reveal>
               {stage.paragraphs.map((paragraph) => (
                 <p>{paragraph}</p>
               ))}
@@ -85,6 +84,10 @@ const schema = [
                     <p>{paragraph}</p>
                   ))}
                 </aside>
+              )}
+
+              {'pullQuote' in stage && stage.pullQuote && (
+                <p class="pull-quote">{stage.pullQuote}</p>
               )}
             </div>
           </div>
@@ -177,36 +180,85 @@ const schema = [
     margin-top: 14px;
   }
 
+  /* The stage name and its one-line summary sit in a column of their own,
+     under an oversized gold numeral; the body runs beside them. */
   .stage-inner {
     display: grid;
-    gap: 24px;
+    gap: 28px;
   }
 
   @media (min-width: 900px) {
     .stage-inner {
-      grid-template-columns: 120px 1fr;
-      gap: 56px;
+      grid-template-columns: 300px 1fr;
+      gap: 64px;
+      align-items: start;
     }
   }
 
-  .numeral {
-    line-height: 0;
+  .stage-numeral {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: clamp(3.5rem, 6.4vw, 5.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--accent);
   }
 
-  /* The category-naming sub-section sits inside Locate, set apart by a gold
-     rule so it reads as an aside rather than a fifth stage. */
+  .stage-mark h2 {
+    margin-top: 12px;
+    font-size: clamp(1.875rem, 3.6vw, 2.625rem);
+    letter-spacing: -0.03em;
+  }
+
+  .stage-summary {
+    margin-top: 14px;
+    font-size: 17px;
+    color: var(--surface-muted);
+  }
+
+  .stage-body {
+    max-width: 68ch;
+  }
+
+  .stage-body > p {
+    font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
+  }
+
+  /* The category-naming sub-section sits inside Locate. A card with a gold
+     edge, so it reads as an aside rather than a fifth stage. */
   .aside {
     margin-top: 36px;
-    padding: 4px 0 4px 24px;
-    border-left: 2px solid var(--accent);
+    padding: 28px 30px 30px;
+    border: 1px solid var(--surface-rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 2px;
+  }
+
+  .surface-ink .aside {
+    background: #12104A;
   }
 
   .aside h3 {
-    font-size: 1.1875rem;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    letter-spacing: -0.01em;
   }
 
   .aside p {
-    margin-top: 12px;
+    margin-top: 14px;
+    font-size: 1.125rem;
+  }
+
+  /* Saturate's closing line, set as a statement rather than a sentence.
+     Selected through .stage-body so it outranks the body-paragraph size. */
+  .stage-body > .pull-quote {
+    margin-top: 30px;
+    padding-left: 18px;
+    border-left: 3px solid var(--accent);
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: clamp(1.25rem, 2.4vw, 1.625rem);
+    line-height: 1.35;
+    color: var(--surface-heading);
   }
 
   .faq-list {
