@@ -34,6 +34,7 @@ export const GET: APIRoute = async () => {
 
 - [The Sonora Method](${url('/method')}): A four-stage framework for turning search into pipeline — Listen, Locate, Saturate, Sustain. Covers answer engine optimization across ChatGPT, Perplexity, Gemini, Claude, and Google AI Overviews.
 - [Services](${url('/services')}): Visibility audit, strategy sprint, fractional head of content, AI visibility monitoring.
+- [Why now](${url('/why-now')}): What changed in how B2B buyers search — AI answers, the fall in clicks reaching the open web, the number of sources weighed before a decision, and when a vendor gets contacted. Every figure carries its source.
 - [About](${url('/about')}): Background of Taylor Corbett, founder.
 
 ## Services
@@ -42,7 +43,7 @@ ${services}
 
 ## Blog
 
-- [Blog](${url('/blog')}): AI search, positioning, and what to do when the answer arrives before the click.
+- [Blog](${url('/blog')}): Working notes on search, positioning, and what buyers do before they contact you.
 ${writing}
 
 ## Contact

@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import PostIcon from '../../components/PostIcon.astro';
 import { getPublishedPosts, postPath } from '../../lib/posts';
 import { readingTime, formatDate } from '../../lib/format';
-import { breadcrumbSchema } from '../../lib/schema';
+import { breadcrumbSchema, blogSchema } from '../../lib/schema';
 
 const path = '/blog';
 const posts = await getPublishedPosts();
@@ -22,6 +22,14 @@ const schema = [
     { name: 'Home', path: '/' },
     { name: 'Blog', path },
   ]),
+  blogSchema(
+    posts.map((post) => ({
+      path: postPath(post),
+      title: post.data.title,
+      description: post.data.description,
+      date: post.data.date,
+    }))
+  ),
 ];
 
 const countLabel = `${posts.length} ${posts.length === 1 ? 'post' : 'posts'}`;

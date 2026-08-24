@@ -167,6 +167,8 @@ let TYPES_BY_ROUTE = {
   '/about': ['Organization', 'WebSite', 'Person', 'BreadcrumbList'],
 };
 
+TYPES_BY_ROUTE['/blog'] = ['Organization', 'WebSite', 'BreadcrumbList', 'Blog'];
+
 for (const slug of POST_SLUGS) {
   TYPES_BY_ROUTE[`/blog/${slug}`] = [
     'Organization',
@@ -355,11 +357,47 @@ for (const file of ['llms.txt', 'robots.txt', 'rss.xml', 'sitemap-index.xml']) {
 }
 
 const llms = await readFile(path.join(dist, 'llms.txt'), 'utf8');
+/* llms.txt is the site's own briefing for a model. A page missing from it is
+   invisible to anything that reads it first. */
+const CORE_IN_LLMS = ['/method', '/services', '/why-now', '/about', '/blog', '/book'];
+const missingCore = CORE_IN_LLMS.filter((route) => !llms.includes(`${route})`));
+if (missingCore.length) {
+  fail(`llms.txt does not list: ${missingCore.join(', ')}`);
+} else {
+  pass(`llms.txt lists all ${CORE_IN_LLMS.length} core pages`);
+}
+
 const missingFromLlms = POST_SLUGS.filter((slug) => !llms.includes(`/blog/${slug}`));
 if (missingFromLlms.length) {
   fail(`llms.txt is missing posts: ${missingFromLlms.join(', ')}`);
 } else {
   pass(`llms.txt lists all ${POST_SLUGS.length} published post(s)`);
+}
+
+/*
+ * A post that ends in a question-and-answer section has to carry FAQPage, and
+ * the count has to match. This is the markup an answer engine reads to lift a
+ * question and its answer intact, and it breaks silently — the page looks
+ * identical either way.
+ */
+for (const slug of POST_SLUGS) {
+  const raw = await readFile(path.join(blogSource, `${slug}.md`), 'utf8');
+  const heading = /^##\s+(common questions|frequently asked|faqs?)\s*$/im.exec(raw);
+  if (!heading) continue;
+
+  const section = raw.slice(heading.index + heading[0].length).split(/^##\s+/m)[0];
+  const asked = (section.match(/^\*\*.+\*\*\s*$/gm) ?? []).length;
+
+  const built = documents.get(`/blog/${slug}`) ?? '';
+  const graph = built.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1];
+  const faq = JSON.parse(graph ?? '{}')['@graph']?.find((n) => n['@type'] === 'FAQPage');
+  const marked = faq?.mainEntity?.length ?? 0;
+
+  if (marked === asked && asked > 0) {
+    pass(`/blog/${slug} marks up all ${asked} of its questions as FAQPage`);
+  } else {
+    fail(`/blog/${slug} asks ${asked} questions but marks up ${marked}`);
+  }
 }
 
 const robots = await readFile(path.join(dist, 'robots.txt'), 'utf8');

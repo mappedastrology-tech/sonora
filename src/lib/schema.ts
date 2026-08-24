@@ -93,6 +93,29 @@ export function faqSchema(
   };
 }
 
+/** The blog itself, with its posts, so a crawler sees the set not just a page. */
+export function blogSchema(
+  posts: { path: string; title: string; description: string; date: Date }[]
+) {
+  return {
+    '@type': 'Blog',
+    '@id': `${abs('/blog')}#blog`,
+    name: 'Sonora — Writing',
+    description:
+      'Working notes on search, positioning, and what buyers do before they contact you.',
+    publisher: { '@id': ORG_ID },
+    inLanguage: 'en-US',
+    blogPost: posts.map((post) => ({
+      '@type': 'BlogPosting',
+      '@id': `${abs(post.path)}#post`,
+      headline: post.title,
+      description: post.description,
+      datePublished: post.date.toISOString(),
+      url: abs(post.path),
+    })),
+  };
+}
+
 export function serviceSchema(service: {
   slug: string;
   name: string;
