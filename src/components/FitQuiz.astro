@@ -7,7 +7,10 @@
  * the recommendations in the served HTML — readable by a crawler and by a
  * model — and keeps the script to counting and toggling.
  *
- * Nothing is stored and nothing is sent. The hint line says so.
+ * Nothing is stored, and the answers themselves never leave the browser. The
+ * one thing reported is which of the four came out on top, so Taylor can see
+ * where people are landing — named in the hint line and on the privacy page,
+ * because a claim about what a page does has to match what it does.
  */
 import { FIT_QUESTIONS, FIT_OUTCOMES } from '../lib/fit-quiz';
 ---
@@ -120,7 +123,7 @@ import { FIT_QUESTIONS, FIT_OUTCOMES } from '../lib/fit-quiz';
       submit.disabled = !complete;
       hint.textContent = complete
         ? submitted
-          ? 'Answers stay on this page — nothing is sent.'
+          ? 'Your answers stay in this browser. Only which one came up is counted.'
           : 'All three answered. Ready when you are.'
         : `${answers.size} of ${total} answered`;
     };
@@ -161,6 +164,16 @@ import { FIT_QUESTIONS, FIT_OUTCOMES } from '../lib/fit-quiz';
       winner.hidden = false;
       render(true);
       winner.querySelector<HTMLElement>('[data-result-heading]')?.focus();
+
+      /*
+       * The recommendation, and only the recommendation — one of four fixed
+       * words. The answers that produced it stay here. Optional chaining
+       * because analytics may be blocked, in which case this is a no-op and
+       * the quiz carries on.
+       */
+      window.gtag?.('event', 'fit_recommendation', {
+        recommendation: winner.dataset.result,
+      });
     });
 
     document.querySelectorAll<HTMLButtonElement>('[data-restart]').forEach((button) => {

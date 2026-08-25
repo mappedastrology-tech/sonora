@@ -26,7 +26,6 @@ import {
   ogTextSvg,
   headshotPlaceholderSvg,
   INK,
-  ACCENT,
   PAPER,
 } from './brand-svg.mjs';
 
@@ -338,30 +337,27 @@ async function generateFavicons() {
     return;
   }
 
-  /*
-   * A gold arch on an ink tile, opaque, at every size.
-   *
-   * Transparency does not work here, and the earlier attempt at it is why the
-   * icon went missing. A transparent mark has to survive both tab strips, and
-   * measured against Chrome's own colours no single colour does: the ink mark
-   * is 14:1 on the light strip but 1.5:1 on the dark one, and gold is the
-   * reverse at 1.2:1 and 7.6:1. Handing the browser a light and a dark file
-   * with `media` only helps where `media` on <link rel="icon"> is honoured,
-   * and /favicon.ico — which browsers fetch on their own — carries no media at
-   * all.
-   *
-   * An opaque tile sidesteps the whole problem: gold on ink is 11.7:1 whatever
-   * the browser paints around it. It is also the mark as it appears everywhere
-   * else on the site, rather than a silhouette.
-   */
-  const goldOnInk = await sharp(await recolourMark(iconPath, ACCENT))
-    .flatten({ background: INK })
-    .toBuffer();
+  const source = await readFile(iconPath);
 
+  /*
+   * The ink arch on a plain paper field, opaque, at every size.
+   *
+   * Opaque rather than transparent, because a see-through mark has to survive
+   * both tab strips and measured against Chrome's own colours no single colour
+   * does: the ink mark is 14:1 on the light strip but 1.5:1 on the dark one,
+   * and gold is the reverse at 1.2:1 and 7.6:1. Handing the browser a light
+   * and a dark file with `media` only helps where `media` on
+   * <link rel="icon"> is honoured, and /favicon.ico — which browsers fetch on
+   * their own — carries no media at all. That is why the icon went missing.
+   *
+   * A paper tile settles it from the other direction: ink on paper is 17.4:1,
+   * and a light tile reads as a light tile whatever the browser paints behind
+   * it. Paper and ink rather than white and black, which the palette bars.
+   */
   const resize = (size) =>
-    sharp(goldOnInk)
-      .resize(size, size, { fit: 'contain', background: INK })
-      .flatten({ background: INK })
+    sharp(source)
+      .resize(size, size, { fit: 'contain', background: PAPER })
+      .flatten({ background: PAPER })
       .png()
       .toBuffer();
 
@@ -386,7 +382,7 @@ async function generateFavicons() {
     ),
   ]);
 
-  log('favicons: ico, 16, 32, 48, apple-touch — gold on ink, opaque');
+  log('favicons: ico, 16, 32, 48, apple-touch — ink on paper, opaque');
 }
 
 /**

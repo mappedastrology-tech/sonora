@@ -512,24 +512,32 @@ if (/<a\b[^>]*href="https:\/\/calendar\.(app\.google|google\.com)\//.test(bookWi
 }
 
 /*
- * The fit quiz on /services tells the reader "nothing is sent". Keep that
- * honest: the page must ship no form and no network call of its own. The
- * analytics tag is loaded by the layout from googletagmanager, not by the
- * page, so it is matched by host rather than exempted by hand.
+ * The fit quiz reports which recommendation came up, and nothing else. Two
+ * things have to hold together, because the risk is that the code and the
+ * claim drift apart:
+ *
+ *   1. The answers stay put — no form, no fetch/XHR/beacon/socket of the
+ *      page's own. The analytics tag is loaded by the layout from
+ *      googletagmanager, so it is matched by host rather than exempted.
+ *   2. The page no longer claims nothing is sent, because something now is.
  */
 const services = documents.get('/services');
-if (services?.includes('Answers stay on this page')) {
+if (!services?.includes('Only which one came up is counted')) {
+  fail('the fit quiz hint text is missing from /services');
+} else if (/nothing is sent/i.test(services)) {
+  fail('/services still claims nothing is sent, but the quiz reports a result');
+} else {
   const pageScripts = (services.match(/<script[\s\S]*?<\/script>/g) ?? [])
     .filter((tag) => !tag.includes('googletagmanager'))
     .join('\n');
-  const sends = /<form[\s>]/.test(services) || /\b(fetch|XMLHttpRequest|sendBeacon|WebSocket)\b/.test(pageScripts);
+  const sends =
+    /<form[\s>]/.test(services) ||
+    /\b(fetch|XMLHttpRequest|sendBeacon|WebSocket)\b/.test(pageScripts);
   if (sends) {
-    fail('/services claims nothing is sent, but it ships a form or a network call');
+    fail('/services ships a form or a network call of its own; the answers should not leave the browser');
   } else {
-    pass('the fit quiz sends nothing, as it claims');
+    pass('the fit quiz reports only the recommendation, and says so');
   }
-} else {
-  fail('the fit quiz hint text is missing from /services');
 }
 
 // The privacy page has to describe the analytics that are actually installed.
