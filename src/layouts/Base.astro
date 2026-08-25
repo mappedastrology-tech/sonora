@@ -36,38 +36,12 @@ const { title, description, path, image, ogType, schema, noindex, bodyClass } =
       document.documentElement.classList.add('js');
     </script>
 
-    <!-- Tab icons are transparent, so the ink mark needs a paper counterpart
-         for dark browser chrome. Browsers that ignore `media` here keep the
-         ink version, which is the same result as not shipping the pair. -->
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="/favicon-32.png"
-      media="(prefers-color-scheme: light)"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="/favicon-16.png"
-      media="(prefers-color-scheme: light)"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="/favicon-32-dark.png"
-      media="(prefers-color-scheme: dark)"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="/favicon-16-dark.png"
-      media="(prefers-color-scheme: dark)"
-    />
+    <!-- One opaque icon set: a gold arch on an ink tile, which reads the same
+         on a light tab strip and a dark one. No media-scoped pairs, because
+         /favicon.ico carries no media and browsers fetch it regardless. -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#0C0A3E" />
 

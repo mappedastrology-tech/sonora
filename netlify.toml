@@ -10,6 +10,18 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# www to the apex, so one hostname is canonical.
+#
+# This only fires for hostnames Netlify already routes here. If www is not
+# listed under Domain management as a domain alias, Netlify answers it with its
+# own "site not found" page — Netlify's logo, Netlify's favicon, nothing of
+# yours — which is what a missing alias looks like from the outside.
+[[redirects]]
+  from = "https://www.sonoramethod.com/*"
+  to = "https://sonoramethod.com/:splat"
+  status = 301
+  force = true
+
 [[headers]]
   for = "/*"
   [headers.values]

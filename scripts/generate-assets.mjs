@@ -26,6 +26,7 @@ import {
   ogTextSvg,
   headshotPlaceholderSvg,
   INK,
+  ACCENT,
   PAPER,
 } from './brand-svg.mjs';
 
@@ -337,62 +338,43 @@ async function generateFavicons() {
     return;
   }
 
-  const source = await readFile(iconPath);
-  const TRANSPARENT = { r: 0, g: 0, b: 0, alpha: 0 };
-
-  /**
-   * The compact crop is already close to square, so it fits whole with only a
-   * sliver of letterboxing.
+  /*
+   * A gold arch on an ink tile, opaque, at every size.
    *
-   * Browser tab icons keep their transparency: a tab strip is light in one
-   * theme and dark in another, and a baked-in cream square reads as a card
-   * floating on the wrong colour. The mark is ink, which holds up on either.
+   * Transparency does not work here, and the earlier attempt at it is why the
+   * icon went missing. A transparent mark has to survive both tab strips, and
+   * measured against Chrome's own colours no single colour does: the ink mark
+   * is 14:1 on the light strip but 1.5:1 on the dark one, and gold is the
+   * reverse at 1.2:1 and 7.6:1. Handing the browser a light and a dark file
+   * with `media` only helps where `media` on <link rel="icon"> is honoured,
+   * and /favicon.ico — which browsers fetch on their own — carries no media at
+   * all.
    *
-   * The apple-touch icon is the exception and stays opaque. iOS composites a
-   * transparent home-screen icon onto black, which would put a near-black arch
-   * on a black tile.
+   * An opaque tile sidesteps the whole problem: gold on ink is 11.7:1 whatever
+   * the browser paints around it. It is also the mark as it appears everywhere
+   * else on the site, rather than a silhouette.
    */
-  const resize = (size, { opaque = false } = {}) => {
-    const pipeline = sharp(source).resize(size, size, {
-      fit: 'contain',
-      background: opaque ? PAPER : TRANSPARENT,
-    });
-    return (opaque ? pipeline.flatten({ background: PAPER }) : pipeline)
+  const goldOnInk = await sharp(await recolourMark(iconPath, ACCENT))
+    .flatten({ background: INK })
+    .toBuffer();
+
+  const resize = (size) =>
+    sharp(goldOnInk)
+      .resize(size, size, { fit: 'contain', background: INK })
+      .flatten({ background: INK })
       .png()
       .toBuffer();
-  };
 
   const [png16, png32, png48, png180] = await Promise.all([
     resize(16),
     resize(32),
     resize(48),
-    resize(180, { opaque: true }),
+    resize(180),
   ]);
-
-  /*
-   * A second set in paper, for dark browser chrome.
-   *
-   * Now that the tab icons are transparent, the ink mark all but vanishes
-   * against a dark tab strip. A PNG cannot adapt on its own, but `media` on
-   * <link rel="icon"> lets the page hand the browser a different file — see
-   * Base.astro. Where that is unsupported the browser keeps the ink version,
-   * which is the same result as not shipping these at all, so there is no
-   * downside to including them.
-   */
-  const paperSource = await recolourMark(iconPath, PAPER);
-  const resizeDark = (size) =>
-    sharp(paperSource)
-      .resize(size, size, { fit: 'contain', background: TRANSPARENT })
-      .png()
-      .toBuffer();
-
-  const [dark16, dark32] = await Promise.all([resizeDark(16), resizeDark(32)]);
 
   await Promise.all([
     writeFile(path.join(publicDir, 'favicon-16.png'), png16),
     writeFile(path.join(publicDir, 'favicon-32.png'), png32),
-    writeFile(path.join(publicDir, 'favicon-16-dark.png'), dark16),
-    writeFile(path.join(publicDir, 'favicon-32-dark.png'), dark32),
     writeFile(path.join(publicDir, 'apple-touch-icon.png'), png180),
     writeFile(
       path.join(publicDir, 'favicon.ico'),
@@ -404,7 +386,7 @@ async function generateFavicons() {
     ),
   ]);
 
-  log('favicons: ico, 16, 32, dark 16, dark 32, apple-touch');
+  log('favicons: ico, 16, 32, 48, apple-touch — gold on ink, opaque');
 }
 
 /**
