@@ -24,9 +24,9 @@ something genuinely needs a developer, it says so.
 
 Three things, none of them code.
 
-**1. Point the form notifications at your inbox.** The three forms — `question`
-on the booking page, `contact`, and `newsletter` — are live and Netlify is
-collecting submissions. It will not email you about them until you say where to
+**1. Point the form notifications at your inbox.** The three forms — `enquiry`
+on the About page, `question` on the booking page, and `newsletter` — are live
+and Netlify is collecting submissions. It will not email you about them until you say where to
 send them, and that switch only exists in the dashboard:
 
 > Netlify → **sonoramethod** → Forms → pick a form → **Settings & usage** →
@@ -66,7 +66,6 @@ Every page is one file. Open it, find the sentence, change it, save.
 | Services | `src/pages/services.astro` |
 | About | `src/pages/about.astro` |
 | Book a call | `src/pages/book.astro` |
-| Contact | `src/pages/contact.astro` |
 | Blog (the index) | `src/pages/blog/index.astro` |
 | Privacy | `src/pages/privacy.astro` |
 | The "page not found" page | `src/pages/404.astro` |
@@ -404,9 +403,14 @@ footer of the email, and an unsubscribe link that works and is honoured within
 ten business days. Every provider named above does both for you — this is a
 reason to move off Netlify before you send rather than after.
 
-The contact form works the same way and lands in the same place, under
-`contact`, as does the "have a question first" form on the booking page, under
-`question`.
+The enquiry form on the About page works the same way and lands in the same
+place, under `enquiry`, as does the "have a question first" form on the booking
+page, under `question`.
+
+You will also see a fourth form in Netlify called `contact`. That was the old
+standalone contact page, retired in favour of the About form; Netlify keeps a
+form once it has seen it, so it stays in the list. Nothing on the site posts to
+it any more, so it needs no notification.
 
 Netlify stores submissions whether or not it emails you about them. To get the
 email, add a notification per form — the steps are under "What is still

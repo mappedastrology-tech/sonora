@@ -28,7 +28,6 @@ const PAGES = [
     'A post',
   ],
   ['/book', 'book.html', 'Book'],
-  ['/contact', 'contact.html', 'Contact'],
   ['/privacy', 'privacy.html', 'Privacy'],
   ['/404', '404.html', '404'],
 ];

@@ -64,7 +64,6 @@ const PAGES = [
   ['about.html', '/about', 'It was never a product problem'],
   ['blog.html', '/blog', 'Working notes on search, positioning'],
   ['book.html', '/book', 'Thirty minutes'],
-  ['contact.html', '/contact', 'What’s not working?'],
   ['thanks.html', '/thanks', 'within a business day'],
   ['privacy.html', '/privacy', 'This site collects almost nothing'],
   ['404.html', '/404', 'opposite of the problem we usually solve'],
@@ -424,16 +423,25 @@ for (const file of [
 }
 
 heading('Forms');
-const contact = documents.get('/contact');
-if (contact?.includes('data-netlify="true"') && contact.includes('name="form-name"')) {
-  pass('contact form is wired to Netlify Forms');
+/* The enquiry form on /about is the only long-form enquiry route now that
+   /contact is gone. These two checks used to point at /contact, so they move
+   rather than disappear — a form that quietly loses its Netlify wiring looks
+   exactly like a form nobody filled in. */
+const enquiry = documents.get('/about');
+if (enquiry?.includes('data-netlify="true"') && enquiry.includes('name="form-name"')) {
+  pass('the enquiry form is wired to Netlify Forms');
 } else {
-  fail('contact form is missing Netlify Forms attributes');
+  fail('the enquiry form is missing Netlify Forms attributes');
 }
-if (contact?.includes('netlify-honeypot')) {
-  pass('contact form has a honeypot');
+if (enquiry?.includes('netlify-honeypot')) {
+  pass('the enquiry form has a honeypot');
 } else {
-  fail('contact form has no honeypot');
+  fail('the enquiry form has no honeypot');
+}
+if (documents.has('/contact')) {
+  fail('/contact is back — it was retired in favour of /about#enquiry');
+} else {
+  pass('/contact is retired');
 }
 
 heading('Client-supplied values');
@@ -618,7 +626,7 @@ if (await exists(path.join(root, 'public', 'images', '.placeholder-headshot'))) 
 heading('Still to do by hand');
 console.log('  - Lighthouse on mobile: Performance >= 95, Accessibility 100, SEO 100');
 console.log('  - Validate JSON-LD in Google’s Rich Results Test');
-console.log('  - Submit a real contact-form entry after the first deploy');
+console.log('  - Submit a real entry through each form: enquiry, question, newsletter');
 console.log('  - Keyboard-navigate every page');
 console.log('  - Open the site on a real phone');
 

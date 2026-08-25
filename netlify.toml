@@ -10,6 +10,15 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# /contact was retired in favour of the enquiry form on /about. The URL was in
+# the sitemap while the site was live, so anything that already crawled it gets
+# sent on rather than met with a 404.
+[[redirects]]
+  from = "/contact"
+  to = "/about#enquiry"
+  status = 301
+  force = true
+
 # www to the apex, so one hostname is canonical.
 #
 # This only fires for hostnames Netlify already routes here. If www is not

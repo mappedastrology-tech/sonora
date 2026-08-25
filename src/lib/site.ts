@@ -106,7 +106,6 @@ export const PAGE_LABELS: Record<string, string> = {
   '/why-now': 'Why now',
   '/blog': 'Blog',
   '/book': 'Book a call',
-  '/contact': 'Contact',
   '/privacy': 'Privacy',
 };
 
