@@ -304,6 +304,36 @@ dashboard within a day of the site going live.
 
 To change the property later, edit `GA_MEASUREMENT_ID` in `src/lib/site.ts`.
 
+### If Analytics says "No data received from your website yet"
+
+That banner is about hits arriving, not about the tag being installed, and it
+clears on its own once one real visit lands. Three things to check, cheapest
+first:
+
+1. **Look at Realtime, not Home.** Reports → Realtime shows a visit within
+   seconds. Home lags by up to a day and keeps the banner up long after the
+   first hit.
+2. **Turn off your ad blocker, or use a private window.** uBlock, Brave's
+   shields, Safari's tracking prevention and most privacy extensions all block
+   Google Analytics outright. If you are the only visitor so far and you browse
+   with any of those, Analytics correctly reports nothing.
+3. **Confirm a visit happened after the tag deployed.** The measurement ID went
+   live at 21:45 UTC on 25 August. Visits before that went to the old property.
+
+What does *not* need checking is whether the tag is on the page: `npm run
+verify` fails the build if it is missing from any page, if it stops making
+`gtag` global, or if the CSP would block a hit.
+
+### One trap worth knowing about
+
+The snippet uses `set:html`, not Astro's `define:vars`. `define:vars` wraps the
+script in an IIFE, and the failure that causes is genuinely nasty: page views
+keep working, because `gtag.js` reads `window.dataLayer` directly, so Analytics
+looks perfectly healthy — but `window.gtag` is never defined, so every event
+fired from elsewhere on the site (the fit quiz) silently does nothing. No
+console error, no missing traffic, no signal at all. The site shipped that way
+briefly. `npm run verify` now fails on it, so it cannot come back quietly.
+
 ### Why there is no cookie banner
 
 Google Analytics sets cookies, and in the EU and UK that normally needs consent

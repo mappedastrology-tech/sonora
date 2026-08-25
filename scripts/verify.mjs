@@ -480,6 +480,49 @@ if (gaOnEveryPage) {
   fail('Google tag missing from at least one page');
 }
 
+/*
+ * gtag has to be global, and this is not a style preference.
+ *
+ * Writing the snippet with Astro's define:vars wraps it in an IIFE. Page views
+ * survive that, because gtag.js reads window.dataLayer directly, so the tag
+ * looks entirely healthy in Google Analytics. What breaks is every call from
+ * elsewhere on the site — window.gtag('event', …) from the fit quiz — which
+ * becomes a silent no-op. Nothing surfaces it: no console error, no missing
+ * page views, just an event that never arrives. Hence a check.
+ */
+const gaScope = [...documents.entries()].filter(
+  ([, source]) => !source.includes('window.gtag = gtag')
+);
+if (gaScope.length) {
+  fail(
+    `the analytics snippet does not make gtag global on ${gaScope
+      .map(([route]) => route)
+      .join(', ')} — events fired from the page will be dropped`
+  );
+} else if ([...documents.values()].some((s) => /\(function\(\)\{[^]{0,80}dataLayer/.test(s))) {
+  fail('the analytics snippet is wrapped in an IIFE again — define:vars is back');
+} else {
+  pass('the analytics snippet makes gtag global, so page events are recorded');
+}
+
+/* Every endpoint GA4 actually posts to has to be in the CSP, or the hit is
+   blocked in the browser and never reaches the property. Region-routed hits go
+   to region1.google-analytics.com and friends, hence the wildcards. */
+const netlifyConfig = await readFile(path.join(root, 'netlify.toml'), 'utf8');
+const csp = /Content-Security-Policy = "([^"]+)"/.exec(netlifyConfig)?.[1] ?? '';
+const connectSrc = /connect-src ([^;]+);/.exec(csp)?.[1] ?? '';
+const gaEndpoints = [
+  'https://www.google-analytics.com',
+  'https://*.google-analytics.com',
+  'https://analytics.google.com',
+];
+const missingEndpoints = gaEndpoints.filter((host) => !connectSrc.includes(host));
+if (missingEndpoints.length) {
+  fail(`the CSP connect-src is missing ${missingEndpoints.join(', ')}`);
+} else {
+  pass('the CSP allows every endpoint GA4 sends hits to');
+}
+
 const book = documents.get('/book');
 const schedulerFrame = /<iframe[^>]+src="([^"]*calendar\.google\.com[^"]*)"/.exec(book ?? '');
 if (schedulerFrame && schedulerFrame[1].includes('gv=true')) {
