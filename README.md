@@ -304,7 +304,7 @@ strangers.
 ## Analytics
 
 Google Analytics is installed on every page, using your measurement ID
-`G-L1SZMT6MFL`. Nothing to configure. Traffic shows up in your Google Analytics
+`G-1Y3VHRLY9Q`. Nothing to configure. Traffic shows up in your Google Analytics
 dashboard within a day of the site going live.
 
 To change the property later, edit `GA_MEASUREMENT_ID` in `src/lib/site.ts`.

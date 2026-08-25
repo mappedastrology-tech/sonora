@@ -85,7 +85,7 @@ export const BOOKING_EMBED_URL = BOOKING_URL.includes('gv=true')
   : `${BOOKING_URL}${BOOKING_URL.includes('?') ? '&' : '?'}gv=true`;
 
 /** Google Analytics 4 measurement ID. */
-export const GA_MEASUREMENT_ID = 'G-L1SZMT6MFL';
+export const GA_MEASUREMENT_ID = 'G-1Y3VHRLY9Q';
 
 /** Profiles that belong in JSON-LD `sameAs`. */
 export const SAME_AS: string[] = [LINKEDIN_URL];
