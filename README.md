@@ -303,6 +303,107 @@ dashboard within a day of the site going live.
 
 To change the property later, edit `GA_MEASUREMENT_ID` in `src/lib/site.ts`.
 
+### Seeing where visitors came from
+
+**Reports → Acquisition → Traffic acquisition** answers this with no setup at
+all. It lists each source as *source / medium*: `linkedin.com / referral`,
+`google / organic`, `chatgpt.com / referral`, `(direct) / (none)`. Add *Landing
+page* as a secondary dimension and you also see which page they arrived on.
+
+The catch is that referrers go missing more often than people expect. LinkedIn's
+mobile app opens links in its own in-app browser, so those arrive as `lnkd.in`
+or as direct. Email clients, Slack, DMs and PDFs almost always arrive as direct.
+Anything you paste anywhere is affected.
+
+The fix is to tag the links you post yourself.
+
+#### Tagging your own links
+
+Add these to the end of any URL you share. Everything after `?` is invisible to
+the reader and does not change the page:
+
+```
+?utm_source=linkedin&utm_medium=social&utm_campaign=aug26-ai-answers
+```
+
+| Parameter | What goes in it | Examples |
+| --- | --- | --- |
+| `utm_source` | The specific place | `linkedin`, `newsletter`, `podcast-name` |
+| `utm_medium` | The kind of place | `social`, `email`, `profile`, `referral` |
+| `utm_campaign` | Which push it was | `aug26-ai-answers`, `bio`, `issue-01` |
+| `utm_content` | Optional, to compare two versions of the same post | `hook-a`, `hook-b` |
+
+Ready to copy:
+
+- LinkedIn post →
+  `https://sonoramethod.com/blog/why-rankings-dont-get-you-into-ai-answers?utm_source=linkedin&utm_medium=social&utm_campaign=aug26-ai-answers`
+- LinkedIn profile link →
+  `https://sonoramethod.com?utm_source=linkedin&utm_medium=profile&utm_campaign=bio`
+- Newsletter →
+  `https://sonoramethod.com/services?utm_source=newsletter&utm_medium=email&utm_campaign=issue-01`
+
+Two rules worth keeping:
+
+1. **Always lowercase.** Analytics is case-sensitive, so `LinkedIn` and
+   `linkedin` become two separate rows that never add up.
+2. **Never tag a link between two pages of your own site.** It starts a new
+   session and erases the source the visitor actually arrived from.
+
+### What the site records beyond page views
+
+Three events, all of them about behaviour and none about identity:
+
+| Event | Fires when | Carries |
+| --- | --- | --- |
+| `book_click` | A "book a call" link is clicked | `placement` (nav, hero, cta, closing, fit), `from_page` |
+| `form_submit` | Any of the three forms is sent | `form_name`, `from_page` |
+| `fit_recommendation` | The services-page quiz gives a result | `recommendation` |
+
+Booking completes inside Google's calendar iframe, which is a different origin —
+nothing on this site can see it happen. `book_click` is the closest measurable
+step to a booking, and `placement` tells you which call to action earned it.
+
+Two settings are needed before any of that is visible in reports.
+
+**1. Register the parameters as custom dimensions.** Analytics collects custom
+parameters but will not report on them until each one is registered, and it does
+**not** backfill — only data from the moment you create it forward. So do this
+before you need it.
+
+> Admin → Custom definitions → Create custom dimension → Scope: **Event**
+
+Create four, where "event parameter" is the exact lowercase name:
+
+| Dimension name | Event parameter |
+| --- | --- |
+| Booking link placement | `placement` |
+| Clicked from page | `from_page` |
+| Form name | `form_name` |
+| Fit recommendation | `recommendation` |
+
+**2. Mark the two that matter as key events.** This is what turns them into
+conversions, so every acquisition report can show them per source — which is the
+report that answers "is LinkedIn actually producing enquiries".
+
+> Admin → Events → find `book_click` and `form_submit` → toggle **Mark as key
+> event**
+
+An event has to have fired at least once before it appears in that list, so
+click a booking link on the live site first.
+
+### Two more things worth switching on
+
+**Enhanced measurement** should already be on, and gives you scroll depth,
+outbound clicks and file downloads for free. Confirm at Admin → Data streams →
+the stream → **Enhanced measurement**.
+
+**Link Search Console** once the site is verified there. It puts the actual
+search queries people used into Analytics, next to what they then did on the
+site — for a business built on search visibility, this is the most useful single
+integration available to you.
+
+> Admin → Product links → Search Console links → Link
+
 ### If Analytics says "No data received from your website yet"
 
 That banner is about hits arriving, not about the tag being installed, and it
