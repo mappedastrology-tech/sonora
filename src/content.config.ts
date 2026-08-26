@@ -16,6 +16,9 @@ const blog = defineCollection({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
+    /* Set this when a post is revised. It becomes the sitemap's lastmod, so a
+       correction is visible to a crawler without faking the original date. */
+    updated: z.coerce.date().optional(),
     author: z.string().default('Taylor Corbett'),
     draft: z.boolean().default(false),
     image: z.string().optional(),

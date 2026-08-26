@@ -9,14 +9,22 @@
  *   - `alumniOf` or any past employer on the Person node
  *   - `offers`, `price`, or any price field on the Service nodes
  */
-import { SITE_URL, SITE_NAME, DESCRIPTOR, EMAIL, AUTHOR, SAME_AS } from './site';
+import {
+  SITE_URL,
+  SITE_NAME,
+  DESCRIPTOR,
+  EMAIL,
+  AUTHOR,
+  SAME_AS,
+  absoluteUrl,
+} from './site';
 
 export const ORG_ID = `${SITE_URL}/#organization`;
 export const SITE_ID = `${SITE_URL}/#website`;
 export const PERSON_ID = `${SITE_URL}/about#person`;
 
 export const abs = (path: string): string =>
-  path.startsWith('http') ? path : `${SITE_URL}${path}`;
+  path.startsWith('http') ? path : absoluteUrl(path);
 
 export function organizationSchema() {
   return {

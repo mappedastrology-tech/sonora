@@ -6,7 +6,7 @@
  * time rather than shipping a duplicate or empty tag — silent SEO breakage is
  * the failure mode this component exists to prevent.
  */
-import { SITE_NAME, SITE_URL } from '../lib/site';
+import { SITE_NAME, SITE_URL, absoluteUrl } from '../lib/site';
 import { buildGraph } from '../lib/schema';
 
 interface Props {
@@ -57,7 +57,7 @@ if (description.length > 155) {
   );
 }
 
-const canonical = new URL(path, SITE_URL).href;
+const canonical = absoluteUrl(path);
 const ogImage = new URL(image, SITE_URL).href;
 const jsonLd = JSON.stringify(buildGraph(schema));
 ---

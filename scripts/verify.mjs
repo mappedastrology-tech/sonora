@@ -405,6 +405,43 @@ for (const agent of ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 
 }
 if (robots.includes('Sitemap:')) pass('robots.txt references the sitemap');
 
+/*
+ * The sitemap has to agree with the pages it points at.
+ *
+ * Two things go wrong here quietly. A homepage whose <loc> and whose own
+ * canonical disagree by a trailing slash is a discrepancy nobody can explain
+ * later — and it cannot be fixed in the sitemap, because @astrojs/sitemap
+ * rewrites the root entry as a string replace after serialize() runs, so the
+ * canonical is what has to move. And lastmod is worth having only while it is
+ * true: dates that come from a build clock rather than a real change are the
+ * reason crawlers learn to ignore the field.
+ */
+const sitemapXml = await readFile(path.join(dist, 'sitemap-0.xml'), 'utf8');
+const locs = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+const homeLoc = locs.find((loc) => new URL(loc).pathname === '/');
+const homeCanonical = /<link rel="canonical" href="([^"]+)"/.exec(
+  documents.get('/') ?? ''
+)?.[1];
+if (homeLoc && homeLoc === homeCanonical) {
+  pass('the homepage sitemap entry and its canonical are the same URL');
+} else {
+  fail(`homepage sitemap entry is ${homeLoc}, but its canonical is ${homeCanonical}`);
+}
+
+const entries = [...sitemapXml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map((m) => m[1]);
+const undated = entries.filter((entry) => !/<lastmod>/.test(entry));
+const buildDay = new Date().toISOString().slice(0, 10);
+const everythingToday =
+  entries.length > 2 &&
+  entries.every((entry) => entry.includes(`<lastmod>${buildDay}`));
+if (everythingToday) {
+  fail('every sitemap lastmod is today — the dates are coming from the build clock');
+} else if (undated.length) {
+  warn(`${undated.length} sitemap entr${undated.length === 1 ? 'y has' : 'ies have'} no lastmod`);
+} else {
+  pass(`every sitemap entry carries a lastmod (${entries.length} URLs)`);
+}
+
 heading('Icons and social images');
 for (const file of [
   'favicon.ico',

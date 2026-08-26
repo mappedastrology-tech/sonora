@@ -7,6 +7,20 @@
 
 export const SITE_URL = 'https://sonoramethod.com';
 
+/**
+ * The absolute URL for a site-root-relative path.
+ *
+ * The root is emitted bare — `https://sonoramethod.com`, no trailing slash —
+ * because the sitemap writer in @astrojs/sitemap rewrites the homepage entry
+ * that way whenever trailingSlash is 'never' or the build format is 'file',
+ * both of which this site uses. It does that as a string replace on the
+ * finished XML, after serialize() has run, so the sitemap cannot be talked out
+ * of it. The two forms are equivalent for the root, but only one of them can be
+ * the one this site uses, and the sitemap picked first.
+ */
+export const absoluteUrl = (path: string): string =>
+  path === '/' || path === '' ? SITE_URL : `${SITE_URL}${path}`;
+
 export const SITE_NAME = 'Sonora';
 
 /** The brand line. */

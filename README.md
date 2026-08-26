@@ -303,6 +303,36 @@ dashboard within a day of the site going live.
 
 To change the property later, edit `GA_MEASUREMENT_ID` in `src/lib/site.ts`.
 
+### The sitemap
+
+`sitemap-index.xml` and `sitemap-0.xml` are generated at build time. Two details
+are deliberate and easy to "fix" wrongly:
+
+**Every URL carries a `lastmod`, and none of them come from the build clock.**
+A post is dated from its own frontmatter — `updated` if you set it, otherwise
+`date`. Every other page is dated from the commit that last touched its source
+file. The tempting one-liner is to stamp everything with the build time, and it
+is worse than having no dates at all: it claims the whole site changed on every
+deploy, and dates that are noise are dates a crawler learns to ignore. `npm run
+verify` fails if every entry ends up dated today, which is what that mistake
+looks like from the outside.
+
+If you revise a post and want that visible to crawlers, add `updated:
+2026-09-14` to its frontmatter. The original `date` stays as the publication
+date.
+
+**The homepage appears as `https://sonoramethod.com`, with no trailing slash,
+and its canonical matches.** That is not adjustable in the sitemap config:
+whenever `trailingSlash` is `never` or the build format is `file` — this site
+uses both — the sitemap integration rewrites the root entry that way as a text
+replace on the finished XML, after any `serialize()` hook has run. So the
+canonical, `og:url` and JSON-LD are all built through `absoluteUrl()` in
+`src/lib/site.ts`, which emits the root bare to match. Verify checks the
+homepage `<loc>` and its canonical are the same string.
+
+Both forms are equivalent for a root URL, so this is about the two never
+disagreeing rather than one being right.
+
 ### Seeing where visitors came from
 
 **Reports → Acquisition → Traffic acquisition** answers this with no setup at
