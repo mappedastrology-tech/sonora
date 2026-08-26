@@ -353,25 +353,68 @@ async function generateFavicons() {
    * A paper tile settles it from the other direction: ink on paper is 17.4:1,
    * and a light tile reads as a light tile whatever the browser paints behind
    * it. Paper and ink rather than white and black, which the palette bars.
+   *
+   * The small sizes are DRAWN, not resized.
+   *
+   * Downscaling the brand mark was the second thing that went wrong here. The
+   * mark is an arch plus a crescent above and below, and it is portrait — 0.69
+   * wide for its height. Fitting that into a square fits it by height, so at
+   * 16px the result was 7 pixels wide, bleeding top edge to bottom edge, with
+   * the two crescents reduced to grey smudges. It measured perfectly: paper in
+   * the corners, ink in the middle. It just did not look like anything.
+   *
+   * So the tab sizes get the arch alone, drawn as vector at each size: the
+   * silhouette that survives 16 pixels, with real margin around it. The
+   * crescents stay on the 180px home-screen icon, where there is room to read
+   * them.
    */
-  const resize = (size) =>
-    sharp(source)
-      .resize(size, size, { fit: 'contain', background: PAPER })
+  const archTile = (size) => {
+    const height = size * 0.84;
+    const width = height * 0.7; // the brand arch's own proportion
+    const x = (size - width) / 2;
+    const y = (size - height) / 2;
+    const r = width / 2;
+    const arch = [
+      `M ${x} ${y + height}`,
+      `L ${x} ${y + r}`,
+      `A ${r} ${r} 0 0 1 ${x + width} ${y + r}`,
+      `L ${x + width} ${y + height}`,
+      'Z',
+    ].join(' ');
+    return [
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"`,
+      ` viewBox="0 0 ${size} ${size}">`,
+      `<rect width="${size}" height="${size}" fill="${PAPER}"/>`,
+      `<path d="${arch}" fill="${INK}"/>`,
+      '</svg>',
+    ].join('');
+  };
+
+  // Flattened to RGB: resvg emits an alpha channel, and an icon that carries
+  // one — even fully opaque — is the thing that went wrong the first time.
+  const drawn = (size) =>
+    sharp(Buffer.from(new Resvg(archTile(size), { fitTo: { mode: 'original' } }).render().asPng()))
       .flatten({ background: PAPER })
       .png()
       .toBuffer();
 
-  const [png16, png32, png48, png180] = await Promise.all([
-    resize(16),
-    resize(32),
-    resize(48),
-    resize(180),
-  ]);
+  // The full mark, with its crescents, on the same paper tile. 180px is a home
+  // screen icon, so the detail is legible there.
+  const touchIcon = await sharp({
+    create: { width: 180, height: 180, channels: 3, background: PAPER },
+  })
+    .composite([{ input: await sharp(source).resize({ height: 152, fit: 'inside' }).toBuffer() }])
+    .flatten({ background: PAPER })
+    .removeAlpha()
+    .png()
+    .toBuffer();
+
+  const [png16, png32, png48] = await Promise.all([drawn(16), drawn(32), drawn(48)]);
 
   await Promise.all([
     writeFile(path.join(publicDir, 'favicon-16.png'), png16),
     writeFile(path.join(publicDir, 'favicon-32.png'), png32),
-    writeFile(path.join(publicDir, 'apple-touch-icon.png'), png180),
+    writeFile(path.join(publicDir, 'apple-touch-icon.png'), touchIcon),
     writeFile(
       path.join(publicDir, 'favicon.ico'),
       buildIco([
@@ -382,7 +425,7 @@ async function generateFavicons() {
     ),
   ]);
 
-  log('favicons: ico, 16, 32, 48, apple-touch — ink on paper, opaque');
+  log('favicons: 16/32/48 arch drawn at size, apple-touch full mark — ink on paper, opaque');
 }
 
 /**

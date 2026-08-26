@@ -7,6 +7,7 @@
  *
  * Usage: npm run build && npm run verify
  */
+import sharp from 'sharp';
 import { readFile, readdir, access } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -673,6 +674,76 @@ const REQUIRED_BRAND = [
   'sonora-icon.png',
   'sonora-arch.png',
 ];
+/*
+ * The tab icon has to look like the arch, not merely contain ink.
+ *
+ * This check exists because the previous version passed every test I had. The
+ * brand mark is portrait — 0.69 wide for its height — so resizing it into a
+ * square fitted it by height: at 16px the arch came out 7 pixels wide, running
+ * from the top edge to the bottom edge, with the crescents reduced to grey
+ * smudges. Sampling a corner returned paper and sampling the middle returned
+ * ink, so it read as correct and looked like a bruise. Geometry is the thing
+ * that catches it: a mark with no margin is a mark bleeding off its tile, and
+ * one that fills almost nothing is a mark nobody can identify.
+ */
+const markGeometry = async (file) => {
+  const { data, info } = await sharp(file).raw().toBuffer({ resolveWithObject: true });
+  const { width, height, channels } = info;
+  let x0 = width, y0 = height, x1 = -1, y1 = -1;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const i = (y * width + x) * channels;
+      const luminance = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      if (luminance < 140) {
+        if (x < x0) x0 = x;
+        if (y < y0) y0 = y;
+        if (x > x1) x1 = x;
+        if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) return null;
+  return {
+    width,
+    height,
+    margin: Math.min(x0, y0, width - 1 - x1, height - 1 - y1),
+    fillX: (x1 - x0 + 1) / width,
+    fillY: (y1 - y0 + 1) / height,
+  };
+};
+
+for (const icon of ['favicon-16.png', 'favicon-32.png', 'apple-touch-icon.png']) {
+  const file = path.join(dist, icon);
+  if (!(await exists(file))) {
+    fail(`${icon} is missing`);
+    continue;
+  }
+  const geometry = await markGeometry(file);
+  if (!geometry) {
+    fail(`${icon} has no dark mark on it at all`);
+  } else if (geometry.margin < 1) {
+    fail(`${icon}: the mark touches the edge of the tile — it is bleeding, not fitted`);
+  } else if (geometry.fillY > 0.9) {
+    /* 1px of margin at 32px is still effectively bleeding — the old broken
+       version cleared the margin test at that size and failed here. */
+    fail(
+      `${icon}: the mark fills ${Math.round(geometry.fillY * 100)}% of the tile's height — no breathing room`
+    );
+  } else if (geometry.fillY < 0.5 || geometry.fillX < 0.3) {
+    fail(
+      `${icon}: the mark fills only ${Math.round(geometry.fillX * 100)}% x ${Math.round(
+        geometry.fillY * 100
+      )}% of the tile — too small to read`
+    );
+  } else {
+    pass(
+      `${icon}: arch fills ${Math.round(geometry.fillX * 100)}% x ${Math.round(
+        geometry.fillY * 100
+      )}%, margin ${geometry.margin}px`
+    );
+  }
+}
+
 for (const file of REQUIRED_BRAND) {
   if (await exists(path.join(brandDir, file))) {
     pass(`public/brand/${file}`);
