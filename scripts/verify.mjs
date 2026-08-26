@@ -513,6 +513,35 @@ if (gaScope.length) {
   pass('the analytics snippet makes gtag global, so page events are recorded');
 }
 
+/* Events are worth nothing if the privacy page does not describe them, and the
+   page is the thing that gets forgotten. Each event the site can send has to be
+   accounted for there. */
+const EVENTS = [
+  ['fit_recommendation', /which of the four recommendations came up/],
+  ['book_click', /book a call.{0,40}link was clicked/is],
+  ['form_submit', /a form was sent and which form it was/],
+];
+const privacyPage = documents.get('/privacy') ?? '';
+const sent = new Set();
+for (const source of documents.values()) {
+  /* The bundler rewrites quotes, so match the bare event name. */
+  for (const [name] of EVENTS) if (source.includes(name)) sent.add(name);
+}
+const undocumented = EVENTS.filter(([name, pattern]) => sent.has(name) && !pattern.test(privacyPage));
+if (undocumented.length) {
+  fail(
+    `the privacy page does not describe ${undocumented
+      .map(([name]) => name)
+      .join(', ')}, which the site sends`
+  );
+} else if (sent.size !== EVENTS.length) {
+  warn(
+    `only ${[...sent].join(', ')} reached the built pages — an event was dropped somewhere`
+  );
+} else {
+  pass('every analytics event the site sends is described on the privacy page');
+}
+
 /* Every endpoint GA4 actually posts to has to be in the CSP, or the hit is
    blocked in the browser and never reaches the property. Region-routed hits go
    to region1.google-analytics.com and friends, hence the wildcards. */

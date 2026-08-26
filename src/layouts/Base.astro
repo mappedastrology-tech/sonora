@@ -219,6 +219,59 @@ const { title, description, path, image, ogType, schema, noindex, bodyClass } =
           blocks.forEach((el) => armBlock(el, false));
         }, 12000);
       }
+
+      /*
+       * The two things worth counting that page views cannot tell you.
+       *
+       * Booking happens inside Google's calendar iframe, which is another
+       * origin — nothing on this side can see a booking complete. The click
+       * that reaches the booking page is the closest measurable step, so it is
+       * the one recorded, along with where on the site it was clicked from.
+       *
+       * Form submissions all land on /thanks, so the page view already counts
+       * them; what it cannot say is which form was sent. Only the form's name
+       * goes out — never a field value.
+       *
+       * Both are wrapped in window.gtag?.() so a blocked or absent tag costs
+       * nothing. Delegated from the document, so links added later are covered
+       * without registering anything.
+       */
+      const trackArea = (el: Element) => {
+        if (el.closest('nav')) return 'nav';
+        if (el.closest('footer')) return 'footer';
+        /* The enclosing section names itself well enough — hero, cta, closing,
+           fit. Skip the layout-only classes so the label is the one a human
+           would use, and fall back rather than reporting something useless
+           like "main". */
+        const section = el.closest('section');
+        const named = [...(section?.classList ?? [])].find(
+          (name) => name !== 'section' && !name.startsWith('surface-')
+        );
+        return section?.id || named || 'page';
+      };
+
+      document.addEventListener('click', (event) => {
+        const target = event.target as Element | null;
+        const link = target?.closest?.('a[href]') as HTMLAnchorElement | null;
+        if (!link) return;
+        const href = link.getAttribute('href') ?? '';
+        if (href !== '/book' && !href.startsWith('/book?') && !href.startsWith('/book#')) {
+          return;
+        }
+        window.gtag?.('event', 'book_click', {
+          placement: trackArea(link),
+          from_page: window.location.pathname,
+        });
+      });
+
+      document.addEventListener('submit', (event) => {
+        const form = event.target as HTMLFormElement | null;
+        if (!form?.hasAttribute?.('data-netlify')) return;
+        window.gtag?.('event', 'form_submit', {
+          form_name: form.getAttribute('name') ?? 'unnamed',
+          from_page: window.location.pathname,
+        });
+      });
     </script>
   </body>
 </html>
