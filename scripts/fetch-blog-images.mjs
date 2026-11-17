@@ -18,21 +18,30 @@ const manifest = JSON.parse(
 );
 
 let fetched = 0;
+const failures = [];
 for (const [localPath, sourceUrl] of Object.entries(manifest)) {
   const target = join(root, 'public', localPath);
   try {
     await access(target);
     continue;
   } catch {}
-  const res = await fetch(sourceUrl, {
-    headers: { 'user-agent': 'Mozilla/5.0 (sonoramethod.com build)' },
-    redirect: 'follow',
-  });
-  if (!res.ok) {
-    throw new Error(`Could not download ${sourceUrl} for ${localPath}: HTTP ${res.status}`);
+  try {
+    const res = await fetch(sourceUrl, {
+      headers: {
+        'user-agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36',
+        accept: 'image/webp,image/png,image/jpeg,image/*;q=0.8',
+      },
+      redirect: 'follow',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    await mkdir(dirname(target), { recursive: true });
+    await writeFile(target, Buffer.from(await res.arrayBuffer()));
+    fetched++;
+  } catch (err) {
+    failures.push(`${localPath} <- ${sourceUrl}: ${err.message}`);
   }
-  await mkdir(dirname(target), { recursive: true });
-  await writeFile(target, Buffer.from(await res.arrayBuffer()));
-  fetched++;
 }
-console.log(`[blog-images] ${fetched} downloaded, ${Object.keys(manifest).length - fetched} already present`);
+console.log(`[blog-images] ${fetched} downloaded, ${failures.length} failed`);
+await writeFile(join(root, 'public/blog-images-report.txt'), `fetched ${fetched}\n` + failures.join('\n') + '\n');
+if (failures.length) console.error(failures.join('\n'));
