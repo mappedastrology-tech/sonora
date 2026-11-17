@@ -43,5 +43,7 @@ for (const [localPath, sourceUrl] of Object.entries(manifest)) {
   }
 }
 console.log(`[blog-images] ${fetched} downloaded, ${failures.length} failed`);
-await writeFile(join(root, 'public/blog-images-report.txt'), `fetched ${fetched}\n` + failures.join('\n') + '\n');
-if (failures.length) console.error(failures.join('\n'));
+if (failures.length) {
+  console.error(failures.join('\n'));
+  process.exit(1);
+}
